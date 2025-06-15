@@ -1,0 +1,282 @@
+
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Play, Save, Share, Heart } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+interface ManifestationFormData {
+  name: string;
+  goal: string;
+  customAffirmations: string;
+  tone: string;
+  voiceStyle: string;
+  backgroundMusic: string;
+}
+
+const ManifestationCreator = () => {
+  const { toast } = useToast();
+  const [formData, setFormData] = useState<ManifestationFormData>({
+    name: '',
+    goal: '',
+    customAffirmations: '',
+    tone: '',
+    voiceStyle: '',
+    backgroundMusic: ''
+  });
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+  const toneOptions = [
+    { value: 'empowering', label: 'Empowering' },
+    { value: 'soothing', label: 'Soothing' },
+    { value: 'motivational', label: 'Motivational' },
+    { value: 'spiritual', label: 'Spiritual' }
+  ];
+
+  const voiceOptions = [
+    { value: 'female', label: 'Female' },
+    { value: 'male', label: 'Male' },
+    { value: 'neutral', label: 'Neutral' },
+    { value: 'whisper', label: 'Whisper' }
+  ];
+
+  const musicOptions = [
+    { value: 'ocean', label: 'Ocean Waves' },
+    { value: 'forest', label: 'Forest Sounds' },
+    { value: 'piano', label: 'Gentle Piano' },
+    { value: 'lofi', label: 'Lo-fi Beats' },
+    { value: 'bells', label: 'Temple Bells' }
+  ];
+
+  const handleInputChange = (field: keyof ManifestationFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleGenerate = async () => {
+    if (!formData.name || !formData.goal || !formData.tone || !formData.voiceStyle || !formData.backgroundMusic) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields to generate your manifestation.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      // Here we'll integrate with ElevenLabs API later
+      // For now, simulate audio generation
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Mock audio URL - replace with actual generated audio
+      setAudioUrl('/placeholder-audio.mp3');
+      
+      toast({
+        title: "Manifestation Created! ✨",
+        description: "Your personalized affirmation is ready to transform your reality."
+      });
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "There was an error creating your manifestation. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleSave = () => {
+    toast({
+      title: "Saved to Library",
+      description: "Your manifestation has been added to your personal collection."
+    });
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold gradient-text font-playfair mb-2">
+          Manifestation Creator
+        </h1>
+        <p className="text-gray-600 font-light">
+          Transform your intentions into powerful spoken affirmations
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Form Section */}
+        <Card className="goal-card">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Heart className="w-5 h-5 text-purple-500" />
+              <span>Your Manifestation Details</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label htmlFor="name">What should we call you?</Label>
+              <Input
+                id="name"
+                placeholder="Enter your name..."
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                className="mt-2"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="goal">What's your heart's desire?</Label>
+              <Textarea
+                id="goal"
+                placeholder="I want to manifest abundance and financial freedom..."
+                value={formData.goal}
+                onChange={(e) => handleInputChange('goal', e.target.value)}
+                className="mt-2 min-h-20"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="affirmations">Custom Affirmations (Optional)</Label>
+              <Textarea
+                id="affirmations"
+                placeholder="Add your own personal affirmations here..."
+                value={formData.customAffirmations}
+                onChange={(e) => handleInputChange('customAffirmations', e.target.value)}
+                className="mt-2 min-h-16"
+              />
+            </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label>Affirmation Tone</Label>
+                <Select value={formData.tone} onValueChange={(value) => handleInputChange('tone', value)}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Choose tone..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {toneOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Voice Style</Label>
+                <Select value={formData.voiceStyle} onValueChange={(value) => handleInputChange('voiceStyle', value)}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Choose voice..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {voiceOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label>Background Music</Label>
+              <Select value={formData.backgroundMusic} onValueChange={(value) => handleInputChange('backgroundMusic', value)}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Choose ambiance..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {musicOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button 
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              size="lg"
+            >
+              {isGenerating ? 'Creating Magic...' : 'Generate Manifestation'}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Preview Section */}
+        <Card className="goal-card">
+          <CardHeader>
+            <CardTitle>Audio Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {audioUrl ? (
+              <div className="space-y-6">
+                {/* Waveform Placeholder */}
+                <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
+                  <div className="w-full h-20 bg-gradient-to-r from-purple-300 to-pink-300 rounded-lg flex items-center justify-center">
+                    <Play className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="text-sm text-gray-600 mt-4">Your manifestation audio is ready!</p>
+                </div>
+
+                {/* Player Controls */}
+                <div className="flex space-x-4">
+                  <Button variant="outline" className="flex-1">
+                    <Play className="w-4 h-4 mr-2" />
+                    Play
+                  </Button>
+                  <Button variant="outline" onClick={handleSave}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save
+                  </Button>
+                  <Button variant="outline">
+                    <Share className="w-4 h-4 mr-2" />
+                    Share
+                  </Button>
+                </div>
+
+                {/* Mood Tracker */}
+                <div className="border-t pt-4">
+                  <Label className="text-sm font-medium">How are you feeling?</Label>
+                  <div className="flex space-x-2 mt-2">
+                    {['😔', '😐', '🙂', '😊', '✨'].map((emoji, index) => (
+                      <Button
+                        key={index}
+                        variant="ghost"
+                        size="sm"
+                        className="text-2xl hover:scale-110 transition-transform"
+                      >
+                        {emoji}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <Play className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Generate your manifestation to see the preview</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default ManifestationCreator;
