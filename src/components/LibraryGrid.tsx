@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Heart, ArrowLeft } from "lucide-react";
+import { Play, Heart, ArrowLeft, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Manifestation {
   id: string;
@@ -22,7 +22,9 @@ interface Manifestation {
 
 const LibraryGrid = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [manifestations, setManifestations] = useState<Manifestation[]>([]);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch manifestations from Supabase
@@ -44,6 +46,40 @@ const LibraryGrid = () => {
   const handlePlay = (manifestation: Manifestation) => {
     // Navigate to the immersive Now Playing screen
     navigate(`/now-playing?id=${manifestation.id}`);
+  };
+
+  const handleDelete = async (manifestationId: string) => {
+    setDeletingId(manifestationId);
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { error } = await supabase
+        .from("manifestations")
+        .delete()
+        .eq("id", manifestationId);
+
+      if (error) {
+        toast({
+          title: "Delete failed",
+          description: "There was an error deleting your manifestation.",
+          variant: "destructive"
+        });
+      } else {
+        // Remove from local state
+        setManifestations(prev => prev.filter(m => m.id !== manifestationId));
+        toast({
+          title: "Deleted successfully",
+          description: "Your manifestation has been removed from your library."
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Delete failed",
+        description: "There was an error deleting your manifestation.",
+        variant: "destructive"
+      });
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -85,14 +121,25 @@ const LibraryGrid = () => {
                     {manifestation.text}
                   </p>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                  onClick={() => handlePlay(manifestation)}
-                >
-                  <Play className="w-4 h-4" />
-                </Button>
+                <div className="flex space-x-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    onClick={() => handlePlay(manifestation)}
+                  >
+                    <Play className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => handleDelete(manifestation.id)}
+                    disabled={deletingId === manifestation.id}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
               <div className="flex flex-wrap gap-2 mb-4">
                 {manifestation.voice && (
