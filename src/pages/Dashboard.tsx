@@ -111,7 +111,10 @@ const Dashboard = () => {
       {/* Header */}
       <header className="p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold font-playfair" style={{ color: '#5A4291' }}>iManifest</h1>
+-          <h1 className="text-2xl font-bold font-playfair" style={{ color: '#5A4291' }}>iManifest</h1>
++          <h1 className="text-2xl font-bold font-dancing" style={{ color: '#5A4291', letterSpacing: '1px' }}>
++            iManifest
++          </h1>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">
               {user?.email}
