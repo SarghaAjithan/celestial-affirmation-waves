@@ -3,21 +3,35 @@ import { Button } from "@/components/ui/button";
 import { Star, Sparkles, Heart, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useOnboarding } from "@/contexts/OnboardingContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
   const { isOnboardingComplete } = useOnboarding();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (isOnboardingComplete) {
+    if (!loading && user) {
       navigate('/dashboard');
     }
-  }, [isOnboardingComplete, navigate]);
+  }, [user, loading, navigate]);
 
-  // Show onboarding screen only for new users
-  if (isOnboardingComplete) {
-    return null; // Will redirect to dashboard
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen cosmic-bg floating-particles flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect authenticated users
+  if (user) {
+    return null;
   }
 
   return (
@@ -26,7 +40,11 @@ const Index = () => {
       <header className="p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <h1 className="text-2xl font-bold gradient-text font-playfair">Manifest</h1>
-          <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/auth')}
+            className="text-purple-600 hover:text-purple-700"
+          >
             Sign In
           </Button>
         </div>
@@ -57,7 +75,7 @@ const Index = () => {
 
           <div className="animate-fade-in-delay space-y-4">
             <Button 
-              onClick={() => navigate('/goals')}
+              onClick={() => navigate('/auth')}
               size="lg" 
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >

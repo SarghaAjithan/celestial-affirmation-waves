@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useSaveManifestation = (
   generatedText: string,
@@ -10,9 +11,19 @@ export const useSaveManifestation = (
   backgroundMusic: string
 ) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
 
   const saveManifestation = async (title: string, onSuccess?: () => void, onError?: () => void) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to save manifestations.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const { supabase } = await import("@/integrations/supabase/client");
@@ -24,7 +35,8 @@ export const useSaveManifestation = (
           audio_url: audioUrl,
           mood,
           voice,
-          background_music: backgroundMusic
+          background_music: backgroundMusic,
+          user_id: user.id
         }]);
       if (error) throw error;
 

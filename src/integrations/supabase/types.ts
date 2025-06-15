@@ -18,6 +18,7 @@ export type Database = {
           mood: number | null
           text: string
           title: string
+          user_id: string | null
           voice: string | null
         }
         Insert: {
@@ -28,6 +29,7 @@ export type Database = {
           mood?: number | null
           text: string
           title: string
+          user_id?: string | null
           voice?: string | null
         }
         Update: {
@@ -38,7 +40,35 @@ export type Database = {
           mood?: number | null
           text?: string
           title?: string
+          user_id?: string | null
           voice?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
         }
         Relationships: []
       }

@@ -1,10 +1,17 @@
 
 import { Button } from "@/components/ui/button";
-import { Plus, Headphones, Library, Settings, Star, Sparkles } from "lucide-react";
+import { Plus, Headphones, Library, Settings, Star, Sparkles, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   const recentAffirmations = [
     { id: 1, title: "Morning Confidence Boost", duration: "5:23", lastPlayed: "Today" },
@@ -42,9 +49,18 @@ const Dashboard = () => {
       <header className="p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <h1 className="text-2xl font-bold gradient-text font-playfair">Manifest</h1>
-          <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
-            <Settings className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">
+              {user?.email}
+            </span>
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="text-purple-600 hover:text-purple-700"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </header>
 
