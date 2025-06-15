@@ -64,73 +64,38 @@ export class TTSService {
     this.synth.cancel();
   }
 
-  public async generateSpeechBlob(options: TTSOptions): Promise<Blob> {
-    // For browser TTS, we'll create a simple blob with the text
-    // This is a fallback when other services fail
-    const audioContext = new AudioContext();
-    const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 2, audioContext.sampleRate);
-    
-    // Create a simple tone as placeholder - in real implementation you'd capture the speech
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) {
-      data[i] = Math.sin(2 * Math.PI * 440 * i / audioContext.sampleRate) * 0.1;
-    }
-    
-    // Convert to WAV blob
-    const wavBlob = new Blob(['placeholder audio'], { type: 'audio/wav' });
-    return wavBlob;
-  }
-}
-
-// Chatterbox TTS Service
-export class ChatterboxTTSService {
-  private chatterbox: any = null;
-
-  constructor() {
-    this.initializeChatterbox();
-  }
-
-  private async initializeChatterbox() {
-    try {
-      const { Chatterbox } = await import('chatterbox-tts');
-      this.chatterbox = new Chatterbox();
-      console.log('Chatterbox TTS initialized successfully');
-    } catch (error) {
-      console.error('Failed to initialize Chatterbox:', error);
-    }
-  }
-
   public async generateSpeech(text: string, voiceStyle: string = 'female'): Promise<Blob> {
-    if (!this.chatterbox) {
-      throw new Error('Chatterbox not initialized');
-    }
-
-    try {
-      console.log('Generating speech with Chatterbox:', { text: text.substring(0, 50) + '...', voiceStyle });
+    return new Promise((resolve, reject) => {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(text);
       
-      const audioData = await this.chatterbox.speak(text, {
-        voice: voiceStyle,
-        rate: 0.9,
-        pitch: 1.0,
-        volume: 1.0
-      });
+      // Set voice based on style
+      const voices = synth.getVoices();
+      const voice = voices.find(v => 
+        (voiceStyle === 'female' && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('woman'))) ||
+        (voiceStyle === 'male' && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('man'))) ||
+        (voiceStyle === 'neutral' && v.lang.includes('en')) ||
+        v.lang.includes('en')
+      );
+      
+      if (voice) {
+        utterance.voice = voice;
+      }
+      
+      utterance.rate = 0.9;
+      utterance.pitch = voiceStyle === 'whisper' ? 0.8 : 1;
 
-      const audioBlob = new Blob([audioData], { type: 'audio/wav' });
-      console.log('Chatterbox audio generated successfully, size:', audioBlob.size);
-      return audioBlob;
-    } catch (error) {
-      console.error('Error generating speech with Chatterbox:', error);
-      throw error;
-    }
-  }
+      // For browser TTS, we'll create a simple placeholder blob
+      // In a real implementation, you'd need to capture the actual audio
+      utterance.onend = () => {
+        const blob = new Blob(['browser-tts-audio'], { type: 'audio/wav' });
+        resolve(blob);
+      };
 
-  public getAvailableVoices(): { id: string; name: string }[] {
-    return [
-      { id: 'female', name: 'Female Voice' },
-      { id: 'male', name: 'Male Voice' },
-      { id: 'neutral', name: 'Neutral Voice' },
-      { id: 'child', name: 'Child Voice' }
-    ];
+      utterance.onerror = (error) => reject(error);
+      
+      synth.speak(utterance);
+    });
   }
 }
 
@@ -194,43 +159,5 @@ export class ElevenLabsTTSService {
   }
 }
 
-// Simple TTS Service using browser speech synthesis
-export class SimpleTTSService {
-  public async generateSpeech(text: string, voiceStyle: string = 'female'): Promise<Blob> {
-    return new Promise((resolve, reject) => {
-      const synth = window.speechSynthesis;
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Set voice based on style
-      const voices = synth.getVoices();
-      const voice = voices.find(v => 
-        (voiceStyle === 'female' && v.name.toLowerCase().includes('female')) ||
-        (voiceStyle === 'male' && v.name.toLowerCase().includes('male')) ||
-        v.lang.includes('en')
-      );
-      
-      if (voice) {
-        utterance.voice = voice;
-      }
-      
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-
-      // Create a simple audio blob (placeholder)
-      utterance.onend = () => {
-        // In a real implementation, you'd capture the audio
-        const blob = new Blob(['audio-placeholder'], { type: 'audio/wav' });
-        resolve(blob);
-      };
-
-      utterance.onerror = (error) => reject(error);
-      
-      synth.speak(utterance);
-    });
-  }
-}
-
 export const ttsService = new TTSService();
 export const elevenLabsTTS = new ElevenLabsTTSService();
-export const chatterboxTTS = new ChatterboxTTSService();
-export const simpleTTS = new SimpleTTSService();

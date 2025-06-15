@@ -91,7 +91,7 @@ const ManifestationCreator = () => {
       
       toast({
         title: "Manifestation Created! ✨",
-        description: "Your personalized affirmation is ready with Chatterbox AI voice synthesis."
+        description: apiKey ? "Your personalized affirmation is ready with ElevenLabs AI voice synthesis." : "Your personalized affirmation is ready with browser voice synthesis."
       });
     } catch (error) {
       toast({
@@ -126,7 +126,7 @@ const ManifestationCreator = () => {
           Manifestation Creator
         </h1>
         <p className="text-gray-600 font-light">
-          Transform your intentions into powerful spoken affirmations with Chatterbox AI
+          Transform your intentions into powerful spoken affirmations with AI voice synthesis
         </p>
       </div>
 
@@ -155,7 +155,7 @@ const ManifestationCreator = () => {
                 className="mt-2 border-blue-200 focus:border-blue-400"
               />
               <p className="text-xs text-blue-600 mt-1">
-                Using Chatterbox AI by default. Add ElevenLabs API key for premium voices.
+                Using browser voice synthesis by default. Add ElevenLabs API key for premium voices.
               </p>
             </div>
 
@@ -253,7 +253,7 @@ const ManifestationCreator = () => {
               {isGenerating ? (
                 <>
                   <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
-                  Creating Chatterbox Audio...
+                  Creating Audio...
                 </>
               ) : (
                 'Generate Manifestation'
@@ -295,7 +295,7 @@ const ManifestationCreator = () => {
                     )}
                   </div>
                   <p className="text-sm text-gray-600 mt-4 font-medium">
-                    {isSpeaking ? 'Playing your manifestation...' : 'Chatterbox AI voice ready!'}
+                    {isSpeaking ? 'Playing your manifestation...' : 'AI voice ready!'}
                   </p>
                 </div>
 
@@ -361,7 +361,7 @@ const ManifestationCreator = () => {
               <div className="text-center py-12 text-gray-500">
                 <Volume2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p className="font-medium">Generate your manifestation</p>
-                <p className="text-sm">Chatterbox AI voice synthesis ready to bring your affirmations to life</p>
+                <p className="text-sm">AI voice synthesis ready to bring your affirmations to life</p>
               </div>
             )}
           </CardContent>
