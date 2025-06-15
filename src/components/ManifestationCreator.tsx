@@ -394,13 +394,38 @@ const ManifestationCreator = () => {
 
   // Play/Pause for the full manifestation audio
   const handlePlayFullManifestation = () => {
-    if (!fullManifestationAudio) return;
-    
-    if (isSpeaking) {
-      stopAffirmations();
-    } else {
-      playAffirmations(fullManifestationAudio);
+    if (!fullManifestationAudio) {
+      toast({
+        title: "No Audio Available",
+        description: "Audio not available or failed to generate.",
+        variant: "destructive",
+      });
+      return;
     }
+    // Log the audio URL for debugging
+    console.log("Trying to play audio:", fullManifestationAudio);
+
+    // Create a temporary audio element to test loading outside the TTS hook
+    const testAudio = new Audio(fullManifestationAudio);
+    testAudio.onerror = (evt) => {
+      console.error(`Audio playback failed for ${fullManifestationAudio}`, evt);
+      toast({
+        title: "Audio Playback Failed",
+        description: "Your browser couldn't play this audio file. Try downloading it instead.",
+        variant: "destructive"
+      });
+    };
+
+    testAudio.oncanplaythrough = () => {
+      // Use main TTS hook to manage play/pause state and UI
+      if (isSpeaking) {
+        stopAffirmations();
+      } else {
+        playAffirmations(fullManifestationAudio);
+      }
+    };
+    // Try loading (triggers oncanplaythrough or onerror)
+    testAudio.load();
   };
 
   const handleSave = () => {
@@ -664,6 +689,18 @@ const ManifestationCreator = () => {
                       <p className="text-sm text-gray-600 mt-4 font-medium">
                         {isSpeaking ? 'Playing your manifestation...' : 'AI voice ready!'}
                       </p>
+                      {/* Download raw audio (diagnostic) */}
+                      <div className="mt-2">
+                        <a
+                          href={fullManifestationAudio}
+                          download
+                          className="text-xs underline text-blue-600"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Download raw audio file (for troubleshooting)
+                        </a>
+                      </div>
                     </div>
 
                     {/* Enhanced Player Controls */}
