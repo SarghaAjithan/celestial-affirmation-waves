@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Eye, EyeOff, Facebook } from 'lucide-react';
+import { Mail, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cleanupAuthState } from '@/utils/authCleanup';
 
@@ -245,14 +245,14 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <Card className="bg-white bg-opacity-95 border-gray-200 rounded-2xl shadow-lg p-6 sm:p-8">
             <CardHeader className="text-left p-0 mb-6">
-              <CardTitle className="text-3xl font-bold text-gray-900">
+              <CardTitle className="text-3xl font-bold text-purple-600">
                 {view === 'signup' ? 'Create Account' : 'Sign In'}
               </CardTitle>
               <p className="text-sm text-gray-600 mt-1">
                 {view === 'signup' ? 'Already have an account?' : "Don't have an account?"}{' '}
                 <button 
                   onClick={() => setView(view === 'signin' ? 'signup' : 'signin')} 
-                  className="font-semibold text-green-700 hover:text-green-600"
+                  className="font-semibold text-purple-600 hover:text-purple-700"
                 >
                   {view === 'signin' ? 'Create account' : 'Sign in'}
                 </button>
@@ -308,7 +308,7 @@ const Auth = () => {
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-green-800 hover:bg-green-900 text-white mt-6 rounded-full py-3 text-base"
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white mt-6 rounded-full py-3 text-base"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Sign Up"}
@@ -351,7 +351,7 @@ const Auth = () => {
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-green-800 hover:bg-green-900 text-white mt-6 rounded-full py-3 text-base"
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white mt-6 rounded-full py-3 text-base"
                     disabled={isLoading}
                   >
                     {isLoading ? "Signing in..." : "Sign In"}
