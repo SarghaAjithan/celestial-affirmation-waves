@@ -91,12 +91,12 @@ const ManifestationCreator = () => {
       
       toast({
         title: "Manifestation Created! ✨",
-        description: apiKey ? "Your personalized affirmation is ready with high-quality AI voice." : "Your personalized affirmation is ready with browser voice. Add ElevenLabs API key for premium voices."
+        description: "Your personalized affirmation is ready with Chatterbox AI voice synthesis."
       });
     } catch (error) {
       toast({
         title: "Generation Failed",
-        description: "There was an error creating your manifestation. Using browser voice as fallback.",
+        description: "There was an error creating your manifestation. Please try again.",
         variant: "destructive"
       });
     }
@@ -126,7 +126,7 @@ const ManifestationCreator = () => {
           Manifestation Creator
         </h1>
         <p className="text-gray-600 font-light">
-          Transform your intentions into powerful spoken affirmations with AI voices
+          Transform your intentions into powerful spoken affirmations with Chatterbox AI
         </p>
       </div>
 
@@ -140,22 +140,22 @@ const ManifestationCreator = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* ElevenLabs API Key Input */}
+            {/* ElevenLabs API Key Input - Optional */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <Label htmlFor="apiKey" className="flex items-center space-x-2 text-blue-700 font-medium">
                 <Key className="w-4 h-4" />
-                <span>ElevenLabs API Key (Optional)</span>
+                <span>ElevenLabs API Key (Optional Premium Upgrade)</span>
               </Label>
               <Input
                 id="apiKey"
                 type="password"
-                placeholder="sk-..."
+                placeholder="sk-... (optional for premium voices)"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 className="mt-2 border-blue-200 focus:border-blue-400"
               />
               <p className="text-xs text-blue-600 mt-1">
-                Add your ElevenLabs API key for premium AI voices. Leave empty to use browser voice.
+                Using Chatterbox AI by default. Add ElevenLabs API key for premium voices.
               </p>
             </div>
 
@@ -253,7 +253,7 @@ const ManifestationCreator = () => {
               {isGenerating ? (
                 <>
                   <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
-                  Creating AI Audio...
+                  Creating Chatterbox Audio...
                 </>
               ) : (
                 'Generate Manifestation'
@@ -295,7 +295,7 @@ const ManifestationCreator = () => {
                     )}
                   </div>
                   <p className="text-sm text-gray-600 mt-4 font-medium">
-                    {isSpeaking ? 'Playing your manifestation...' : (apiKey ? 'High-quality AI voice ready!' : 'Browser voice ready!')}
+                    {isSpeaking ? 'Playing your manifestation...' : 'Chatterbox AI voice ready!'}
                   </p>
                 </div>
 
@@ -361,7 +361,7 @@ const ManifestationCreator = () => {
               <div className="text-center py-12 text-gray-500">
                 <Volume2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p className="font-medium">Generate your manifestation</p>
-                <p className="text-sm">AI-powered voice synthesis ready to bring your affirmations to life</p>
+                <p className="text-sm">Chatterbox AI voice synthesis ready to bring your affirmations to life</p>
               </div>
             )}
           </CardContent>

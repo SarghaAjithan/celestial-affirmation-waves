@@ -82,6 +82,58 @@ export class TTSService {
   }
 }
 
+// Chatterbox TTS Service
+export class ChatterboxTTSService {
+  private chatterbox: any = null;
+
+  constructor() {
+    this.initializeChatterbox();
+  }
+
+  private async initializeChatterbox() {
+    try {
+      const { Chatterbox } = await import('chatterbox-tts');
+      this.chatterbox = new Chatterbox();
+      console.log('Chatterbox TTS initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize Chatterbox:', error);
+    }
+  }
+
+  public async generateSpeech(text: string, voiceStyle: string = 'female'): Promise<Blob> {
+    if (!this.chatterbox) {
+      throw new Error('Chatterbox not initialized');
+    }
+
+    try {
+      console.log('Generating speech with Chatterbox:', { text: text.substring(0, 50) + '...', voiceStyle });
+      
+      const audioData = await this.chatterbox.speak(text, {
+        voice: voiceStyle,
+        rate: 0.9,
+        pitch: 1.0,
+        volume: 1.0
+      });
+
+      const audioBlob = new Blob([audioData], { type: 'audio/wav' });
+      console.log('Chatterbox audio generated successfully, size:', audioBlob.size);
+      return audioBlob;
+    } catch (error) {
+      console.error('Error generating speech with Chatterbox:', error);
+      throw error;
+    }
+  }
+
+  public getAvailableVoices(): { id: string; name: string }[] {
+    return [
+      { id: 'female', name: 'Female Voice' },
+      { id: 'male', name: 'Male Voice' },
+      { id: 'neutral', name: 'Neutral Voice' },
+      { id: 'child', name: 'Child Voice' }
+    ];
+  }
+}
+
 // ElevenLabs TTS Service
 export class ElevenLabsTTSService {
   private apiKey: string | null = null;
@@ -180,4 +232,5 @@ export class SimpleTTSService {
 
 export const ttsService = new TTSService();
 export const elevenLabsTTS = new ElevenLabsTTSService();
+export const chatterboxTTS = new ChatterboxTTSService();
 export const simpleTTS = new SimpleTTSService();

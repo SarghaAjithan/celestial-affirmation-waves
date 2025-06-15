@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { elevenLabsTTS, simpleTTS } from '@/services/ttsService';
+import { elevenLabsTTS, chatterboxTTS, simpleTTS } from '@/services/ttsService';
 
 export const useTTS = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -26,28 +26,34 @@ export const useTTS = () => {
       let audioBlob: Blob;
       
       try {
-        // Try ElevenLabs first if API key is provided
-        if (apiKey.trim()) {
-          elevenLabsTTS.setApiKey(apiKey);
-          const voiceMap: { [key: string]: string } = {
-            'female': '9BWtsMINqrJLrRacOk9x', // Aria
-            'male': 'TX3LPaxmHKxFdv7VOQHJ', // Liam
-            'neutral': 'EXAVITQu4vr4xnSDxMaL', // Sarah
-            'whisper': 'XB0fDUnXU5powFXDhCwa' // Charlotte
-          };
-          
-          const selectedVoiceId = voiceMap[voiceStyle] || '9BWtsMINqrJLrRacOk9x';
-          console.log('Using ElevenLabs with voice:', selectedVoiceId);
-          audioBlob = await elevenLabsTTS.generateSpeech(affirmationText, selectedVoiceId);
-        } else {
-          // Fallback to simple browser TTS
-          console.log('Using browser TTS as fallback');
+        // Try Chatterbox first (free and reliable)
+        console.log('Using Chatterbox TTS');
+        audioBlob = await chatterboxTTS.generateSpeech(affirmationText, voiceStyle);
+      } catch (error) {
+        console.error('Chatterbox TTS failed, trying ElevenLabs:', error);
+        
+        try {
+          // Try ElevenLabs if API key is provided
+          if (apiKey.trim()) {
+            elevenLabsTTS.setApiKey(apiKey);
+            const voiceMap: { [key: string]: string } = {
+              'female': '9BWtsMINqrJLrRacOk9x', // Aria
+              'male': 'TX3LPaxmHKxFdv7VOQHJ', // Liam
+              'neutral': 'EXAVITQu4vr4xnSDxMaL', // Sarah
+              'whisper': 'XB0fDUnXU5powFXDhCwa' // Charlotte
+            };
+            
+            const selectedVoiceId = voiceMap[voiceStyle] || '9BWtsMINqrJLrRacOk9x';
+            console.log('Using ElevenLabs with voice:', selectedVoiceId);
+            audioBlob = await elevenLabsTTS.generateSpeech(affirmationText, selectedVoiceId);
+          } else {
+            throw new Error('No ElevenLabs API key provided');
+          }
+        } catch (error) {
+          console.error('ElevenLabs TTS failed, using browser TTS:', error);
+          // Final fallback to browser TTS
           audioBlob = await simpleTTS.generateSpeech(affirmationText, voiceStyle);
         }
-      } catch (error) {
-        console.error('Primary TTS failed, using browser TTS:', error);
-        // Final fallback to browser TTS
-        audioBlob = await simpleTTS.generateSpeech(affirmationText, voiceStyle);
       }
       
       const newAudioUrl = URL.createObjectURL(audioBlob);
