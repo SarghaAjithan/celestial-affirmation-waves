@@ -490,7 +490,7 @@ const ManifestationCreator = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleVoicePreview(option.value)}
-                      disabled={isGenerating || isGeneratingAudio || isRegeneratingPreviews}
+                      disabled={isGenerating || isRegeneratingPreviews}
                       className="ml-1 p-1"
                       aria-label={`Preview ${option.label}`}
                     >
