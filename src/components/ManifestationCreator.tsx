@@ -602,7 +602,7 @@ const ManifestationCreator = () => {
                   w-full text-base
                   transition-all duration-300
                   bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700
-                  ${formData.voice ? "animate-pulse ring-2 ring-pink-300 font-semibold shadow-lg scale-[1.03]" : "opacity-60"}
+                  ${formData.voice && !isGeneratingAudio ? "ring-2 ring-pink-300 font-semibold shadow-lg scale-[1.03]" : "opacity-60"}
                 `}
               >
                 {isGeneratingAudio ? (
