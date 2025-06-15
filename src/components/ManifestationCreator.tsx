@@ -45,15 +45,16 @@ const ManifestationCreator = () => {
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
   const [fullManifestationAudio, setFullManifestationAudio] = useState<string | null>(null);
+  const [voicePreviewAudios, setVoicePreviewAudios] = useState<{ [key: string]: HTMLAudioElement }>({});
 
   // OpenAI voice options with preview text
   const voiceOptions = [
-    { value: 'alloy', label: 'Alloy (Neutral)', preview: 'I am confident and capable of achieving my dreams.' },
-    { value: 'echo', label: 'Echo (Warm)', preview: 'I attract abundance and positivity into my life.' },
-    { value: 'fable', label: 'Fable (Expressive)', preview: 'Every day I grow stronger and more aligned with my purpose.' },
-    { value: 'onyx', label: 'Onyx (Deep)', preview: 'I trust in my power to create the life I desire.' },
-    { value: 'nova', label: 'Nova (Bright)', preview: 'I am worthy of love, success, and happiness.' },
-    { value: 'shimmer', label: 'Shimmer (Gentle)', preview: 'I release what no longer serves me and embrace new possibilities.' }
+    { value: 'alloy', label: 'Alloy (Neutral)' },
+    { value: 'echo', label: 'Echo (Warm)' },
+    { value: 'fable', label: 'Fable (Expressive)' },
+    { value: 'onyx', label: 'Onyx (Deep)' },
+    { value: 'nova', label: 'Nova (Bright)' },
+    { value: 'shimmer', label: 'Shimmer (Gentle)' }
   ];
 
   const musicOptions = [
@@ -164,32 +165,56 @@ const ManifestationCreator = () => {
     return `${greeting}. ${allAffirmations.join('. ')}. Take a deep breath and feel these truths resonating within your soul.`;
   };
 
-  // Preview voice functionality - only for voice samples
+  // Preview voice functionality - generate and play voice preview
   const handleVoicePreview = async (voice: string) => {
     if (previewingVoice === voice) {
-      stopAffirmations();
+      // Stop current preview
+      if (voicePreviewAudios[voice]) {
+        voicePreviewAudios[voice].pause();
+      }
       setPreviewingVoice(null);
       return;
     }
 
     try {
       setPreviewingVoice(voice);
-      const voiceOption = voiceOptions.find(v => v.value === voice);
-      if (voiceOption) {
-        const previewUrl = await generateAffirmations(
-          'Preview',
-          voiceOption.preview,
-          voiceOption.preview,
-          '',
-          voice
-        );
-        if (previewUrl) {
-          playAffirmations(previewUrl);
-          // Auto-stop preview after playing
-          setTimeout(() => {
-            setPreviewingVoice(null);
-          }, 3000);
-        }
+
+      // Check if we already have this preview audio
+      if (voicePreviewAudios[voice]) {
+        voicePreviewAudios[voice].currentTime = 0;
+        await voicePreviewAudios[voice].play();
+        return;
+      }
+
+      // Generate voice preview using the edge function
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const { data, error } = await supabase.functions.invoke('generate-voice-previews', {
+        body: { voice }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data?.url) {
+        const audio = new Audio(data.url);
+        setVoicePreviewAudios(prev => ({ ...prev, [voice]: audio }));
+        
+        audio.onended = () => {
+          setPreviewingVoice(null);
+        };
+        
+        audio.onerror = () => {
+          setPreviewingVoice(null);
+          toast({
+            title: "Preview Failed",
+            description: "Unable to play this voice preview.",
+            variant: "destructive"
+          });
+        };
+
+        await audio.play();
       }
     } catch (error) {
       console.error('Preview failed:', error);
@@ -411,7 +436,6 @@ const ManifestationCreator = () => {
                                 {option.label}
                               </label>
                             </div>
-                            <p className="text-sm text-gray-600 ml-6">"{option.preview}"</p>
                           </div>
                           <Button
                             type="button"
