@@ -154,11 +154,8 @@ const Dashboard = () => {
         <div style={{ minHeight: 320, width: "100%" }} className="pointer-events-none select-none"></div> 
       </div>
 
-      {/* Move the hero headline content BELOW the image */}
-      <div
-        className="mx-auto flex flex-col items-center text-center z-10 relative -mt-20 sm:-mt-24"
-        style={{ maxWidth: 700, minHeight: 128, padding: "0 0 32px 0" }}
-      >
+      {/* Hero headline content - positioned below image with proper spacing */}
+      <div className="mx-auto flex flex-col items-center text-center px-4 sm:px-6" style={{ paddingTop: '32px', maxWidth: 700 }}>
         <h1
           className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3"
           style={{
@@ -171,13 +168,13 @@ const Dashboard = () => {
         >
           Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
         </h1>
-        <p className="text-lg sm:text-xl font-inter text-gray-700 font-normal">
+        <p className="text-lg sm:text-xl font-inter text-gray-700 font-normal mb-8">
           Ready to continue your manifestation journey?
         </p>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto w-full pt-0 px-2 sm:px-4 pb-20">
+      <main className="max-w-4xl mx-auto w-full px-2 sm:px-4 pb-20">
         {/* Quick Actions: Centered and visually separated from the image */}
         <div className="flex flex-col items-center justify-center w-full">
           <div className="flex flex-col md:flex-row w-full md:justify-center gap-5 md:gap-8 mb-12 px-0 sm:px-2">
@@ -243,5 +240,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-// ... end of file ...
