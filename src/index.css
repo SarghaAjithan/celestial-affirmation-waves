@@ -75,7 +75,7 @@
 
   body {
     @apply text-foreground font-inter;
-    background: linear-gradient(to bottom, #E9DFFF 0%, #FFE8C8 100%);
+    background: #FFF7EF;
     min-height: 100vh;
     background-attachment: fixed;
     background-size: 100% 100%;
