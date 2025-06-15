@@ -73,7 +73,7 @@ const Dashboard = () => {
       {/* Header */}
       <header className="p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold gradient-text font-playfair">iManifest</h1>
+          <h1 className="text-2xl font-bold font-playfair" style={{ color: '#fee3bf' }}>iManifest</h1>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">
               {user?.email}
@@ -94,7 +94,7 @@ const Dashboard = () => {
         <div className="max-w-6xl mx-auto">
           {/* Welcome Section */}
           <div className="mb-12 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text font-mulish">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 font-mulish" style={{ color: '#fee3bf' }}>
               Welcome Back, Manifestor ✨
             </h2>
             <p className="text-lg text-gray-700 font-light">

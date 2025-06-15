@@ -39,7 +39,7 @@ const Index = () => {
       {/* Header */}
       <header className="p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold gradient-text font-playfair">iManifest</h1>
+          <h1 className="text-2xl font-bold font-playfair" style={{ color: '#fee3bf' }}>iManifest</h1>
           <Button 
             variant="ghost" 
             onClick={() => navigate('/auth')}
