@@ -275,6 +275,7 @@ const ManifestationCreator = () => {
                 </div>
 
                 <Button 
+                  type="button"
                   onClick={handleGenerateText}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
@@ -327,6 +328,7 @@ const ManifestationCreator = () => {
                 </div>
 
                 <Button 
+                  type="button"
                   onClick={handleGenerateAudio}
                   disabled={isGeneratingAudio}
                   className="w-full mt-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
