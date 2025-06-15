@@ -8,6 +8,7 @@ import { Play, Pause, Save, Share, Heart, Volume2, Edit, Sparkles } from "lucide
 import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
 import { useLocation } from "react-router-dom";
+import SaveManifestationModal from "./SaveManifestationModal";
 
 interface ManifestationFormData {
   name: string;
@@ -46,6 +47,8 @@ const ManifestationCreator = () => {
   const [voicePreviews, setVoicePreviews] = useState<{ [voice: string]: string }>({});
   const [isRegeneratingPreviews, setIsRegeneratingPreviews] = useState(false);
   const manifestationPreviewRef = useRef<HTMLDivElement | null>(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // OpenAI voice options with preview text
   const voiceOptions = [
@@ -379,19 +382,39 @@ const ManifestationCreator = () => {
   };
 
   const handleSave = () => {
-    toast({
-      title: "Saved to Library",
-      description: "Your manifestation has been added to your personal collection."
-    });
+    setShowSaveModal(true);
   };
 
-  const handleEditText = () => setIsEditingText(true);
-  const handleSaveEdit = () => {
-    setIsEditingText(false);
-    toast({
-      title: "Text Updated",
-      description: "Generate audio again to hear your updated manifestation."
-    });
+  const handleSaveManifestation = async (title: string) => {
+    setIsSaving(true);
+    setShowSaveModal(false);
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data, error } = await supabase
+        .from("manifestations")
+        .insert([{
+          title,
+          text: generatedText,
+          audio_url: audioUrl,
+          mood,
+          voice: formData.voice,
+          background_music: formData.backgroundMusic
+        }]);
+      if (error) throw error;
+
+      toast({
+        title: "Saved to Library",
+        description: "Your manifestation has been added to your personal collection."
+      });
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: "There was an error saving your manifestation.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Mood emoji options
@@ -685,14 +708,19 @@ const ManifestationCreator = () => {
             </div>
             {/* --- REMOVED the bottom Play Voice button --- */}
             <div className="flex space-x-4">
-              {/* Save Button */}
-              <Button variant="outline" onClick={handleSave}>
+              {/* Save Button more prominent */}
+              <Button
+                variant="default"
+                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold ring-2 ring-pink-200"
+                onClick={handleSave}
+                disabled={isSaving}
+              >
                 <Save className="w-4 h-4 mr-2" />
-                Save
+                {isSaving ? "Saving..." : "Save to Library"}
               </Button>
-              <Button variant="outline">
-                <Share className="w-4 h-4 mr-2" />
-                Share
+              <Button variant="outline" className="flex-1" disabled>
+                <Edit className="w-4 h-4 mr-2" />
+                Share (coming soon)
               </Button>
             </div>
           </div>
