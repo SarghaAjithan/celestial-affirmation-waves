@@ -109,7 +109,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-[#FFF7EF] floating-particles">
       {/* Hero Section with Banner Image */}
       <div
-        className="relative w-full shadow-none"
+        className="relative w-full shadow-none pb-4"
         style={{
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
@@ -150,10 +150,13 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Hero headline content - positioned directly after image */}
-      <div className="mx-auto flex flex-col items-center text-center px-4 sm:px-6" style={{ maxWidth: 700 }}>
+      {/* Hero headline content - now directly after the image, with proper spacing */}
+      <div
+        className="mx-auto flex flex-col items-center text-center px-4 sm:px-6 pt-4 pb-4"
+        style={{ maxWidth: 700 }}
+      >
         <h1
-          className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3 -mt-14 sm:-mt-20 md:-mt-24 lg:-mt-28"
+          className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3"
           style={{
             color: "#F2C661",
             letterSpacing: "-0.03em",
