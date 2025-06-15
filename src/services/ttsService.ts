@@ -161,6 +161,50 @@ export class ElevenLabsTTSService {
   }
 }
 
+// OpenAI TTS Service using Supabase Edge Function
+export class OpenAITTSService {
+  public async generateSpeech(text: string, voice: string = 'alloy'): Promise<string> {
+    try {
+      console.log('Generating speech with OpenAI via Supabase function:', { text: text.substring(0, 50) + '...', voice });
+      
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const { data, error } = await supabase.functions.invoke('generate-manifestation-audio', {
+        body: {
+          text: text,
+          voice: voice
+        }
+      });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(`Function error: ${error.message}`);
+      }
+
+      if (!data?.url) {
+        throw new Error('No URL returned from function');
+      }
+
+      console.log('OpenAI audio generated successfully, URL:', data.url);
+      return data.url;
+    } catch (error) {
+      console.error('Error generating speech with OpenAI:', error);
+      throw error;
+    }
+  }
+
+  public getAvailableVoices(): { id: string; name: string }[] {
+    return [
+      { id: 'alloy', name: 'Alloy' },
+      { id: 'echo', name: 'Echo' },
+      { id: 'fable', name: 'Fable' },
+      { id: 'onyx', name: 'Onyx' },
+      { id: 'nova', name: 'Nova' },
+      { id: 'shimmer', name: 'Shimmer' },
+    ];
+  }
+}
+
 export const ttsService = new TTSService();
 export const elevenLabsTTS = new ElevenLabsTTSService();
-
+export const openAITTS = new OpenAITTSService();

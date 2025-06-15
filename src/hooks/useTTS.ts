@@ -1,7 +1,6 @@
 
-
 import { useState, useCallback } from 'react';
-import { elevenLabsTTS, ttsService } from '@/services/ttsService';
+import { elevenLabsTTS, ttsService, openAITTS } from '@/services/ttsService';
 
 export const useTTS = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -24,11 +23,25 @@ export const useTTS = () => {
       const affirmationText = createAffirmationText(name, goal, customAffirmations, tone);
       console.log('Generated affirmation text:', affirmationText);
       
-      let audioBlob: Blob;
+      let audioUrl: string;
       
       try {
-        // Try ElevenLabs first if API key is provided
+        // Try OpenAI TTS first (always available via edge function)
+        const voiceMap: { [key: string]: string } = {
+          'female': 'nova',
+          'male': 'onyx', 
+          'neutral': 'alloy',
+          'whisper': 'shimmer'
+        };
+        
+        const selectedVoice = voiceMap[voiceStyle] || 'alloy';
+        console.log('Using OpenAI TTS with voice:', selectedVoice);
+        audioUrl = await openAITTS.generateSpeech(affirmationText, selectedVoice);
+      } catch (openAIError) {
+        console.error('OpenAI TTS failed, trying ElevenLabs:', openAIError);
+        
         if (apiKey.trim()) {
+          // Try ElevenLabs if API key is provided
           elevenLabsTTS.setApiKey(apiKey);
           const voiceMap: { [key: string]: string } = {
             'female': '9BWtsMINqrJLrRacOk9x', // Aria
@@ -39,18 +52,17 @@ export const useTTS = () => {
           
           const selectedVoiceId = voiceMap[voiceStyle] || '9BWtsMINqrJLrRacOk9x';
           console.log('Using ElevenLabs with voice:', selectedVoiceId);
-          audioBlob = await elevenLabsTTS.generateSpeech(affirmationText, selectedVoiceId);
+          const audioBlob = await elevenLabsTTS.generateSpeech(affirmationText, selectedVoiceId);
+          audioUrl = URL.createObjectURL(audioBlob);
         } else {
-          throw new Error('No ElevenLabs API key provided, using browser TTS');
+          console.error('Both OpenAI and ElevenLabs failed, using browser TTS');
+          // Fallback to browser TTS
+          const audioBlob = await ttsService.generateSpeech(affirmationText, voiceStyle);
+          audioUrl = URL.createObjectURL(audioBlob);
         }
-      } catch (error) {
-        console.error('ElevenLabs TTS failed, using browser TTS:', error);
-        // Fallback to browser TTS
-        audioBlob = await ttsService.generateSpeech(affirmationText, voiceStyle);
       }
       
-      const newAudioUrl = URL.createObjectURL(audioBlob);
-      setAudioUrl(newAudioUrl);
+      setAudioUrl(audioUrl);
       
       return affirmationText;
     } catch (error) {
