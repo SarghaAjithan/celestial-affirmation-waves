@@ -107,37 +107,40 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FFF7EF] floating-particles">
-      {/* Hero Section with Banner Image */}
+    <div
+      className="min-h-screen bg-[#FFF7EF] floating-particles"
+      style={{ overflowY: "auto", paddingBottom: 120 }}
+    >
+      {/* Header bar: logo (left), email (right) */}
+      <header className="flex items-center justify-between px-6 sm:px-10 pt-8 z-10 relative">
+        <span className="font-playfair text-[2rem] font-bold text-[#43236B] tracking-wide select-none">iManifest</span>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-700 font-inter">{user?.email}</span>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={handleSignOut}
+            className="text-purple-600 hover:text-purple-800"
+          >
+            <LogOut className="w-4 h-4" />
+          </Button>
+        </div>
+      </header>
+
+      {/* Banner Illustration */}
       <div
-        className="relative w-full shadow-none"
+        className="relative w-full mx-auto"
         style={{
           background: "linear-gradient(180deg, #EDDFFB 0%, #FCF6FF 90%)",
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
-          minHeight: 340,
+          minHeight: 270,
+          marginTop: 22,
           marginBottom: 0,
           overflow: "visible",
-          paddingBottom: 0,
+          maxWidth: 900,
         }}
       >
-        {/* Header bar: logo (left), email (right) */}
-        <header className="flex items-center justify-between px-6 sm:px-10 pt-8 z-10 relative">
-          <span className="font-playfair text-[2rem] font-bold text-[#43236B] tracking-wide select-none">iManifest</span>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-700 font-inter">{user?.email}</span>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleSignOut}
-              className="text-purple-600 hover:text-purple-800"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
-        </header>
-
-        {/* Banner Illustration */}
         <img
           src="/lovable-uploads/95d7f521-a8e3-4594-a826-e75e34b45b4a.png"
           alt="pastel hands holding light"
@@ -145,57 +148,64 @@ const Dashboard = () => {
           style={{
             opacity: 1,
             filter: "none",
-            maxHeight: 320,
+            maxHeight: 250,
             borderTopLeftRadius: 32,
             borderTopRightRadius: 32,
           }}
         />
-        {/* Provide space below image for headline */}
-        <div style={{ minHeight: 320, width: "100%" }} className="pointer-events-none select-none"></div> 
+        {/* Space below image so next section doesn't overlap */}
+        <div style={{ minHeight: 200, width: "100%" }}></div>
       </div>
 
-      {/* Move the hero headline content BELOW the image */}
+      {/* Headline Section - transparent background, below image */}
       <div
-        className="mx-auto flex flex-col items-center text-center z-10 relative -mt-20 sm:-mt-24"
-        style={{ maxWidth: 700, minHeight: 128, padding: "0 0 32px 0" }}
+        className="flex flex-col items-center justify-center text-center w-full"
+        style={{ marginTop: "-60px", marginBottom: "18px" }}
       >
         <h1
-          className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3"
+          className="text-[2.5rem] sm:text-[3rem] md:text-[3.35rem] font-playfair font-bold mb-3 gradient-text"
           style={{
-            color: "#F2C661",
-            letterSpacing: "-0.03em",
+            background: "linear-gradient(90deg, #F2C661 30%, #F2B661 80%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
             fontWeight: 700,
-            lineHeight: 1.2,
-            textShadow: "0 4px 30px rgba(80,40,130,0.20)"
+            lineHeight: 1.17,
+            letterSpacing: "-0.03em"
           }}
         >
           Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
         </h1>
-        <p className="text-lg sm:text-xl font-inter text-gray-700 font-normal">
+        <p className="text-lg sm:text-xl font-inter text-gray-700 font-medium mb-2">
           Ready to continue your manifestation journey?
         </p>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto w-full pt-0 px-2 sm:px-4 pb-20">
-        {/* Quick Actions: Centered and visually separated from the image */}
-        <div className="flex flex-col items-center justify-center w-full">
-          <div className="flex flex-col md:flex-row w-full md:justify-center gap-5 md:gap-8 mb-12 px-0 sm:px-2">
+      <main className="max-w-4xl mx-auto w-full px-2 sm:px-4 pb-14">
+        {/* Quick Actions: 3 cards, white, spaced, large with round corners */}
+        <div className="flex justify-center w-full my-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full px-2 md:px-4">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
                 <div
                   key={action.title}
-                  className="w-full md:w-[320px] rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 cursor-pointer flex flex-row md:flex-col items-center md:items-start px-5 py-6 transition-all duration-150"
-                  style={{ minWidth: 210, maxWidth: 340 }}
+                  className="rounded-2xl bg-white shadow-sm hover:shadow-md border flex flex-col items-center justify-center py-10 px-5 md:px-7 cursor-pointer transition-all duration-150"
+                  style={{
+                    minHeight: 180,
+                    minWidth: 0,
+                    maxWidth: 360,
+                    width: "100%",
+                    borderColor: "#eee",
+                  }}
                   onClick={action.action}
                 >
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mb-0 md:mb-4 mr-4 md:mr-0`}>
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${action.color} flex items-center justify-center mb-5`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <div className="flex flex-col">
-                    <h3 className="text-lg font-bold mb-1 text-gray-800">{action.title}</h3>
-                    <p className="text-gray-600 text-base font-inter font-normal leading-tight">{action.description}</p>
+                  <div className="flex flex-col items-center">
+                    <h3 className="text-lg font-bold mb-1 text-gray-900">{action.title}</h3>
+                    <p className="text-gray-600 text-base font-inter font-normal leading-tight text-center">{action.description}</p>
                   </div>
                 </div>
               );
@@ -203,7 +213,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Affirmations (section header left aligned, cards not cut off) */}
+        {/* Recent Affirmations */}
         {recentAffirmations.length > 0 && (
           <div className="mb-10">
             <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-5 text-left px-1">Recent Played</h3>
@@ -229,8 +239,8 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Inspiration Quote */}
-        <div className="rounded-2xl bg-white/50 shadow px-6 py-4 text-center max-w-2xl mx-auto mb-4">
+        {/* Inspiration Quote - at bottom, always visible after scroll */}
+        <div className="rounded-2xl bg-white/60 shadow px-6 py-5 text-center max-w-2xl mx-auto mb-9 mt-6">
           <Sparkles className="w-5 h-5 text-purple-400 mx-auto mb-2" />
           <p className="text-base font-light text-gray-700 italic mb-1">
             "{currentQuote.text}"
@@ -243,5 +253,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-// ... end of file ...
