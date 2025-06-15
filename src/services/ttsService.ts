@@ -11,23 +11,10 @@ export interface TTSOptions {
 export class TTSService {
   private synth: SpeechSynthesis;
   private voices: SpeechSynthesisVoice[] = [];
-  private chatterbox: any = null;
 
   constructor() {
     this.synth = window.speechSynthesis;
     this.loadVoices();
-    this.initializeChatterbox();
-  }
-
-  private async initializeChatterbox() {
-    try {
-      const { Chatterbox } = await import('chatterbox-tts');
-      this.chatterbox = new Chatterbox();
-      console.log('Chatterbox TTS initialized successfully');
-    } catch (error) {
-      console.warn('Chatterbox TTS failed to initialize, falling back to browser TTS:', error);
-      this.chatterbox = null;
-    }
   }
 
   private loadVoices() {
@@ -79,22 +66,7 @@ export class TTSService {
   }
 
   public async generateSpeech(text: string, voiceStyle: string = 'female'): Promise<Blob> {
-    // Try chatterbox-tts first
-    if (this.chatterbox) {
-      try {
-        console.log('Using Chatterbox TTS for speech generation');
-        const audioBlob = await this.chatterbox.generateSpeech(text, {
-          voice: voiceStyle,
-          rate: 0.9,
-          pitch: voiceStyle === 'whisper' ? 0.8 : 1
-        });
-        return audioBlob;
-      } catch (error) {
-        console.warn('Chatterbox TTS failed, falling back to browser TTS:', error);
-      }
-    }
-
-    // Fallback to browser TTS
+    // Use browser TTS to generate speech
     return new Promise((resolve, reject) => {
       const synth = window.speechSynthesis;
       const utterance = new SpeechSynthesisUtterance(text);
@@ -191,3 +163,4 @@ export class ElevenLabsTTSService {
 
 export const ttsService = new TTSService();
 export const elevenLabsTTS = new ElevenLabsTTSService();
+

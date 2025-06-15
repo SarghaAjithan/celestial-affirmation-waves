@@ -1,4 +1,5 @@
 
+
 import { useState, useCallback } from 'react';
 import { elevenLabsTTS, ttsService } from '@/services/ttsService';
 
@@ -40,11 +41,11 @@ export const useTTS = () => {
           console.log('Using ElevenLabs with voice:', selectedVoiceId);
           audioBlob = await elevenLabsTTS.generateSpeech(affirmationText, selectedVoiceId);
         } else {
-          throw new Error('No ElevenLabs API key provided, using chatterbox-tts');
+          throw new Error('No ElevenLabs API key provided, using browser TTS');
         }
       } catch (error) {
-        console.error('ElevenLabs TTS failed, using chatterbox-tts/browser TTS:', error);
-        // Fallback to chatterbox-tts (which falls back to browser TTS if needed)
+        console.error('ElevenLabs TTS failed, using browser TTS:', error);
+        // Fallback to browser TTS
         audioBlob = await ttsService.generateSpeech(affirmationText, voiceStyle);
       }
       
@@ -142,3 +143,4 @@ function createAffirmationText(
   
   return `${greeting}. ${affirmations.join('. ')}. Take a deep breath and feel these truths resonating within you.`;
 }
+
