@@ -389,9 +389,9 @@ const ManifestationCreator = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-4 flex flex-col gap-5">  
-      {/* Clean, unified CARD for all details and audio settings */}
+      {/* Main clean card for info and audio settings */}
       <Card className="bg-white bg-opacity-90 border border-gray-200 rounded-2xl shadow-none p-6 space-y-6">
-        {/* 1. Title section */}
+        {/* Title and goal info */}
         <div className="mb-1 pb-2 pt-1 flex flex-col gap-1 border-b border-gray-100">
           <h1 className="text-xl font-bold gradient-text font-playfair">Manifestation Creator</h1>
           <p className="text-xs font-light text-gray-500">
@@ -404,43 +404,50 @@ const ManifestationCreator = () => {
           )}
         </div>
 
-        {/* 2. Input Row: Name + Mood (INLINE) */}
-        <div className="flex items-end gap-4 flex-wrap">
-          {/* Small Name input, minimalist */}
-          <div className="flex flex-col flex-shrink-0" style={{ minWidth: 125, maxWidth: 180 }}>
-            <Label htmlFor="name" className="text-xs mb-0">Name</Label>
+        {/* Name + Mood Top Row, now even more compact/clean */}
+        <div className="flex flex-wrap gap-4 items-end">
+          {/* Name input, left-justified but not too wide */}
+          <div className="flex flex-col flex-shrink-0" style={{ minWidth: 105, maxWidth: 160 }}>
+            <Label htmlFor="name" className="text-xs mb-1">Name</Label>
             <Input
               id="name"
               placeholder="Name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               className="mt-0 h-8 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded-full"
-              style={{ minWidth: 110, maxWidth: 165 }}
+              style={{ minWidth: 90, maxWidth: 150 }}
             />
           </div>
-          {/* Mood selector, straight horizontal */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <Label className="text-xs font-medium whitespace-nowrap">How are you feeling?</Label>
-            <div className="flex gap-0.5">
+
+          {/* Mood selector block: Label with clickable mood boxes below */}
+          <div className="flex flex-col flex-1 min-w-[180px]">
+            <Label className="text-xs font-medium mb-1 whitespace-nowrap" htmlFor="mood-options">
+              How are you feeling?
+            </Label>
+            <div id="mood-options" className="flex flex-row gap-2">
               {moodEmojis.map((emoji, index) => (
-                <Button
+                <button
+                  type="button"
                   key={index}
-                  variant={mood === index ? "default" : "ghost"}
-                  size="icon"
-                  onClick={() => setMood(index)}
-                  className={`text-lg h-8 w-8 rounded-full border ${mood === index ? "border-purple-400 bg-purple-50 scale-105" : "bg-transparent hover:border-gray-300"} transition-transform`}
-                  tabIndex={0}
                   aria-label={emoji}
+                  onClick={() => setMood(index)}
+                  className={`flex items-center justify-center h-8 w-10 rounded-lg border
+                    text-lg font-medium transition-all
+                    ${mood === index 
+                      ? "bg-gradient-to-tr from-pink-100 to-purple-100 border-purple-400 scale-105"
+                      : "bg-gray-50 border-gray-200 hover:bg-gray-100"}
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400`}
+                  tabIndex={0}
                   style={{ fontSize: 20 }}
                 >
                   {emoji}
-                </Button>
+                </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* 3. Goal + Affirmation fields (1 col, less space) */}
+        {/* Goal + Custom Affirmations fields, audio settings, generate button */}
         <div className="flex flex-col gap-2">
           <div>
             <Label htmlFor="goal" className="text-xs mb-0">Goal</Label>
@@ -466,7 +473,7 @@ const ManifestationCreator = () => {
           </div>
         </div>
 
-        {/* 4. Audio settings, minimalist and inline under form */}
+        {/* Audio settings, minimalist and inline under form */}
         {generatedText && (
           <div className="bg-white/80 rounded-lg p-2 mt-1 border border-gray-100 flex flex-col gap-3">
             <div className="flex flex-wrap gap-2 items-center">
@@ -532,7 +539,7 @@ const ManifestationCreator = () => {
           </div>
         )}
 
-        {/* 5. Generate text button (on bottom) */}
+        {/* Generate text button (on bottom) */}
         <Button
           type="button"
           onClick={handleGenerateText}
