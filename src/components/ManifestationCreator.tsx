@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "react-router-dom";
 import SaveManifestationModal from "./SaveManifestationModal";
 import { getGoalText } from "@/utils/affirmationHelpers";
+import { getGoalPlaceholder } from "@/utils/goalPlaceholders";
 import { useSaveManifestation } from "@/hooks/useSaveManifestation";
 import { voiceOptions, musicOptions, moodEmojis } from "@/constants/manifestationOptions";
 
@@ -303,6 +303,11 @@ const ManifestationCreator = () => {
   const handleEditText = () => setIsEditingText(true);
   const handleSaveEdit = () => setIsEditingText(false);
 
+  // Get dynamic placeholder based on selected goal and mood
+  const getPlaceholder = () => {
+    return getGoalPlaceholder(selectedGoalFromRoute, mood);
+  };
+
   // Input change handler
   const handleInputChange = (field: keyof ManifestationFormData, value: string) => {
     setFormData((prev) => ({
@@ -372,7 +377,7 @@ const ManifestationCreator = () => {
             <Label htmlFor="goal" className="text-xs mb-0">Goal</Label>
             <Textarea
               id="goal"
-              placeholder="I want to manifest abundance..."
+              placeholder={getPlaceholder()}
               value={formData.goal}
               onChange={(e) => handleInputChange('goal', e.target.value)}
               className="mt-1 min-h-10 text-sm border-gray-200 rounded-lg bg-gray-50"
