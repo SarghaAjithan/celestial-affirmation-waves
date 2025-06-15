@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { usePlayer } from "@/contexts/PlayerContext";
-import { Play, Pause, Repeat } from "lucide-react";
+import { Play, Pause, Repeat, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ const MiniPlayerBand = () => {
     pause,
     resume,
     setCurrentTime,
+    stop,
     currentTime,
     duration,
   } = usePlayer();
@@ -21,6 +23,17 @@ const MiniPlayerBand = () => {
   const [isLooping, setIsLooping] = useState(false);
   const [lyricsLine, setLyricsLine] = useState("");
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
+
+  // Hide/show band based on internal state and current track
+  useEffect(() => {
+    if (current && !isVisible) {
+      setIsVisible(true); // reappear if new track is set
+    }
+    if (!current) {
+      setIsVisible(false);
+    }
+  }, [current]);
 
   useEffect(() => {
     if (!current) {
@@ -60,7 +73,7 @@ const MiniPlayerBand = () => {
     setLyricsLine(lines[Math.min(lineIndex, lines.length - 1)] || "");
   }, [currentTime, current, duration]);
 
-  if (!current) return null;
+  if (!current || !isVisible) return null;
 
   const onBarClick = () => {
     navigate(`/now-playing?id=${current.id}`);
@@ -80,6 +93,12 @@ const MiniPlayerBand = () => {
     setIsLooping((prev) => !prev);
   };
 
+  const onClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsVisible(false);
+    stop();
+  };
+
   const formatTime = (sec: number) => {
     if (isNaN(sec)) return "0:00";
     const m = Math.floor(sec / 60);
@@ -92,10 +111,9 @@ const MiniPlayerBand = () => {
     <div
       className="fixed bottom-0 left-0 w-full z-50 px-0"
       style={{
-        minHeight: 100, // reduced by 8px
+        minHeight: 100,
         background: "linear-gradient(99deg, #dbbcfa 0%, #f4bbf2 100%)",
-        padding: "30px 0", // reduce top/bottom padding to accommodate height change, no horizontal padding for full stretch
-        // REMOVE borderRadius, margin, and boxShadow for flush look
+        padding: "30px 0",
         left: 0,
         right: 0,
         borderRadius: 0,
@@ -104,9 +122,18 @@ const MiniPlayerBand = () => {
       }}
       onClick={onBarClick}
     >
+      {/* Close button (top right, absolute) */}
+      <button
+        className="absolute top-3 right-5 bg-white/70 hover:bg-white text-purple-700 rounded-full w-8 h-8 flex items-center justify-center shadow transition"
+        title="Close"
+        onClick={onClose}
+        style={{ zIndex: 10 }}
+      >
+        <X className="w-5 h-5" />
+      </button>
       <div className={cn(
         "flex items-center gap-4 w-full",
-        "max-w-full mx-auto px-8" // padding inside for content comfort, but outer container is edge-to-edge
+        "max-w-full mx-auto px-8"
       )}>
 
         {/* Thumbnail */}
@@ -197,3 +224,4 @@ const MiniPlayerBand = () => {
 };
 
 export default MiniPlayerBand;
+
