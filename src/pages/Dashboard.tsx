@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { Plus, Headphones, Library, Settings, Star, Sparkles, LogOut } from "lucide-react";
+import { Plus, Headphones, Library, Star, Sparkles, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
@@ -49,7 +48,7 @@ const Dashboard = () => {
       title: "Create New Affirmation",
       description: "Start manifesting your desires",
       icon: Plus,
-      action: () => navigate('/builder'),
+      action: () => navigate('/goals'),
       color: "from-purple-500 to-pink-500"
     },
     {
