@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
+// Full-width pastel band at the bottom
 const MiniPlayerBand = () => {
   const {
     current,
@@ -87,88 +88,112 @@ const MiniPlayerBand = () => {
     return `${m}:${s}`;
   };
 
-  // Responsive padding: px-3 on mobile, px-6 on md+, taller, larger controls
+  // The actual player card to mimic the reference
   return (
+    // Pastel full-width band
     <div
-      className={cn(
-        // Responsive: max-w fits page, px matches dashboard widgets, min-h taller, vertical center for controls
-        "fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-6 w-[95vw] sm:w-[540px] max-w-[98vw]",
-        "rounded-2xl shadow-xl border-0",
-        "bg-gradient-to-r from-[#cda8fa] via-[#e7bbf1] to-[#f6c1de]",
-        "bg-opacity-95 flex items-center gap-4 min-h-[88px] py-3",
-        "cursor-pointer select-none transition-all duration-300 group"
-      )}
+      className="fixed bottom-0 left-0 w-full z-50 bg-gradient-to-r from-[#fae1ff] via-[#ecd9ff] to-[#ffe7f0] px-0 py-6 flex justify-center items-end"
       style={{
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        boxShadow: "0 10px 32px 0 rgba(160,95,225,0.16)",
+        minHeight: 108, // matches reference
+        boxShadow: "0 0 64px 0 rgba(162,120,233,0.14)",
+        transition: "padding 0.2s",
       }}
-      onClick={onBarClick}
     >
-      {/* Thumbnail */}
-      <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-white/40 text-primary font-bold text-lg shadow ring-2 ring-white/20 overflow-hidden mr-2">
-        <span className="text-2xl font-mulish">{current.title[0]}</span>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex flex-col flex-1 min-w-0 justify-center">
-        <div className="flex items-center justify-between gap-4 mb-0.5">
-          <span className="text-base font-bold text-black/90 truncate max-w-[120px] sm:max-w-[180px] drop-shadow-sm">
-            {/* Pastel background text, bold highlight (simulate yellow mark for demo) */}
-            <span className="bg-yellow-200 px-1 rounded text-black">{current.title}</span>
-          </span>
-          <span className="text-xs text-black/50 font-mono tracking-tight select-none">
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </span>
+      {/* Centered player card */}
+      <div
+        className={cn(
+          "flex items-center gap-3 md:gap-4 w-full max-w-[720px]",
+          "rounded-2xl bg-gradient-to-r from-[#d4b1ff] to-[#ffbbea]",
+          "px-5 md:px-10 py-5",
+          "shadow-xl",
+          "backdrop-blur-xl bg-opacity-80",
+          "cursor-pointer select-none transition-all duration-300 group"
+        )}
+        style={{
+          boxShadow: "0 6px 32px 0 rgba(160,95,225,0.10)",
+        }}
+        onClick={onBarClick}
+      >
+        {/* Thumbnail */}
+        <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-white/30 text-primary font-bold text-lg shadow ring-1 ring-white/30 overflow-hidden">
+          <span className="text-2xl font-mulish">{current.title[0]}</span>
         </div>
-        {/* Lyrics line */}
-        <span
-          className="text-xs text-black/80 truncate pt-0.5 max-w-[72vw] sm:max-w-full"
-          title={lyricsLine}
-        >
-          {lyricsLine || <span className="italic text-black/30">Instrumental</span>}
-        </span>
-        <Slider
-          value={[currentTime]}
-          max={duration || 100}
-          onValueChange={onSeek}
-          step={1}
-          className="w-full my-[6px] group-hover:opacity-100 opacity-95"
-          style={{
-            background:
-              "linear-gradient(90deg, #ffffff 0%, #f8def8 70%, #f7cbe7 100%)",
-            height: 7,
-            borderRadius: 10,
-          }}
-          onClick={e => e.stopPropagation()}
-        />
-      </div>
 
-      {/* Controls (just Play/Pause and Loop) */}
-      <div className="flex items-center gap-2 flex-shrink-0 pr-0.5 sm:pr-2">
-        <button
-          className="rounded-full bg-pink-200/90 hover:bg-pink-300/90 p-3 shadow transition disabled:opacity-60"
-          onClick={onPlayPause}
-          title={isPlaying ? "Pause" : "Play"}
-        >
-          {isPlaying ? (
-            <Pause className="w-7 h-7 text-purple-600" />
-          ) : (
-            <Play className="w-7 h-7 text-purple-600" />
-          )}
-        </button>
-        <button
-          className={cn(
-            "rounded-full p-3 ml-1 transition shadow",
-            isLooping
-              ? "bg-yellow-200/80 hover:bg-yellow-300"
-              : "bg-white/60 hover:bg-white/80"
-          )}
-          onClick={onLoopToggle}
-          title={isLooping ? "Looping enabled" : "Loop this track"}
-        >
-          <Repeat className={cn("w-6 h-6", isLooping ? "text-yellow-700" : "text-purple-400")} />
-        </button>
+        {/* Main Content */}
+        <div className="flex flex-col flex-1 min-w-0 justify-center">
+          <div className="flex items-center justify-between gap-2 mb-0.5">
+            <span className="text-base font-bold text-black/80 truncate max-w-[120px] sm:max-w-[180px] drop-shadow-sm">
+              <span className="bg-yellow-200 px-2 py-0.5 rounded text-black text-base font-bold">{current.title}</span>
+            </span>
+            <span className="text-xs text-black/60 font-mono tracking-tight select-none">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+          </div>
+          {/* Lyrics preview line */}
+          <span
+            className="text-sm text-black/80 truncate pt-1 max-w-[60vw] sm:max-w-full"
+            title={lyricsLine}
+          >
+            {lyricsLine || <span className="italic text-black/30">Instrumental</span>}
+          </span>
+          {/* The progress bar */}
+          <Slider
+            value={[currentTime]}
+            max={duration || 100}
+            onValueChange={onSeek}
+            step={1}
+            className="w-full my-[8px] group-hover:opacity-100 opacity-95"
+            style={{
+              background: "white",
+              height: 8,
+              borderRadius: 99,
+              boxShadow: "0 2px 8px #dbb5ff35",
+            }}
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+
+        {/* Controls (rounded, pastel soft as in ref) */}
+        <div className="flex items-center gap-2 flex-shrink-0 pr-0.5 md:pr-2">
+          <button
+            className="rounded-full shadow transition p-0.5"
+            onClick={onPlayPause}
+            title={isPlaying ? "Pause" : "Play"}
+            style={{
+              background: "radial-gradient(circle, #e8d7ff 70%, #fcdcfc 100%)",
+              width: 52, height: 52,
+              border: "none",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 2px 8px #d6b3fc60, 0 1px 0 #ffecfe86",
+            }}
+          >
+            {isPlaying ? (
+              <Pause className="w-7 h-7 text-purple-600" />
+            ) : (
+              <Play className="w-7 h-7 text-purple-600" />
+            )}
+          </button>
+          <button
+            className={cn(
+              "rounded-full ml-2 transition shadow",
+            )}
+            onClick={onLoopToggle}
+            title={isLooping ? "Looping enabled" : "Loop this track"}
+            style={{
+              background: isLooping
+                ? "radial-gradient(circle, #ffe86b 60%, #fff7ae 100%)"
+                : "radial-gradient(circle, #f3f1f9 70%, #e0e3ee 100%)",
+              width: 52, height: 52,
+              border: "none",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: isLooping
+                ? "0 2px 8px #ffe48660, 0 2px 8px #f0e9cf40"
+                : "0 2px 8px #d7cef760",
+            }}
+          >
+            <Repeat className={cn("w-6 h-6 transition", isLooping ? "text-yellow-700" : "text-purple-400")} />
+          </button>
+        </div>
       </div>
     </div>
   );
