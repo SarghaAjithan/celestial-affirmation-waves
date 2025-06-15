@@ -1,14 +1,16 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Play, Pause, RotateCcw, Save, Share, BookOpen, Heart } from "lucide-react";
+import { Play, Pause, RotateCcw, Save, Share, BookOpen, Heart, ArrowLeft } from "lucide-react";
 
 const AudioPlayer = () => {
+  const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState([45]);
   const [journalEntry, setJournalEntry] = useState('');
@@ -41,8 +43,18 @@ const AudioPlayer = () => {
   const moodEmojis = ['😔', '😐', '🙂', '😊', '✨'];
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="max-w-2xl mx-auto p-6">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        onClick={() => navigate(-1)}
+        className="mb-6 p-2"
+      >
+        <ArrowLeft className="w-5 h-5 mr-2" />
+        Back
+      </Button>
+
+      <div className="space-y-8">
         {/* Player Section */}
         <Card className="goal-card">
           <CardContent className="p-8">
@@ -134,7 +146,7 @@ const AudioPlayer = () => {
             {/* Mood Tracker */}
             <div className="mb-6">
               <Label className="text-sm font-medium mb-3 block">How are you feeling right now?</Label>
-              <div className="flex space-x-3">
+              <div className="flex space-x-3 justify-center">
                 {moodEmojis.map((emoji, index) => (
                   <Button
                     key={index}
