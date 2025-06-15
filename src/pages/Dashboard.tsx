@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, Headphones, Library, Star, Sparkles, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -11,10 +10,48 @@ interface Manifestation {
   created_at: string;
 }
 
+const inspirationalQuotes = [
+  {
+    text: "Your thoughts become things. Choose the good ones.",
+    author: "Mike Dooley"
+  },
+  {
+    text: "What lies behind us and what lies before us are tiny matters compared to what lies within us.",
+    author: "Ralph Waldo Emerson"
+  },
+  {
+    text: "The universe is not only stranger than we imagine, it is stranger than we can imagine.",
+    author: "J.B.S. Haldane"
+  },
+  {
+    text: "Be yourself; everyone else is already taken.",
+    author: "Oscar Wilde"
+  },
+  {
+    text: "Everything you need is inside you – you just need to access it.",
+    author: "Buddha"
+  },
+  {
+    text: "The only way to do great work is to love what you do.",
+    author: "Steve Jobs"
+  },
+  {
+    text: "Believe you can and you're halfway there.",
+    author: "Theodore Roosevelt"
+  }
+];
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [manifestations, setManifestations] = useState<Manifestation[]>([]);
+  const [currentQuote, setCurrentQuote] = useState(inspirationalQuotes[0]);
+
+  useEffect(() => {
+    // Set random quote on page load
+    const randomIndex = Math.floor(Math.random() * inspirationalQuotes.length);
+    setCurrentQuote(inspirationalQuotes[randomIndex]);
+  }, []);
 
   useEffect(() => {
     const fetchManifestations = async () => {
@@ -157,14 +194,12 @@ const Dashboard = () => {
           )}
 
           {/* Inspiration Quote */}
-          <div className="text-center">
-            <div className="goal-card max-w-2xl mx-auto">
-              <Sparkles className="w-8 h-8 text-purple-500 mx-auto mb-4" />
-              <p className="text-lg font-light text-gray-700 italic mb-2">
-                "Your thoughts become things. Choose the good ones."
-              </p>
-              <p className="text-sm text-gray-500">— Mike Dooley</p>
-            </div>
+          <div className="goal-card max-w-4xl mx-auto text-center py-6">
+            <Sparkles className="w-6 h-6 text-purple-500 mx-auto mb-3" />
+            <p className="text-base font-light text-gray-700 italic mb-2">
+              "{currentQuote.text}"
+            </p>
+            <p className="text-sm text-gray-500">— {currentQuote.author}</p>
           </div>
         </div>
       </main>
