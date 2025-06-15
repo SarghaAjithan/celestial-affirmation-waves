@@ -110,11 +110,8 @@ const Dashboard = () => {
     <div className="min-h-screen cosmic-bg floating-particles">
       {/* Header */}
       <header className="p-6">
-        <div className="flex justify-between items-center max-w-6xl mx-auto">
--          <h1 className="text-2xl font-bold font-playfair" style={{ color: '#5A4291' }}>iManifest</h1>
-+          <h1 className="text-2xl font-bold font-dancing" style={{ color: '#5A4291', letterSpacing: '1px' }}>
-+            iManifest
-+          </h1>
+        <div className="flex justify-end items-center max-w-6xl mx-auto">
+          {/* Logo removed from here */}
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">
               {user?.email}
@@ -133,6 +130,16 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="px-6 pb-20">
         <div className="max-w-6xl mx-auto">
+          {/* Centered Logo above Welcome */}
+          <div className="flex flex-col items-center mb-6">
+            <h1
+              className="text-4xl md:text-5xl font-dancing"
+              style={{ color: '#5A4291', letterSpacing: '1px' }}
+            >
+              iManifest
+            </h1>
+          </div>
+
           {/* Welcome Section */}
           <div className="mb-12 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 font-mulish" style={{ color: '#5A4291' }}>
@@ -217,3 +224,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
