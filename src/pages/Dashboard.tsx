@@ -1,9 +1,10 @@
+
 import { Button } from "@/components/ui/button";
-import { Plus, Headphones, Library, Star, Sparkles, LogOut, View } from "lucide-react";
+import { Plus, Headphones, Library, Star, Sparkles, LogOut, View, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
-import DashboardLibraryPreview from "@/components/DashboardLibraryPreview";
+// Removed: import DashboardLibraryPreview from "@/components/DashboardLibraryPreview";
 
 interface Manifestation {
   id: string;
@@ -124,8 +125,7 @@ const Dashboard = () => {
     }
   ];
 
-  // New: slice first 3 library items (can be different than recently played)
-  const previewLibrary = libraryManifestations.slice(0, 3);
+  // Removed: const previewLibrary = libraryManifestations.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#FFF7EF] floating-particles">
@@ -157,7 +157,6 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Banner Illustration */}
         <img
           src="/lovable-uploads/95d7f521-a8e3-4594-a826-e75e34b45b4a.png"
           alt="pastel hands holding light"
@@ -221,15 +220,15 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Affirmations (section header left aligned, cards not cut off) */}
+        {/* Recent Affirmations - now the only card grid section */}
         {recentAffirmations.length > 0 && (
           <div className="mb-10">
             <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-5 text-left px-1">Recent Played</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {recentAffirmations.map((affirmation, index) => (
+              {recentAffirmations.map((affirmation) => (
                 <div
                   key={affirmation.id}
-                  className="flex items-center rounded-2xl bg-[#EDE3F7] px-5 py-5 mb-2 shadow-sm hover:shadow-md transition cursor-pointer"
+                  className="flex items-center rounded-2xl bg-[#EDE3F7] px-5 py-5 mb-2 shadow-sm hover:shadow-md transition cursor-pointer group"
                   onClick={() => navigate(`/now-playing?id=${affirmation.id}`)}
                   style={{ minHeight: 72 }}
                 >
@@ -240,16 +239,27 @@ const Dashboard = () => {
                     <h4 className="font-semibold text-gray-800 truncate">{affirmation.title}</h4>
                     <div className="text-gray-600 text-sm truncate">Created: {new Date(affirmation.created_at).toLocaleDateString()}</div>
                   </div>
-                  <Star className="w-5 h-5 text-purple-400 ml-3 flex-shrink-0" />
+                  {/* Play Button */}
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="ml-3 text-purple-700 bg-white border border-purple-200 shadow-none group-hover:bg-purple-50 group-hover:border-purple-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/now-playing?id=${affirmation.id}`);
+                    }}
+                    title="Play"
+                  >
+                    <Play className="w-5 h-5" />
+                  </Button>
+                  <Star className="w-5 h-5 text-purple-400 ml-2 flex-shrink-0" />
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* My Library Section (moved below "Recent Played") */}
-        <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 text-left px-1">My Library</h3>
-        <DashboardLibraryPreview manifestations={libraryManifestations} />
+        {/* My Library Section removed */}
 
         {/* Inspiration Quote */}
         <div className="rounded-2xl bg-white/50 shadow px-6 py-4 text-center mx-auto mb-4">
@@ -265,3 +275,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
