@@ -79,7 +79,8 @@ const Goals = () => {
       </header>
 
       {/* Main Content */}
-      <main className="px-2 pb-0">
+-      <main className="px-2 pb-0">
++      <main className="px-[42px] pb-0">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 animate-fade-in">
             <h2 className="text-4xl md:text-5xl font-bold mb-2 gradient-text font-playfair">
