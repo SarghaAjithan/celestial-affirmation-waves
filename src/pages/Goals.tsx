@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Heart, TrendingUp, Sparkles, Shield, Leaf, Briefcase, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useOnboarding } from "@/contexts/OnboardingContext";
 
 const Goals = () => {
   const navigate = useNavigate();
+  const { completeOnboarding } = useOnboarding();
   const [selectedGoal, setSelectedGoal] = useState<string>("");
 
   const goals = [
@@ -55,6 +57,7 @@ const Goals = () => {
 
   const handleContinue = () => {
     if (selectedGoal) {
+      completeOnboarding(); // Mark onboarding as complete
       navigate('/builder', { state: { goal: selectedGoal } });
     }
   };

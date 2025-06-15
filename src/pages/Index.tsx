@@ -2,9 +2,23 @@
 import { Button } from "@/components/ui/button";
 import { Star, Sparkles, Heart, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useOnboarding } from "@/contexts/OnboardingContext";
+import { useEffect } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { isOnboardingComplete } = useOnboarding();
+
+  useEffect(() => {
+    if (isOnboardingComplete) {
+      navigate('/dashboard');
+    }
+  }, [isOnboardingComplete, navigate]);
+
+  // Show onboarding screen only for new users
+  if (isOnboardingComplete) {
+    return null; // Will redirect to dashboard
+  }
 
   return (
     <div className="min-h-screen cosmic-bg floating-particles flex flex-col">
