@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -340,7 +341,7 @@ const ManifestationCreator = () => {
           {/* Mood selector */}
           <div className="flex flex-col flex-1 min-w-[180px]">
             <Label className="text-xs font-medium mb-1 whitespace-nowrap" htmlFor="mood-options">
-              How are you feeling?
+              What is your current feeling about the manifestation desire?
             </Label>
             <div id="mood-options" className="flex flex-row gap-2">
               {moodEmojis.map((emoji, index) => (
