@@ -108,33 +108,21 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#FFF7EF] floating-particles">
-      {/* Hero/Banner Section */}
+      {/* Hero Section with Banner Image */}
       <div
         className="relative w-full shadow-none"
         style={{
           background: "linear-gradient(180deg, #EDDFFB 0%, #FCF6FF 90%)",
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
-          minHeight: 320,
+          minHeight: 340,
           marginBottom: 0,
-          overflow: "hidden",
+          overflow: "visible",
           paddingBottom: 0,
         }}
       >
-        {/* Banner Illustration */}
-        <img
-          src="/lovable-uploads/95d7f521-a8e3-4594-a826-e75e34b45b4a.png"
-          alt="pastel hands holding light"
-          className="absolute left-1/2 top-0 -translate-x-1/2 w-full md:w-full max-w-[100vw] min-w-[300px] h-auto object-cover pointer-events-none select-none z-0"
-          style={{
-            opacity: 1,
-            filter: "none",
-            maxHeight: 340,
-          }}
-        />
-
         {/* Header bar: logo (left), email (right) */}
-        <header className="flex items-center justify-between px-10 pt-8 z-10 relative">
+        <header className="flex items-center justify-between px-6 sm:px-10 pt-8 z-10 relative">
           <span className="font-playfair text-[2rem] font-bold text-[#43236B] tracking-wide select-none">iManifest</span>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-700 font-inter">{user?.email}</span>
@@ -149,40 +137,57 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* HERO HEADLINE CONTENT */}
-        <div
-          className="mx-auto flex flex-col items-center text-center z-10 relative"
-          style={{ maxWidth: 700, minHeight: 128, padding: "44px 0 32px 0" }}
+        {/* Banner Illustration */}
+        <img
+          src="/lovable-uploads/95d7f521-a8e3-4594-a826-e75e34b45b4a.png"
+          alt="pastel hands holding light"
+          className="absolute left-1/2 top-0 -translate-x-1/2 w-full max-w-[100vw] min-w-[300px] h-auto object-cover pointer-events-none select-none z-0"
+          style={{
+            opacity: 1,
+            filter: "none",
+            maxHeight: 320,
+            borderTopLeftRadius: 32,
+            borderTopRightRadius: 32,
+          }}
+        />
+        {/* Provide space below image for headline */}
+        <div style={{ minHeight: 320, width: "100%" }} className="pointer-events-none select-none"></div> 
+      </div>
+
+      {/* Move the hero headline content BELOW the image */}
+      <div
+        className="mx-auto flex flex-col items-center text-center z-10 relative -mt-20 sm:-mt-24"
+        style={{ maxWidth: 700, minHeight: 128, padding: "0 0 32px 0" }}
+      >
+        <h1
+          className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3"
+          style={{
+            color: "#F2C661",
+            letterSpacing: "-0.03em",
+            fontWeight: 700,
+            lineHeight: 1.2,
+            textShadow: "0 4px 30px rgba(80,40,130,0.20)"
+          }}
         >
-          <h1
-            className="text-[2.45rem] sm:text-[3rem] md:text-[3.5rem] font-playfair font-bold mb-3"
-            style={{
-              color: "#F2C661",
-              letterSpacing: "-0.03em",
-              fontWeight: 700,
-              lineHeight: 1.2,
-            }}
-          >
-            Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
-          </h1>
-          <p className="text-lg sm:text-xl font-inter text-gray-700 font-normal">
-            Ready to continue your manifestation journey?
-          </p>
-        </div>
+          Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
+        </h1>
+        <p className="text-lg sm:text-xl font-inter text-gray-700 font-normal">
+          Ready to continue your manifestation journey?
+        </p>
       </div>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto w-full pt-0 px-2 sm:px-4 pb-20">
-        {/* Quick Actions: Centered, spaced evenly */}
+        {/* Quick Actions: Centered and visually separated from the image */}
         <div className="flex flex-col items-center justify-center w-full">
-          <div className="flex flex-col md:flex-row w-full md:justify-center gap-4 md:gap-8 -mt-16 mb-12 px-1">
+          <div className="flex flex-col md:flex-row w-full md:justify-center gap-5 md:gap-8 mb-12 px-0 sm:px-2">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
                 <div
                   key={action.title}
                   className="w-full md:w-[320px] rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 cursor-pointer flex flex-row md:flex-col items-center md:items-start px-5 py-6 transition-all duration-150"
-                  style={{ animationDelay: `${index * 0.11}s`, minWidth: 220, maxWidth: 340 }}
+                  style={{ minWidth: 210, maxWidth: 340 }}
                   onClick={action.action}
                 >
                   <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mb-0 md:mb-4 mr-4 md:mr-0`}>
@@ -198,17 +203,17 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Affirmations (section header left aligned) */}
+        {/* Recent Affirmations (section header left aligned, cards not cut off) */}
         {recentAffirmations.length > 0 && (
           <div className="mb-10">
-            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-5 text-left">Recent Played</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-5 text-left px-1">Recent Played</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {recentAffirmations.map((affirmation, index) => (
                 <div
                   key={affirmation.id}
                   className="flex items-center rounded-2xl bg-[#EDE3F7] px-5 py-5 mb-2 shadow-sm hover:shadow-md transition cursor-pointer"
                   onClick={() => navigate(`/now-playing?id=${affirmation.id}`)}
-                  style={{ minHeight: 72, animationDelay: `${(index + 3) * 0.1}s` }}
+                  style={{ minHeight: 72 }}
                 >
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#b38ffa] to-[#dcbafa] flex items-center justify-center mr-4 font-mulish text-white text-xl font-bold">
                     {affirmation.title[0] || "A"}
