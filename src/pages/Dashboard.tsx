@@ -131,9 +131,9 @@ const Dashboard = () => {
       <main className="px-6 pb-20">
         <div className="max-w-6xl mx-auto">
           {/* Centered Logo above Welcome */}
-          <div className="flex flex-col items-center mb-6">
+          <div className="flex flex-col items-center mb-3">
             <h1
-              className="text-4xl md:text-5xl font-dancing"
+              className="text-2xl md:text-3xl font-dancing"
               style={{ color: '#5A4291', letterSpacing: '1px' }}
             >
               iManifest
@@ -141,11 +141,11 @@ const Dashboard = () => {
           </div>
 
           {/* Welcome Section */}
-          <div className="mb-12 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 font-mulish" style={{ color: '#5A4291' }}>
+          <div className="mb-12 animate-fade-in flex flex-col items-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 font-mulish text-center" style={{ color: '#5A4291' }}>
               Welcome Back, Manifestor ✨
             </h2>
-            <p className="text-lg text-gray-700 font-light">
+            <p className="text-lg text-gray-700 font-light text-center">
               Ready to continue your manifestation journey?
             </p>
           </div>
