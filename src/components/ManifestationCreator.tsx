@@ -9,6 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
 import { useLocation } from "react-router-dom";
 import SaveManifestationModal from "./SaveManifestationModal";
+import { getGoalText, createPersonalizedAffirmationText } from "@/utils/affirmationHelpers";
+import { useSaveManifestation } from "@/hooks/useSaveManifestation";
+import { voiceOptions, musicOptions, moodEmojis } from "@/constants/manifestationOptions";
 
 interface ManifestationFormData {
   name: string;
@@ -48,129 +51,9 @@ const ManifestationCreator = () => {
   const [isRegeneratingPreviews, setIsRegeneratingPreviews] = useState(false);
   const manifestationPreviewRef = useRef<HTMLDivElement | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  // OpenAI voice options with preview text
-  const voiceOptions = [
-    { value: 'alloy', label: 'Alloy (Neutral)' },
-    { value: 'echo', label: 'Echo (Warm)' },
-    { value: 'fable', label: 'Fable (Expressive)' },
-    { value: 'onyx', label: 'Onyx (Deep)' },
-    { value: 'nova', label: 'Nova (Bright)' },
-    { value: 'shimmer', label: 'Shimmer (Gentle)' }
-  ];
-
-  const musicOptions = [
-    { value: 'ocean', label: 'Ocean Waves' },
-    { value: 'forest', label: 'Forest Sounds' },
-    { value: 'piano', label: 'Gentle Piano' },
-    { value: 'lofi', label: 'Lo-fi Beats' },
-    { value: 'bells', label: 'Temple Bells' }
-  ];
 
   // Mood tracker state (now part of the form)
   const [mood, setMood] = useState<number | null>(null);
-
-  // Get goal text based on selection from Goals page
-  function getGoalText(goalId: string): string {
-    const goalTexts = {
-      wealth: 'I want to manifest financial abundance and prosperity in my life',
-      love: 'I want to attract meaningful love and deep connections',
-      confidence: 'I want to build unshakeable confidence and self-worth',
-      peace: 'I want to cultivate inner peace and emotional balance',
-      health: 'I want to manifest vibrant health and vitality',
-      career: 'I want to achieve career growth and professional fulfillment',
-      custom: 'I want to create my own unique manifestation'
-    };
-    return goalTexts[goalId as keyof typeof goalTexts] || '';
-  }
-
-  const handleInputChange = (field: keyof ManifestationFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (step !== 'input') setStep('input');
-  };
-
-  // Enhanced affirmation text creation with personalization
-  const createPersonalizedAffirmationText = (
-    name: string,
-    goal: string,
-    customAffirmations: string,
-    goalType: string
-  ): string => {
-    // Personalized greetings based on goal type
-    const personalizedGreetings = {
-      wealth: `${name}, you are a magnet for abundance and prosperity`,
-      love: `${name}, you are worthy of deep, meaningful love`,
-      confidence: `${name}, you radiate confidence and inner strength`,
-      peace: `${name}, you are a beacon of calm and tranquility`,
-      health: `${name}, your body is vibrant and full of life`,
-      career: `${name}, you are destined for professional success`,
-      custom: `${name}, you are a powerful creator of your reality`
-    };
-
-    // Goal-specific affirmations
-    const goalSpecificAffirmations = {
-      wealth: [
-        'Money flows to me easily and effortlessly',
-        'I am open to receiving abundance from multiple sources',
-        'My financial situation improves every day',
-        'I make wise decisions that increase my wealth'
-      ],
-      love: [
-        'I attract loving, supportive relationships into my life',
-        'I am open to giving and receiving love freely',
-        'The perfect partner is drawn to my authentic self',
-        'I radiate love and attract love in return'
-      ],
-      confidence: [
-        'I trust my abilities and believe in myself completely',
-        'I speak my truth with courage and conviction',
-        'I am comfortable being my authentic self',
-        'My confidence grows stronger each day'
-      ],
-      peace: [
-        'I am calm and centered in all situations',
-        'Peace flows through every aspect of my life',
-        'I release stress and embrace tranquility',
-        'I find serenity in the present moment'
-      ],
-      health: [
-        'My body heals and regenerates perfectly',
-        'I make choices that support my optimal health',
-        'Energy and vitality flow through every cell',
-        'I am grateful for my strong, healthy body'
-      ],
-      career: [
-        'Opportunities for growth come to me naturally',
-        'I excel in my chosen field and am recognized for my talents',
-        'My career brings me fulfillment and financial reward',
-        'I am a valuable contributor to my workplace'
-      ],
-      custom: [
-        'I have the power to create any reality I desire',
-        'The universe supports my highest good',
-        'I am aligned with my true purpose',
-        'Miracles happen in my life regularly'
-      ]
-    };
-
-    const greeting = personalizedGreetings[goalType as keyof typeof personalizedGreetings] || personalizedGreetings.custom;
-    const specificAffirmations = goalSpecificAffirmations[goalType as keyof typeof goalSpecificAffirmations] || goalSpecificAffirmations.custom;
-
-    // Create personalized goal statement
-    const goalStatement = goal.toLowerCase().replace('i want to', 'I am').replace('i', 'I');
-
-    const allAffirmations = [
-      goalStatement,
-      ...specificAffirmations
-    ];
-
-    if (customAffirmations) {
-      allAffirmations.push(...customAffirmations.split('\n').filter(a => a.trim()));
-    }
-
-    return `${greeting}. ${allAffirmations.join('. ')}. Take a deep breath and feel these truths resonating within your soul.`;
-  };
 
   // Fetch all static voice previews from storage on mount
   useEffect(() => {
@@ -385,42 +268,22 @@ const ManifestationCreator = () => {
     setShowSaveModal(true);
   };
 
-  const handleSaveManifestation = async (title: string) => {
-    setIsSaving(true);
-    setShowSaveModal(false);
-    try {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data, error } = await supabase
-        .from("manifestations")
-        .insert([{
-          title,
-          text: generatedText,
-          audio_url: audioUrl,
-          mood,
-          voice: formData.voice,
-          background_music: formData.backgroundMusic
-        }]);
-      if (error) throw error;
+  const { isSaving, saveManifestation } = useSaveManifestation(
+    generatedText, audioUrl, mood, formData.voice, formData.backgroundMusic
+  );
 
-      toast({
-        title: "Saved to Library",
-        description: "Your manifestation has been added to your personal collection."
-      });
-    } catch (error) {
-      toast({
-        title: "Save failed",
-        description: "There was an error saving your manifestation.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSaveManifestation = async (title: string) => {
+    setShowSaveModal(false);
+    await saveManifestation(title);
   };
 
   // Mood emoji options
   const moodEmojis = ['😔', '😐', '🙂', '😊', '✨'];
 
   const [step, setStep] = useState<'input' | 'text' | 'voice' | 'audio'>('input');
+
+  const handleEditText = () => setIsEditingText(true);
+  const handleSaveEdit = () => setIsEditingText(false);
 
   // We use a single-step progressive box flow.
   return (
@@ -731,34 +594,3 @@ const ManifestationCreator = () => {
 };
 
 export default ManifestationCreator;
-
-// Helper function to create affirmation text
-function createAffirmationText(
-  name: string,
-  goal: string,
-  customAffirmations: string,
-  tone: string
-): string {
-  const greetings = {
-    empowering: `${name}, you are a powerful creator`,
-    soothing: `${name}, breathe deeply and feel the peace within`,
-    motivational: `${name}, today is your day to shine`,
-    spiritual: `${name}, connect with your divine essence`
-  };
-
-  const affirmations = [
-    `I, ${name}, ${goal.toLowerCase().replace('i want to', '').replace('i', '')}`,
-    `Every day, I move closer to my dreams`,
-    `I am worthy of all the good things life has to offer`,
-    `My positive thoughts create positive outcomes`,
-    `I trust in my ability to create the life I desire`
-  ];
-
-  if (customAffirmations) {
-    affirmations.push(...customAffirmations.split('\n').filter(a => a.trim()));
-  }
-
-  const greeting = greetings[tone as keyof typeof greetings] || greetings.empowering;
-  
-  return `${greeting}. ${affirmations.join('. ')}. Take a deep breath and feel these truths resonating within you.`;
-}
