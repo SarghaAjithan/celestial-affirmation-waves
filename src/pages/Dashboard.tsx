@@ -225,7 +225,7 @@ const Dashboard = () => {
         )}
 
         {/* Inspiration Quote */}
-        <div className="rounded-2xl bg-white/50 shadow px-6 py-4 text-center max-w-2xl mx-auto mb-4">
+        <div className="rounded-2xl bg-white/50 shadow px-6 py-4 text-center mx-auto mb-4">
           <Sparkles className="w-5 h-5 text-purple-400 mx-auto mb-2" />
           <p className="text-base font-light text-gray-700 italic mb-1">
             "{currentQuote.text}"
