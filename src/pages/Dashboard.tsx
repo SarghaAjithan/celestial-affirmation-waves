@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus, Headphones, Library, Star, Sparkles, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -72,7 +73,7 @@ const Dashboard = () => {
       {/* Header */}
       <header className="p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold gradient-text font-playfair">Manifest</h1>
+          <h1 className="text-2xl font-bold gradient-text font-playfair">iManifest</h1>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">
               {user?.email}
