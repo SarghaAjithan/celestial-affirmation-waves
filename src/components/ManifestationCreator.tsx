@@ -388,17 +388,17 @@ const ManifestationCreator = () => {
   const moodEmojis = ['😔', '😐', '🙂', '😊', '✨'];
 
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-8">
+    <div className="max-w-2xl mx-auto p-2 space-y-6">
       {/* Header */}
-      <div className="text-center mb-4">
-        <h1 className="text-3xl font-bold gradient-text font-playfair mb-2">
+      <div className="text-center mb-3">
+        <h1 className="text-2xl font-bold gradient-text font-playfair mb-1">
           Manifestation Creator
         </h1>
-        <p className="text-gray-600 font-light">
+        <p className="text-gray-600 font-light text-sm">
           Create your personalized affirmations step by step
         </p>
         {selectedGoalFromRoute && (
-          <p className="text-sm text-purple-600 mt-2">
+          <p className="text-xs text-purple-600 mt-2">
             Creating manifestation for: {selectedGoalFromRoute.charAt(0).toUpperCase() + selectedGoalFromRoute.slice(1)}
           </p>
         )}
@@ -413,68 +413,71 @@ const ManifestationCreator = () => {
             <span>Your Manifestation Details</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 p-3">
+          {/* 1. Basic Information in compact form */}
           <div>
-            <h3 className="font-semibold text-purple-700 mb-3 flex items-center">
-              <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">1</span>
+            <h3 className="font-semibold text-purple-700 mb-2 flex items-center">
+              <span className="bg-purple-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">1</span>
               Basic Information
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div>
-                <Label htmlFor="name">What should we call you?</Label>
+                <Label htmlFor="name" className="text-xs">Name</Label>
                 <Input
                   id="name"
-                  placeholder="Enter your name..."
+                  placeholder="Name..."
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="mt-2"
+                  className="mt-1 h-8 px-2 py-1 text-sm"
                 />
               </div>
-
               <div>
-                <Label htmlFor="goal">What's your heart's desire?</Label>
+                <Label htmlFor="goal" className="text-xs">Goal</Label>
                 <Textarea
                   id="goal"
-                  placeholder="I want to manifest abundance and financial freedom..."
+                  placeholder="I want to manifest abundance..."
                   value={formData.goal}
                   onChange={(e) => handleInputChange('goal', e.target.value)}
-                  className="mt-2 min-h-20"
+                  className="mt-1 min-h-14 text-sm"
+                  style={{ fontSize: 14, resize: "vertical" }}
                 />
               </div>
-
               <div>
-                <Label htmlFor="affirmations">Custom Affirmations (Optional)</Label>
+                <Label htmlFor="affirmations" className="text-xs">Custom Affirmations <span className="text-gray-400">(Optional)</span></Label>
                 <Textarea
                   id="affirmations"
-                  placeholder="Add your own personal affirmations here..."
+                  placeholder="Add your own affirmations..."
                   value={formData.customAffirmations}
                   onChange={(e) => handleInputChange('customAffirmations', e.target.value)}
-                  className="mt-2 min-h-16"
+                  className="mt-1 min-h-10 text-sm"
+                  style={{ fontSize: 14, resize: "vertical" }}
                 />
               </div>
 
-              {/* Mood tracker now here */}
-              <div className="flex flex-col mt-2">
-                <Label className="text-sm font-medium mb-1">How are you feeling?</Label>
-                <div className="flex space-x-2">
+              {/* Mood tracker: straight horizontal compact */}
+              <div className="flex items-center space-x-2 mt-1">
+                <Label className="text-xs font-medium mr-2 whitespace-nowrap mb-0">How are you feeling?</Label>
+                <div className="flex space-x-1">
                   {moodEmojis.map((emoji, index) => (
                     <Button
                       key={index}
                       variant={mood === index ? "default" : "ghost"}
-                      size="sm"
+                      size="icon"
                       onClick={() => setMood(index)}
-                      className={`text-2xl p-1 ${mood === index ? "scale-110 border border-purple-400 bg-purple-100" : "hover:scale-110"} transition-transform`}
+                      className={`text-lg px-2 py-1 h-8 w-8 leading-none rounded-full ${mood === index ? "scale-110 border border-purple-400 bg-purple-100" : "hover:scale-110"} transition-transform`}
+                      tabIndex={0}
+                      aria-label={emoji}
                     >
                       {emoji}
                     </Button>
                   ))}
                 </div>
               </div>
-
-              <Button 
+              {/* Moved Generate button slightly up */}
+              <Button
                 type="button"
                 onClick={handleGenerateText}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-base"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Generate Manifestation Text
@@ -484,24 +487,21 @@ const ManifestationCreator = () => {
         </CardContent>
       </Card>
 
-      {/* 2. Audio Settings (Minimalist) */}
+      {/* 2. Minimalist Audio Settings directly below basic info, minimal space */}
       {generatedText && (
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle>
-              <span className="flex items-center">
-                <Volume2 className="w-5 h-5 text-pink-500 mr-2" />
-                Audio Settings
-              </span>
+        <Card className="glass-card shadow-none border-0 bg-white/70 mt-3">
+          <CardHeader className="py-1 px-2">
+            <CardTitle className="text-base flex items-center">
+              <Volume2 className="w-4 h-4 text-pink-500 mr-1" />
+              Audio Settings
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2 p-2">
             <div>
-              <Label className="text-sm font-medium mb-2">Voice Style</Label>
-              {/* Compact vertical radio select */}
-              <div className="flex flex-wrap gap-2 mt-1">
+              <Label className="text-xs font-medium mb-1">Voice Style</Label>
+              <div className="flex flex-wrap gap-1 mt-1">
                 {voiceOptions.map(option => (
-                  <div key={option.value} className={`flex items-center px-2 py-1 rounded-md border border-gray-200 bg-white/90 shadow-sm ${formData.voice === option.value ? 'border-purple-500' : 'hover:border-purple-300'} transition-all`}>
+                  <div key={option.value} className={`flex items-center px-1 py-0.5 rounded border border-gray-200 bg-white/90 shadow-sm ${formData.voice === option.value ? 'border-purple-500' : 'hover:border-purple-300'} transition-all`}>
                     <input
                       type="radio"
                       id={`voice-${option.value}`}
@@ -509,9 +509,9 @@ const ManifestationCreator = () => {
                       value={option.value}
                       checked={formData.voice === option.value}
                       onChange={(e) => handleInputChange('voice', e.target.value)}
-                      className="accent-purple-500 mr-2"
+                      className="accent-purple-500 mr-1"
                     />
-                    <label htmlFor={`voice-${option.value}`} className="font-medium cursor-pointer text-sm">
+                    <label htmlFor={`voice-${option.value}`} className="font-medium cursor-pointer text-xs">
                       {option.label}
                     </label>
                     <Button
@@ -529,19 +529,18 @@ const ManifestationCreator = () => {
                       }
                     </Button>
                     {!voicePreviews[option.value] && (
-                      <span className="text-xs text-orange-400 ml-1">⚠</span>
+                      <span className="text-[10px] text-orange-400 ml-1">⚠</span>
                     )}
                   </div>
                 ))}
               </div>
             </div>
-
-            <Button 
+            <Button
               type="button"
               onClick={handleGenerateAudio}
               disabled={isGeneratingAudio || !formData.voice}
-              className="w-full mt-2 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
-              size="lg"
+              className="w-full mt-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-sm"
+              size="sm"
             >
               {isGeneratingAudio ? (
                 <>
