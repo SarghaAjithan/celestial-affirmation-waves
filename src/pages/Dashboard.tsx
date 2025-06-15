@@ -153,15 +153,13 @@ const Dashboard = () => {
       {/* Hero headline content - positioned directly after image */}
       <div className="mx-auto flex flex-col items-center text-center px-4 sm:px-6" style={{ maxWidth: 700 }}>
         <h1
-          className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3"
+          className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3 -mt-14 sm:-mt-20 md:-mt-24 lg:-mt-28"
           style={{
             color: "#F2C661",
             letterSpacing: "-0.03em",
             fontWeight: 700,
             lineHeight: 1.2,
             textShadow: "0 4px 30px rgba(80,40,130,0.20)",
-            position: "relative",
-            bottom: "36px",
           }}
         >
           Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
