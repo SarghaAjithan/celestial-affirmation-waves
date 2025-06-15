@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
@@ -27,35 +26,37 @@ serve(async (req) => {
 
 The script must follow this EXACT structure with natural breaks and smooth transitions:
 
-1. **Greeting and Empowerment:** Start by addressing the user by their name and acknowledging their mood supportively. Use warm, encouraging language.
+1. Greeting and Empowerment: Start by addressing the user by their name and acknowledging their mood supportively. Use warm, encouraging language.
 
-2. **You Are Affirmations:** Create 3-4 affirmations describing the user as already achieving their goal. Use "You, ${name}, are..." or "${name}, you are..." phrasing. Make these emotionally resonant and specific to their goal.
+2. You Are Affirmations: Create 3-4 affirmations describing the user as already achieving their goal. Use "You, ${name}, are..." or "${name}, you are..." phrasing. Make these emotionally resonant and specific to their goal.
 
-3. **Smooth Transition:** Create a natural bridge from "You are" to "I am" with phrases like:
+3. Smooth Transition: Create a natural bridge from "You are" to "I am" with phrases like:
    - "Now, let these truths become your own inner voice..."
    - "Feel these words flowing through you as your own truth..."
    - "Take a deep breath, and let these affirmations become yours..."
    - "Now, repeat after me, and let these powerful truths become your reality..."
 
-4. **I Am Statements:** Provide 4-6 powerful "I am" statements in first person. These should be:
+4. I Am Statements: Provide 4-6 powerful "I am" statements in first person. These should be:
    - Present-tense and positive
    - Emotionally compelling
    - Directly related to the goal
    - Progressively building in power
 
-5. **Integration of Custom Affirmations:** If provided, weave custom affirmations naturally throughout the script, converting them to match the current section's perspective.
+5. Integration of Custom Affirmations: If provided, weave custom affirmations naturally throughout the script, converting them to match the current section's perspective.
 
-6. **Powerful Closing:** End with a calming, reassuring statement that helps anchor the affirmations, such as:
+6. Powerful Closing: End with a calming, reassuring statement that helps anchor the affirmations, such as:
    - "Take a deep breath and feel these truths resonating within your soul."
    - "Let these affirmations flow through every cell of your being."
 
 IMPORTANT FORMATTING RULES:
+- DO NOT use any markdown formatting like ** ** or __ __ as this will be converted to audio
 - Use natural pauses indicated by "..." (ellipses) for breathing space
-- Add paragraph breaks between major sections
+- Add paragraph breaks between major sections for natural flow
 - The tone should be inspiring, soothing, and deeply personal
 - Make it sound like a guided meditation script, not a list
 - Include gentle breathing cues where appropriate
-- The transition from "You" to "I" should feel seamless and natural`;
+- The transition from "You" to "I" should feel seamless and natural
+- Write everything in plain text without any special formatting or symbols`;
 
     const userPrompt = `
 User Details:
