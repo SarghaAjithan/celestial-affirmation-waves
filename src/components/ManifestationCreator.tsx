@@ -47,6 +47,7 @@ const ManifestationCreator = () => {
   const [fullManifestationAudio, setFullManifestationAudio] = useState<string | null>(null);
   const [voicePreviewAudios, setVoicePreviewAudios] = useState<{ [key: string]: HTMLAudioElement }>({});
   const [voicePreviews, setVoicePreviews] = useState<{ [voice: string]: string }>({});
+  const [isRegeneratingPreviews, setIsRegeneratingPreviews] = useState(false);
 
   // OpenAI voice options with preview text
   const voiceOptions = [
@@ -175,23 +176,76 @@ const ManifestationCreator = () => {
           'alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'
         ];
 
-        // Build direct public URLs (relying on consistent naming)
+        console.log('Fetching voice previews from storage...');
         const previews: { [key: string]: string } = {};
+        
         for (const voice of supportedVoices) {
           const { data } = supabase.storage
             .from('voice-previews')
             .getPublicUrl(`${voice}-preview.mp3`);
+          
           if (data.publicUrl) {
-            previews[voice] = data.publicUrl;
+            // Test if the URL actually works by trying to load it
+            try {
+              const testResponse = await fetch(data.publicUrl, { method: 'HEAD' });
+              if (testResponse.ok) {
+                previews[voice] = data.publicUrl;
+                console.log(`✓ Voice preview found for ${voice}:`, data.publicUrl);
+              } else {
+                console.warn(`✗ Voice preview URL not accessible for ${voice}:`, testResponse.status);
+              }
+            } catch (err) {
+              console.warn(`✗ Voice preview URL test failed for ${voice}:`, err);
+            }
           }
         }
+        
         setVoicePreviews(previews);
+        console.log('Voice previews loaded:', Object.keys(previews));
       } catch (err) {
         console.error('Failed to load voice previews:', err);
       }
     };
     fetchVoicePreviews();
   }, []);
+
+  // Function to regenerate all voice previews
+  const handleRegenerateVoicePreviews = async () => {
+    setIsRegeneratingPreviews(true);
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      toast({
+        title: "Regenerating Voice Previews",
+        description: "This may take a moment..."
+      });
+
+      const { data, error } = await supabase.functions.invoke('trigger-prebuild-voices');
+      
+      if (error) throw error;
+      
+      if (data?.success) {
+        toast({
+          title: "Voice Previews Regenerated!",
+          description: "All voice previews have been updated. Refreshing..."
+        });
+        
+        // Refresh the preview URLs
+        window.location.reload();
+      } else {
+        throw new Error(data?.error || 'Unknown error occurred');
+      }
+    } catch (error) {
+      console.error('Failed to regenerate voice previews:', error);
+      toast({
+        title: "Regeneration Failed",
+        description: "Could not regenerate voice previews. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRegeneratingPreviews(false);
+    }
+  };
 
   // Preview voice functionality - use static previews if available
   const handleVoicePreview = async (voice: string) => {
@@ -216,15 +270,17 @@ const ManifestationCreator = () => {
 
       // Try the pre-generated static preview URL
       if (voicePreviews[voice]) {
+        console.log(`Playing voice preview for ${voice}:`, voicePreviews[voice]);
         const audio = new Audio(voicePreviews[voice]);
         setVoicePreviewAudios(prev => ({ ...prev, [voice]: audio }));
 
         audio.onended = () => setPreviewingVoice(null);
-        audio.onerror = () => {
+        audio.onerror = (e) => {
+          console.error(`Audio error for ${voice}:`, e);
           setPreviewingVoice(null);
           toast({
             title: "Preview Failed",
-            description: "Unable to play this voice preview.",
+            description: `Unable to play ${voice} voice preview. The audio file may be corrupted.`,
             variant: "destructive"
           });
         };
@@ -233,6 +289,7 @@ const ManifestationCreator = () => {
       }
 
       // Fall back to on-demand generation if static preview not available
+      console.log(`No static preview found for ${voice}, generating on-demand...`);
       const { supabase } = await import('@/integrations/supabase/client');
       const { data, error } = await supabase.functions.invoke('generate-voice-previews', {
         body: { voice }
@@ -253,7 +310,7 @@ const ManifestationCreator = () => {
           });
         };
         await audio.play();
-        // Optionally update cache for future use
+        // Update cache for future use
         setVoicePreviews(prev => ({ ...prev, [voice]: data.url }));
       }
     } catch (error) {
@@ -450,10 +507,21 @@ const ManifestationCreator = () => {
             {/* Step 2: Audio Settings (only show if text is generated) */}
             {generatedText && (
               <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
-                <h3 className="font-semibold text-pink-700 mb-3 flex items-center">
-                  <span className="bg-pink-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">2</span>
-                  Audio Settings
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-pink-700 flex items-center">
+                    <span className="bg-pink-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">2</span>
+                    Audio Settings
+                  </h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRegenerateVoicePreviews}
+                    disabled={isRegeneratingPreviews}
+                    className="text-xs"
+                  >
+                    {isRegeneratingPreviews ? 'Fixing...' : 'Fix Voices'}
+                  </Button>
+                </div>
                 
                 <div className="space-y-4">
                   <div>
@@ -475,6 +543,9 @@ const ManifestationCreator = () => {
                               <label htmlFor={`voice-${option.value}`} className="font-medium cursor-pointer">
                                 {option.label}
                               </label>
+                              {!voicePreviews[option.value] && (
+                                <span className="text-xs text-orange-500 ml-2">⚠ Preview missing</span>
+                              )}
                             </div>
                           </div>
                           <Button
@@ -482,7 +553,7 @@ const ManifestationCreator = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => handleVoicePreview(option.value)}
-                            disabled={isGenerating || isGeneratingAudio}
+                            disabled={isGenerating || isGeneratingAudio || isRegeneratingPreviews}
                             className="ml-2"
                           >
                             {previewingVoice === option.value ? (
