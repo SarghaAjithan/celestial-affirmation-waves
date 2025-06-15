@@ -388,120 +388,96 @@ const ManifestationCreator = () => {
   const moodEmojis = ['😔', '😐', '🙂', '😊', '✨'];
 
   return (
-    <div className="max-w-2xl mx-auto p-2 space-y-6">
-      {/* Header */}
-      <div className="text-center mb-3">
-        <h1 className="text-2xl font-bold gradient-text font-playfair mb-1">
-          Manifestation Creator
-        </h1>
-        <p className="text-gray-600 font-light text-sm">
-          Create your personalized affirmations step by step
-        </p>
-        {selectedGoalFromRoute && (
-          <p className="text-xs text-purple-600 mt-2">
-            Creating manifestation for: {selectedGoalFromRoute.charAt(0).toUpperCase() + selectedGoalFromRoute.slice(1)}
+    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-5">  
+      {/* Clean, unified CARD for all details and audio settings */}
+      <Card className="bg-white bg-opacity-90 border border-gray-200 rounded-2xl shadow-none p-6 space-y-6">
+        {/* 1. Title section */}
+        <div className="mb-1 pb-2 pt-1 flex flex-col gap-1 border-b border-gray-100">
+          <h1 className="text-xl font-bold gradient-text font-playfair">Manifestation Creator</h1>
+          <p className="text-xs font-light text-gray-500">
+            Create your personalized affirmations step by step
           </p>
-        )}
-      </div>
+          {selectedGoalFromRoute && (
+            <p className="text-xs text-purple-600">
+              Creating manifestation for: {selectedGoalFromRoute.charAt(0).toUpperCase() + selectedGoalFromRoute.slice(1)}
+            </p>
+          )}
+        </div>
 
-      {/* Stacked Layout: Details → Audio → Preview */}
-      {/* 1. Manifestation Details Card */}
-      <Card className="goal-card">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Heart className="w-5 h-5 text-purple-500" />
-            <span>Your Manifestation Details</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 p-3">
-          {/* 1. Basic Information in compact form */}
-          <div>
-            <h3 className="font-semibold text-purple-700 mb-2 flex items-center">
-              <span className="bg-purple-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">1</span>
-              Basic Information
-            </h3>
-            <div className="space-y-2">
-              <div>
-                <Label htmlFor="name" className="text-xs">Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Name..."
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="mt-1 h-8 px-2 py-1 text-sm"
-                />
-              </div>
-              <div>
-                <Label htmlFor="goal" className="text-xs">Goal</Label>
-                <Textarea
-                  id="goal"
-                  placeholder="I want to manifest abundance..."
-                  value={formData.goal}
-                  onChange={(e) => handleInputChange('goal', e.target.value)}
-                  className="mt-1 min-h-14 text-sm"
-                  style={{ fontSize: 14, resize: "vertical" }}
-                />
-              </div>
-              <div>
-                <Label htmlFor="affirmations" className="text-xs">Custom Affirmations <span className="text-gray-400">(Optional)</span></Label>
-                <Textarea
-                  id="affirmations"
-                  placeholder="Add your own affirmations..."
-                  value={formData.customAffirmations}
-                  onChange={(e) => handleInputChange('customAffirmations', e.target.value)}
-                  className="mt-1 min-h-10 text-sm"
-                  style={{ fontSize: 14, resize: "vertical" }}
-                />
-              </div>
-
-              {/* Mood tracker: straight horizontal compact */}
-              <div className="flex items-center space-x-2 mt-1">
-                <Label className="text-xs font-medium mr-2 whitespace-nowrap mb-0">How are you feeling?</Label>
-                <div className="flex space-x-1">
-                  {moodEmojis.map((emoji, index) => (
-                    <Button
-                      key={index}
-                      variant={mood === index ? "default" : "ghost"}
-                      size="icon"
-                      onClick={() => setMood(index)}
-                      className={`text-lg px-2 py-1 h-8 w-8 leading-none rounded-full ${mood === index ? "scale-110 border border-purple-400 bg-purple-100" : "hover:scale-110"} transition-transform`}
-                      tabIndex={0}
-                      aria-label={emoji}
-                    >
-                      {emoji}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              {/* Moved Generate button slightly up */}
-              <Button
-                type="button"
-                onClick={handleGenerateText}
-                className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-base"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate Manifestation Text
-              </Button>
+        {/* 2. Input Row: Name + Mood (INLINE) */}
+        <div className="flex items-end gap-4 flex-wrap">
+          {/* Small Name input, minimalist */}
+          <div className="flex flex-col flex-shrink-0" style={{ minWidth: 125, maxWidth: 180 }}>
+            <Label htmlFor="name" className="text-xs mb-0">Name</Label>
+            <Input
+              id="name"
+              placeholder="Name"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              className="mt-0 h-8 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded-full"
+              style={{ minWidth: 110, maxWidth: 165 }}
+            />
+          </div>
+          {/* Mood selector, straight horizontal */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Label className="text-xs font-medium whitespace-nowrap">How are you feeling?</Label>
+            <div className="flex gap-0.5">
+              {moodEmojis.map((emoji, index) => (
+                <Button
+                  key={index}
+                  variant={mood === index ? "default" : "ghost"}
+                  size="icon"
+                  onClick={() => setMood(index)}
+                  className={`text-lg h-8 w-8 rounded-full border ${mood === index ? "border-purple-400 bg-purple-50 scale-105" : "bg-transparent hover:border-gray-300"} transition-transform`}
+                  tabIndex={0}
+                  aria-label={emoji}
+                  style={{ fontSize: 20 }}
+                >
+                  {emoji}
+                </Button>
+              ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* 2. Minimalist Audio Settings directly below basic info, minimal space */}
-      {generatedText && (
-        <Card className="glass-card shadow-none border-0 bg-white/70 mt-3">
-          <CardHeader className="py-1 px-2">
-            <CardTitle className="text-base flex items-center">
-              <Volume2 className="w-4 h-4 text-pink-500 mr-1" />
-              Audio Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 p-2">
-            <div>
-              <Label className="text-xs font-medium mb-1">Voice Style</Label>
-              <div className="flex flex-wrap gap-1 mt-1">
+        {/* 3. Goal + Affirmation fields (1 col, less space) */}
+        <div className="flex flex-col gap-2">
+          <div>
+            <Label htmlFor="goal" className="text-xs mb-0">Goal</Label>
+            <Textarea
+              id="goal"
+              placeholder="I want to manifest abundance..."
+              value={formData.goal}
+              onChange={(e) => handleInputChange('goal', e.target.value)}
+              className="mt-1 min-h-10 text-sm border-gray-200 rounded-lg bg-gray-50"
+              style={{ fontSize: 14 }}
+            />
+          </div>
+          <div>
+            <Label htmlFor="affirmations" className="text-xs mb-0">Custom Affirmations <span className="text-gray-400">(optional)</span></Label>
+            <Textarea
+              id="affirmations"
+              placeholder="Add your own affirmations..."
+              value={formData.customAffirmations}
+              onChange={(e) => handleInputChange('customAffirmations', e.target.value)}
+              className="mt-1 min-h-8 text-sm border-gray-200 rounded-lg bg-gray-50"
+              style={{ fontSize: 14 }}
+            />
+          </div>
+        </div>
+
+        {/* 4. Audio settings, minimalist and inline under form */}
+        {generatedText && (
+          <div className="bg-white/80 rounded-lg p-2 mt-1 border border-gray-100 flex flex-col gap-3">
+            <div className="flex flex-wrap gap-2 items-center">
+              <Label className="text-xs font-medium mr-1 mb-0">Voice Style:</Label>
+              <div className="flex flex-wrap gap-1">
                 {voiceOptions.map(option => (
-                  <div key={option.value} className={`flex items-center px-1 py-0.5 rounded border border-gray-200 bg-white/90 shadow-sm ${formData.voice === option.value ? 'border-purple-500' : 'hover:border-purple-300'} transition-all`}>
+                  <div
+                    key={option.value}
+                    className={`flex items-center px-1 py-0.5 rounded border text-xs bg-white
+                      ${formData.voice === option.value ? 'border-purple-500' : 'border-gray-200 hover:border-purple-300'} transition-all`}
+                  >
                     <input
                       type="radio"
                       id={`voice-${option.value}`}
@@ -511,9 +487,7 @@ const ManifestationCreator = () => {
                       onChange={(e) => handleInputChange('voice', e.target.value)}
                       className="accent-purple-500 mr-1"
                     />
-                    <label htmlFor={`voice-${option.value}`} className="font-medium cursor-pointer text-xs">
-                      {option.label}
-                    </label>
+                    <label htmlFor={`voice-${option.value}`} className="font-medium cursor-pointer text-xs">{option.label}</label>
                     <Button
                       type="button"
                       variant="ghost"
@@ -535,11 +509,12 @@ const ManifestationCreator = () => {
                 ))}
               </div>
             </div>
+            {/* Gen audio button */}
             <Button
               type="button"
               onClick={handleGenerateAudio}
               disabled={isGeneratingAudio || !formData.voice}
-              className="w-full mt-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-sm"
+              className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-sm mt-0"
               size="sm"
             >
               {isGeneratingAudio ? (
@@ -554,11 +529,21 @@ const ManifestationCreator = () => {
                 </>
               )}
             </Button>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {/* 3. Manifestation Preview */}
+        {/* 5. Generate text button (on bottom) */}
+        <Button
+          type="button"
+          onClick={handleGenerateText}
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-base mt-2"
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          Generate Manifestation Text
+        </Button>
+      </Card>
+
+      {/* Manifestation Preview - below main card, as before */}
       <Card className="goal-card">
         <CardHeader>
           <CardTitle>Manifestation Preview</CardTitle>
