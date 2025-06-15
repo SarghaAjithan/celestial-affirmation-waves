@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus, Headphones, Library, Star, Sparkles, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -194,12 +195,12 @@ const Dashboard = () => {
           )}
 
           {/* Inspiration Quote */}
-          <div className="goal-card max-w-4xl mx-auto text-center py-6">
-            <Sparkles className="w-6 h-6 text-purple-500 mx-auto mb-3" />
-            <p className="text-base font-light text-gray-700 italic mb-2">
+          <div className="goal-card text-center py-4 px-6">
+            <Sparkles className="w-5 h-5 text-purple-500 mx-auto mb-3" />
+            <p className="text-sm font-light text-gray-700 italic mb-2">
               "{currentQuote.text}"
             </p>
-            <p className="text-sm text-gray-500">— {currentQuote.author}</p>
+            <p className="text-xs text-gray-500">— {currentQuote.author}</p>
           </div>
         </div>
       </main>
