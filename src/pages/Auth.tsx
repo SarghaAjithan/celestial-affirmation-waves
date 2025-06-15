@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Star, Sparkles, Heart } from 'lucide-react';
+import { Star, Sparkles, Heart, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cleanupAuthState } from '@/utils/authCleanup';
 
@@ -19,6 +20,8 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [signUpData, setSignUpData] = useState({ email: '', password: '', confirmPassword: '', fullName: '' });
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState('');
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,11 +37,23 @@ const Auth = () => {
       
       if (error) {
         console.error('Sign in error:', error);
-        toast({
-          title: "Sign in failed",
-          description: error.message || "Invalid email or password. Please check your credentials and try again.",
-          variant: "destructive"
-        });
+        
+        // Check if it's an email not confirmed error
+        if (error.message.includes('Email not confirmed')) {
+          toast({
+            title: "Email not verified",
+            description: "Please check your email and click the verification link before signing in.",
+            variant: "destructive"
+          });
+          setShowEmailVerification(true);
+          setVerificationEmail(signInData.email);
+        } else {
+          toast({
+            title: "Sign in failed",
+            description: error.message || "Invalid email or password. Please check your credentials and try again.",
+            variant: "destructive"
+          });
+        }
       } else {
         console.log('Sign in successful, redirecting to dashboard');
         toast({
@@ -116,9 +131,11 @@ const Auth = () => {
           title: "Account created successfully!",
           description: "Please check your email to verify your account before signing in.",
         });
-        // Clear the form and switch to sign in tab
+        // Show email verification message
+        setShowEmailVerification(true);
+        setVerificationEmail(signUpData.email);
+        // Clear the form
         setSignUpData({ email: '', password: '', confirmPassword: '', fullName: '' });
-        // You could optionally switch to the sign in tab here
       }
     } catch (error) {
       console.error('Unexpected sign up error:', error);
@@ -188,6 +205,48 @@ const Auth = () => {
     }
   };
 
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen cosmic-bg floating-particles flex items-center justify-center px-4">
+        <div className="w-full max-w-md">
+          <Card className="bg-white bg-opacity-90 border border-gray-200 rounded-2xl shadow-none p-6">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                <Mail className="w-8 h-8 text-purple-600" />
+              </div>
+              <CardTitle className="gradient-text font-playfair">
+                Check Your Email
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-gray-600">
+                We've sent a verification link to
+              </p>
+              <p className="font-semibold text-gray-800">
+                {verificationEmail}
+              </p>
+              <p className="text-gray-600 text-sm">
+                Please click the link in your email to verify your account before signing in.
+              </p>
+              <div className="pt-4">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setShowEmailVerification(false);
+                    setVerificationEmail('');
+                  }}
+                  className="w-full"
+                >
+                  Back to Sign In
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen cosmic-bg floating-particles flex items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -213,7 +272,7 @@ const Auth = () => {
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Create Account</TabsTrigger>
+                <TabsTrigger value="create-account">Create Account</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin">
@@ -278,7 +337,7 @@ const Auth = () => {
                 </div>
               </TabsContent>
               
-              <TabsContent value="signup">
+              <TabsContent value="create-account">
                 <div className="space-y-4">
                   <form onSubmit={handleSignUp} className="space-y-4">
                     <div className="space-y-2">
