@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Heart, ArrowLeft, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { usePlayer } from "@/contexts/PlayerContext";
 
 interface Manifestation {
   id: string;
@@ -24,6 +24,7 @@ interface Manifestation {
 const LibraryGrid = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { play } = usePlayer();
   const [manifestations, setManifestations] = useState<Manifestation[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -45,8 +46,8 @@ const LibraryGrid = () => {
   }, []);
 
   const handlePlay = (manifestation: Manifestation) => {
-    // Navigate to the immersive Now Playing screen
-    navigate(`/now-playing?id=${manifestation.id}`);
+    // Instead of navigating directly, trigger player so mini band appears
+    play(manifestation);
   };
 
   const handleDelete = async (manifestationId: string) => {

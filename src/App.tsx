@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +15,8 @@ import Library from "./pages/Library";
 import Dashboard from "./pages/Dashboard";
 import NowPlaying from "./pages/NowPlaying";
 import NotFound from "./pages/NotFound";
+import MiniPlayerBand from "@/components/MiniPlayerBand";
+import { PlayerProvider } from "@/contexts/PlayerContext";
 
 const queryClient = new QueryClient();
 
@@ -26,43 +27,46 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/goals" element={
-                <ProtectedRoute>
-                  <Goals />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/builder" element={
-                <ProtectedRoute>
-                  <Builder />
-                </ProtectedRoute>
-              } />
-              <Route path="/player" element={
-                <ProtectedRoute>
-                  <Player />
-                </ProtectedRoute>
-              } />
-              <Route path="/library" element={
-                <ProtectedRoute>
-                  <Library />
-                </ProtectedRoute>
-              } />
-              <Route path="/now-playing" element={
-                <ProtectedRoute>
-                  <NowPlaying />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <PlayerProvider>
+            <BrowserRouter>
+              <MiniPlayerBand />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/goals" element={
+                  <ProtectedRoute>
+                    <Goals />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/builder" element={
+                  <ProtectedRoute>
+                    <Builder />
+                  </ProtectedRoute>
+                } />
+                <Route path="/player" element={
+                  <ProtectedRoute>
+                    <Player />
+                  </ProtectedRoute>
+                } />
+                <Route path="/library" element={
+                  <ProtectedRoute>
+                    <Library />
+                  </ProtectedRoute>
+                } />
+                <Route path="/now-playing" element={
+                  <ProtectedRoute>
+                    <NowPlaying />
+                  </ProtectedRoute>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </PlayerProvider>
         </TooltipProvider>
       </OnboardingProvider>
     </AuthProvider>
