@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Play, Save, Share, Heart } from "lucide-react";
+import { Play, Pause, Save, Share, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTTS } from "@/hooks/useTTS";
 
 interface ManifestationFormData {
   name: string;
@@ -21,6 +21,7 @@ interface ManifestationFormData {
 
 const ManifestationCreator = () => {
   const { toast } = useToast();
+  const { isGenerating, isSpeaking, audioUrl, generateAffirmations, playAffirmations, stopAffirmations } = useTTS();
   const [formData, setFormData] = useState<ManifestationFormData>({
     name: '',
     goal: '',
@@ -29,8 +30,7 @@ const ManifestationCreator = () => {
     voiceStyle: '',
     backgroundMusic: ''
   });
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [generatedText, setGeneratedText] = useState<string>('');
 
   const toneOptions = [
     { value: 'empowering', label: 'Empowering' },
@@ -68,15 +68,16 @@ const ManifestationCreator = () => {
       return;
     }
 
-    setIsGenerating(true);
-    
     try {
-      // Here we'll integrate with ElevenLabs API later
-      // For now, simulate audio generation
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      const affirmationText = await generateAffirmations(
+        formData.name,
+        formData.goal,
+        formData.customAffirmations,
+        formData.tone,
+        formData.voiceStyle
+      );
       
-      // Mock audio URL - replace with actual generated audio
-      setAudioUrl('/placeholder-audio.mp3');
+      setGeneratedText(affirmationText);
       
       toast({
         title: "Manifestation Created! ✨",
@@ -88,8 +89,16 @@ const ManifestationCreator = () => {
         description: "There was an error creating your manifestation. Please try again.",
         variant: "destructive"
       });
-    } finally {
-      setIsGenerating(false);
+    }
+  };
+
+  const handlePlay = () => {
+    if (!generatedText) return;
+    
+    if (isSpeaking) {
+      stopAffirmations();
+    } else {
+      playAffirmations(generatedText, formData.voiceStyle);
     }
   };
 
@@ -228,16 +237,55 @@ const ManifestationCreator = () => {
                 {/* Waveform Placeholder */}
                 <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
                   <div className="w-full h-20 bg-gradient-to-r from-purple-300 to-pink-300 rounded-lg flex items-center justify-center">
-                    <Play className="w-8 h-8 text-white" />
+                    {isSpeaking ? (
+                      <div className="flex space-x-1">
+                        {[...Array(8)].map((_, i) => (
+                          <div 
+                            key={i}
+                            className="w-1 bg-white rounded-full animate-pulse"
+                            style={{ 
+                              height: `${Math.random() * 30 + 10}px`,
+                              animationDelay: `${i * 0.1}s`
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <Play className="w-8 h-8 text-white" />
+                    )}
                   </div>
-                  <p className="text-sm text-gray-600 mt-4">Your manifestation audio is ready!</p>
+                  <p className="text-sm text-gray-600 mt-4">
+                    {isSpeaking ? 'Playing your manifestation...' : 'Your manifestation audio is ready!'}
+                  </p>
                 </div>
+
+                {/* Generated Text Preview */}
+                {generatedText && (
+                  <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 max-h-32 overflow-y-auto">
+                    <p className="font-medium mb-2">Affirmation Preview:</p>
+                    <p className="italic">{generatedText}</p>
+                  </div>
+                )}
 
                 {/* Player Controls */}
                 <div className="flex space-x-4">
-                  <Button variant="outline" className="flex-1">
-                    <Play className="w-4 h-4 mr-2" />
-                    Play
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={handlePlay}
+                    disabled={!generatedText}
+                  >
+                    {isSpeaking ? (
+                      <>
+                        <Pause className="w-4 h-4 mr-2" />
+                        Stop
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 mr-2" />
+                        Play
+                      </>
+                    )}
                   </Button>
                   <Button variant="outline" onClick={handleSave}>
                     <Save className="w-4 h-4 mr-2" />
