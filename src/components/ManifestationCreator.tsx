@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Play, Pause, Save, Share, Heart, Volume2, Edit, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "react-router-dom";
 import SaveManifestationModal from "./SaveManifestationModal";
 import { getGoalText } from "@/utils/affirmationHelpers";
@@ -23,6 +24,7 @@ interface ManifestationFormData {
 
 const ManifestationCreator = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const location = useLocation();
   const selectedGoalFromRoute = location.state?.goal || '';
   
@@ -308,6 +310,15 @@ const ManifestationCreator = () => {
     }));
   };
 
+  useEffect(() => {
+    if (user) {
+        const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || '';
+        if (userName) {
+            handleInputChange('name', userName);
+        }
+    }
+  }, [user]);
+
   // We use a single-step progressive box flow.
   return (
     <div className="flex flex-col gap-5">
@@ -324,20 +335,8 @@ const ManifestationCreator = () => {
           )}
         </div>
 
-        {/* Step 1: Name, Mood, Goal, Affirmations */}
+        {/* Step 1: Mood, Goal, Affirmations (Name is now automatic) */}
         <div className="flex flex-wrap gap-4 items-end">
-          {/* Name input */}
-          <div className="flex flex-col flex-shrink-0" style={{ minWidth: 105, maxWidth: 160 }}>
-            <Label htmlFor="name" className="text-xs mb-1">Name</Label>
-            <Input
-              id="name"
-              placeholder="Name"
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              className="mt-0 h-8 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded-full"
-              style={{ minWidth: 90, maxWidth: 150 }}
-            />
-          </div>
           {/* Mood selector */}
           <div className="flex flex-col flex-1 min-w-[180px]">
             <Label className="text-xs font-medium mb-1 whitespace-nowrap" htmlFor="mood-options">
