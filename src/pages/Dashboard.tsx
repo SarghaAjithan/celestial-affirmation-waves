@@ -127,7 +127,7 @@ const Dashboard = () => {
           {recentAffirmations.length > 0 && (
             <div className="mb-12">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-800 font-playfair">Recent Affirmations</h3>
+                <h3 className="text-2xl font-bold font-sans" style={{ color: '#5A4291' }}>Recent Affirmations</h3>
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate('/library')}
