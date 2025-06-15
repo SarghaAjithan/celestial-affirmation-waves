@@ -1,5 +1,4 @@
 
-import { Chatterbox } from 'chatterbox-tts';
 
 // TTS Service for generating audio from text
 export interface TTSOptions {
@@ -12,7 +11,7 @@ export interface TTSOptions {
 export class TTSService {
   private synth: SpeechSynthesis;
   private voices: SpeechSynthesisVoice[] = [];
-  private chatterbox: Chatterbox | null = null;
+  private chatterbox: any = null;
 
   constructor() {
     this.synth = window.speechSynthesis;
@@ -22,6 +21,7 @@ export class TTSService {
 
   private async initializeChatterbox() {
     try {
+      const { Chatterbox } = await import('chatterbox-tts');
       this.chatterbox = new Chatterbox();
       console.log('Chatterbox TTS initialized successfully');
     } catch (error) {
