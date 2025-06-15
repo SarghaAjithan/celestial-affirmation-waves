@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +46,7 @@ const ManifestationCreator = () => {
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
   const [fullManifestationAudio, setFullManifestationAudio] = useState<string | null>(null);
   const [voicePreviewAudios, setVoicePreviewAudios] = useState<{ [key: string]: HTMLAudioElement }>({});
+  const [voicePreviews, setVoicePreviews] = useState<{ [voice: string]: string }>({});
 
   // OpenAI voice options with preview text
   const voiceOptions = [
@@ -165,7 +166,34 @@ const ManifestationCreator = () => {
     return `${greeting}. ${allAffirmations.join('. ')}. Take a deep breath and feel these truths resonating within your soul.`;
   };
 
-  // Preview voice functionality - generate and play voice preview
+  // Fetch all static voice previews from storage on mount
+  useEffect(() => {
+    const fetchVoicePreviews = async () => {
+      try {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const supportedVoices = [
+          'alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'
+        ];
+
+        // Build direct public URLs (relying on consistent naming)
+        const previews: { [key: string]: string } = {};
+        for (const voice of supportedVoices) {
+          const { data } = supabase.storage
+            .from('voice-previews')
+            .getPublicUrl(`${voice}-preview.mp3`);
+          if (data.publicUrl) {
+            previews[voice] = data.publicUrl;
+          }
+        }
+        setVoicePreviews(previews);
+      } catch (err) {
+        console.error('Failed to load voice previews:', err);
+      }
+    };
+    fetchVoicePreviews();
+  }, []);
+
+  // Preview voice functionality - use static previews if available
   const handleVoicePreview = async (voice: string) => {
     if (previewingVoice === voice) {
       // Stop current preview
@@ -179,32 +207,19 @@ const ManifestationCreator = () => {
     try {
       setPreviewingVoice(voice);
 
-      // Check if we already have this preview audio
+      // Play from cache if already loaded in audio state
       if (voicePreviewAudios[voice]) {
         voicePreviewAudios[voice].currentTime = 0;
         await voicePreviewAudios[voice].play();
         return;
       }
 
-      // Generate voice preview using the edge function
-      const { supabase } = await import('@/integrations/supabase/client');
-      
-      const { data, error } = await supabase.functions.invoke('generate-voice-previews', {
-        body: { voice }
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (data?.url) {
-        const audio = new Audio(data.url);
+      // Try the pre-generated static preview URL
+      if (voicePreviews[voice]) {
+        const audio = new Audio(voicePreviews[voice]);
         setVoicePreviewAudios(prev => ({ ...prev, [voice]: audio }));
-        
-        audio.onended = () => {
-          setPreviewingVoice(null);
-        };
-        
+
+        audio.onended = () => setPreviewingVoice(null);
         audio.onerror = () => {
           setPreviewingVoice(null);
           toast({
@@ -213,8 +228,33 @@ const ManifestationCreator = () => {
             variant: "destructive"
           });
         };
-
         await audio.play();
+        return;
+      }
+
+      // Fall back to on-demand generation if static preview not available
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.functions.invoke('generate-voice-previews', {
+        body: { voice }
+      });
+
+      if (error) throw new Error(error.message);
+      if (data?.url) {
+        const audio = new Audio(data.url);
+        setVoicePreviewAudios(prev => ({ ...prev, [voice]: audio }));
+
+        audio.onended = () => setPreviewingVoice(null);
+        audio.onerror = () => {
+          setPreviewingVoice(null);
+          toast({
+            title: "Preview Failed",
+            description: "Unable to play this voice preview.",
+            variant: "destructive"
+          });
+        };
+        await audio.play();
+        // Optionally update cache for future use
+        setVoicePreviews(prev => ({ ...prev, [voice]: data.url }));
       }
     } catch (error) {
       console.error('Preview failed:', error);
