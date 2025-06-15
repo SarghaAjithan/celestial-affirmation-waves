@@ -161,7 +161,7 @@ const Dashboard = () => {
             lineHeight: 1.2,
             textShadow: "0 4px 30px rgba(80,40,130,0.20)",
             position: "relative",
-            bottom: "12px",
+            bottom: "36px",
           }}
         >
           Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
