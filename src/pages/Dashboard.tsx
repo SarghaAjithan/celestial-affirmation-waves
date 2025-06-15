@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus, Headphones, Library, Star, Sparkles, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -120,11 +121,11 @@ const Dashboard = () => {
           paddingBottom: 24,
         }}
       >
-        {/* Illustration Background */}
+        {/* Illustration Background - updated image */}
         <img
-          src="/lovable-uploads/97e55c47-3434-4d13-92eb-bf38a8533d0f.png"
-          alt=""
-          className="absolute left-1/2 top-0 -translate-x-1/2 w-[min(750px,92vw)] md:w-auto max-w-full min-w-[300px] mt-7 md:mt-2 pointer-events-none select-none z-0"
+          src="/lovable-uploads/95d7f521-a8e3-4594-a826-e75e34b45b4a.png"
+          alt="pastel hands holding light"
+          className="absolute left-1/2 top-0 -translate-x-1/2 w-full md:w-full max-w-[100vw] min-w-[300px] h-auto object-cover pointer-events-none select-none z-0"
           style={{
             opacity: 1,
             filter: "none",
@@ -228,3 +229,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
