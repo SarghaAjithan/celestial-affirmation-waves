@@ -154,7 +154,12 @@ const Dashboard = () => {
                   <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-gray-800">{action.title}</h3>
+                  <h3
+                    className="text-xl font-semibold mb-2"
+                    style={{ color: '#5A4291' }}
+                  >
+                    {action.title}
+                  </h3>
                   <p className="text-gray-600 font-light">{action.description}</p>
                 </div>
               );
