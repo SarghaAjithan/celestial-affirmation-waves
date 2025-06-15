@@ -150,11 +150,9 @@ const Dashboard = () => {
             borderTopRightRadius: 32,
           }}
         />
-        {/* Provide space below image for headline */}
-        <div style={{ minHeight: 320, width: "100%" }} className="pointer-events-none select-none"></div> 
       </div>
 
-      {/* Hero headline content - positioned below image with proper spacing */}
+      {/* Hero headline content - positioned directly after image */}
       <div className="mx-auto flex flex-col items-center text-center px-4 sm:px-6" style={{ paddingTop: '32px', maxWidth: 700 }}>
         <h1
           className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3"
