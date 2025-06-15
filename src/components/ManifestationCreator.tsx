@@ -324,7 +324,7 @@ const ManifestationCreator = () => {
 
   // Step 2: Generate audio from the manifestation text
   const handleGenerateAudio = async () => {
-    if (!generatedText || !formData.voice) {
+    if (!generatedText || !formData.voice || !!audioUrl) {
       toast({
         title: "Missing Information",
         description: "Please ensure you have generated text and selected a voice.",
@@ -597,17 +597,20 @@ const ManifestationCreator = () => {
               <Button
                 type="button"
                 onClick={handleGenerateAudio}
-                disabled={!formData.voice || isGeneratingAudio}
+                disabled={!formData.voice || isGeneratingAudio || !!audioUrl}
                 className={`
                   w-full text-base
                   transition-all duration-300
-                  bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700
-                  ${formData.voice && !isGeneratingAudio ? "ring-2 ring-pink-300 font-semibold shadow-lg scale-[1.03]" : "opacity-60"}
+                  ${
+                    !audioUrl && formData.voice && !isGeneratingAudio
+                      ? "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 ring-2 ring-pink-300 font-semibold shadow-lg scale-[1.03] text-white"
+                      : "bg-gradient-to-r from-pink-300 to-purple-300 text-white rounded-full opacity-60 cursor-default"
+                  }
                 `}
               >
                 {isGeneratingAudio ? (
                   <>
-                    <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
+                    <Volume2 className="w-4 h-4 mr-2" />
                     Creating Audio...
                   </>
                 ) : (
