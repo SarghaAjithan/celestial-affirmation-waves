@@ -483,23 +483,28 @@ const ManifestationCreator = () => {
           </div>
         </div>
 
-        {/* Highlight the main action if ready */}
+        {/* Action button: now conditionally highlighted based on generatedText */}
         <Button
           type="button"
           onClick={handleGenerateText}
           className={`
             w-full text-base mt-2
             transition-all duration-300
-            bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700
-            ${formData.name && formData.goal ? "" : "opacity-70"}
+            ${(!generatedText && formData.name && formData.goal)
+              ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              : "bg-gray-100 text-gray-400 border border-gray-200 pointer-events-none"}
+            ${(!formData.name || !formData.goal) ? "opacity-70" : ""}
           `}
           style={{
             boxShadow: undefined
           }}
-          disabled={!formData.name || !formData.goal}
+          disabled={!formData.name || !formData.goal || !!generatedText}
+          data-testid="generate-manifestation-text"
         >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Generate Manifestation Text
+          <span className="flex items-center">
+            <Sparkles className="w-4 h-4 mr-2" />
+            Generate Manifestation Text
+          </span>
         </Button>
 
         {/* Animated, conditional render: Manifestation Preview + Voice Style, after text */}
