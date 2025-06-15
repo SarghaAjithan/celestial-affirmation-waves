@@ -363,16 +363,16 @@ const ManifestationCreator = () => {
     setIsGeneratingAudio(true);
     
     try {
+      // Use the *latest* generatedText so the audio matches the preview/edit exactly
       await generateAffirmations(
-        formData.name,
-        formData.goal,
-        generatedText,
-        '',
+        formData.name || "",     // Keep this in case your affirmation logic needs it (can be removed if unused)
+        formData.goal || "",
+        "",                      // Don't use prior affirmation text (customAffirmations is blank since we use generatedText)
+        "",                      // Tone param, not needed for audio gen—can be left blank unless you need it
         formData.voice
       );
-      
+
       // The audioUrl from useTTS hook contains the actual audio file URL
-      // We'll use that directly in the play function
       toast({
         title: "Audio Generated! 🎵",
         description: "Your manifestation audio is ready to play."
