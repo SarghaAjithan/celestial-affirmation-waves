@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { elevenLabsTTS, ttsService } from '@/services/ttsService';
 
@@ -45,12 +44,7 @@ export const useTTS = () => {
       } catch (error) {
         console.error('ElevenLabs TTS failed, using browser TTS:', error);
         // Fallback to browser TTS
-        audioBlob = await ttsService.generateSpeechBlob({
-          text: affirmationText,
-          voice: voiceStyle,
-          rate: 0.9,
-          pitch: 1
-        });
+        audioBlob = await ttsService.generateSpeech(affirmationText, voiceStyle);
       }
       
       const newAudioUrl = URL.createObjectURL(audioBlob);
