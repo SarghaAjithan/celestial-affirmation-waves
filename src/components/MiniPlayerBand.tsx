@@ -87,73 +87,83 @@ const MiniPlayerBand = () => {
     return `${m}:${s}`;
   };
 
-  // Themed modern gradient & cleaning up UI
+  // Soft glassy purple-pink gradient and more rounded UI
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-50",
-        "bg-gradient-to-r from-primary via-secondary to-accent shadow-[0_-4px_32px_0_rgba(160,95,225,0.12)] px-3 sm:px-5",
-        "flex items-center gap-4 min-h-[70px] cursor-pointer select-none border-t border-white/10 transition-all duration-300 group"
+        "fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-2 w-[95vw] sm:w-[540px] max-w-[98vw]",
+        "rounded-2xl shadow-xl border-0 bg-[linear-gradient(90deg,#9f73f8_0%,#e1aeee_50%,#ffaed2_100%)] bg-opacity-90",
+        "flex items-center gap-4 min-h-[64px] cursor-pointer select-none transition-all duration-300 group"
       )}
+      style={{
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        boxShadow: "0 10px 32px 0 rgba(160,95,225,0.18)",
+      }}
       onClick={onBarClick}
-      style={{ maxWidth: "100vw" }}
     >
       {/* Thumbnail */}
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary/80 text-white font-bold text-lg shadow ring-2 ring-primary/10 overflow-hidden">
-        <span>{current.title[0]}</span>
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white/40 text-primary font-bold text-lg shadow ring-2 ring-white/20 overflow-hidden mr-2">
+        <span className="text-2xl font-mulish">{current.title[0]}</span>
       </div>
 
       {/* Main Content */}
       <div className="flex flex-col flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-base font-semibold text-foreground truncate max-w-[160px] sm:max-w-[230px]">
+        <div className="flex items-center justify-between gap-4 mb-0.5">
+          <span className="text-base font-semibold text-white truncate max-w-[120px] sm:max-w-[160px] drop-shadow-sm">
             {current.title}
           </span>
-          <span className="text-xs text-muted-foreground font-mono tracking-tight select-none">
+          <span className="text-xs text-white/70 font-mono tracking-tight select-none">
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
         </div>
         {/* Lyrics line */}
         <span
-          className="text-xs text-foreground/80 truncate pt-1 max-w-[85vw] sm:max-w-full"
+          className="text-xs text-white/90 truncate pt-0.5 max-w-[72vw] sm:max-w-full"
           title={lyricsLine}
         >
-          {lyricsLine || <span className="italic text-muted-foreground/60">Instrumental</span>}
+          {lyricsLine || <span className="italic text-white/50">Instrumental</span>}
         </span>
         <Slider
           value={[currentTime]}
           max={duration || 100}
           onValueChange={onSeek}
           step={1}
-          className="w-full my-[2px] group-hover:opacity-100 opacity-80"
+          className="w-full my-[2px] group-hover:opacity-100 opacity-85"
+          style={{
+            background:
+              "linear-gradient(90deg, #fff8fb 0%, #e5cffb 40%, #f3b6e5 100%)",
+            height: 8,
+            borderRadius: 10,
+          }}
           onClick={e => e.stopPropagation()}
         />
       </div>
 
       {/* Controls (just Play/Pause and Loop) */}
-      <div className="flex items-center gap-2 flex-shrink-0 pr-1 sm:pr-2">
+      <div className="flex items-center gap-1.5 flex-shrink-0 pr-0.5 sm:pr-2">
         <button
-          className="rounded-full bg-primary/80 p-2 hover:bg-primary transition"
+          className="rounded-full bg-white/80 hover:bg-white/90 p-2 shadow transition"
           onClick={onPlayPause}
           title={isPlaying ? "Pause" : "Play"}
         >
           {isPlaying ? (
-            <Pause className="w-6 h-6 text-white" />
+            <Pause className="w-6 h-6 text-primary" />
           ) : (
-            <Play className="w-6 h-6 text-white" />
+            <Play className="w-6 h-6 text-primary" />
           )}
         </button>
         <button
           className={cn(
-            "rounded-full p-2 transition ml-0.5",
+            "rounded-full p-2 ml-0.5 transition shadow",
             isLooping
-              ? "bg-accent/85 hover:bg-accent"
-              : "bg-muted hover:bg-primary/10"
+              ? "bg-pink-300/80 hover:bg-pink-400"
+              : "bg-white/40 hover:bg-white/60"
           )}
           onClick={onLoopToggle}
           title={isLooping ? "Looping enabled" : "Loop this track"}
         >
-          <Repeat className={cn("w-5 h-5", isLooping ? "text-primary" : "text-foreground/60")} />
+          <Repeat className={cn("w-5 h-5", isLooping ? "text-pink-600" : "text-white/80")} />
         </button>
       </div>
     </div>
@@ -161,4 +171,3 @@ const MiniPlayerBand = () => {
 };
 
 export default MiniPlayerBand;
-
