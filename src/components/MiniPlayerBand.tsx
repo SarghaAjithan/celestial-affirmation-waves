@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
-// Full-width pastel band at the bottom
+// Full-width pastel band at the bottom, flush to the edge
 const MiniPlayerBand = () => {
   const {
     current,
@@ -87,28 +87,26 @@ const MiniPlayerBand = () => {
     return `${m}:${s}`;
   };
 
-  // The actual player card to mimic the reference
+  // The actual player band, edge to edge, pastel background
   return (
-    // Pastel full-width band
     <div
       className="fixed bottom-0 left-0 w-full z-50 px-0"
       style={{
-        minHeight: 108, // matches reference
+        minHeight: 100, // reduced by 8px
         background: "linear-gradient(99deg, #dbbcfa 0%, #f4bbf2 100%)",
-        boxShadow: "0 0 80px 8px rgba(202,120,233,0.12)",
-        borderRadius: 32,
-        padding: "36px 40px",
-        transition: "padding 0.18s, min-height 0.18s",
-        // match the reference: soften the corners of band itself, not inner card
-        margin: 12,
+        padding: "30px 0", // reduce top/bottom padding to accommodate height change, no horizontal padding for full stretch
+        // REMOVE borderRadius, margin, and boxShadow for flush look
         left: 0,
         right: 0,
+        borderRadius: 0,
+        margin: 0,
+        boxShadow: "none"
       }}
       onClick={onBarClick}
     >
       <div className={cn(
         "flex items-center gap-4 w-full",
-        "max-w-full mx-auto"
+        "max-w-full mx-auto px-8" // padding inside for content comfort, but outer container is edge-to-edge
       )}>
 
         {/* Thumbnail */}
@@ -155,7 +153,7 @@ const MiniPlayerBand = () => {
           />
         </div>
 
-        {/* Controls (rounded, pastel soft as in ref) */}
+        {/* Controls */}
         <div className="flex items-center gap-3 flex-shrink-0 pr-3">
           <button
             className="rounded-full transition p-0.5 bg-[#e0d1fb] hover:bg-[#deccfd] shadow"
