@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,24 +10,25 @@ import { Separator } from "@/components/ui/separator";
 import { Play, Pause, Save, Share, Heart, Volume2, Edit, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
+import { useLocation } from "react-router-dom";
 
 interface ManifestationFormData {
   name: string;
   goal: string;
   customAffirmations: string;
-  tone: string;
-  voiceStyle: string;
+  voice: string;
   backgroundMusic: string;
 }
 
 const ManifestationCreator = () => {
   const { toast } = useToast();
+  const location = useLocation();
+  const selectedGoalFromRoute = location.state?.goal || '';
+  
   const { 
     isGenerating, 
     isSpeaking, 
     audioUrl, 
-    apiKey, 
-    setApiKey, 
     generateAffirmations, 
     playAffirmations, 
     stopAffirmations 
@@ -34,28 +36,24 @@ const ManifestationCreator = () => {
   
   const [formData, setFormData] = useState<ManifestationFormData>({
     name: '',
-    goal: '',
+    goal: selectedGoalFromRoute ? getGoalText(selectedGoalFromRoute) : '',
     customAffirmations: '',
-    tone: '',
-    voiceStyle: '',
+    voice: '',
     backgroundMusic: ''
   });
   const [generatedText, setGeneratedText] = useState<string>('');
   const [isEditingText, setIsEditingText] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
 
-  const toneOptions = [
-    { value: 'empowering', label: 'Empowering' },
-    { value: 'soothing', label: 'Soothing' },
-    { value: 'motivational', label: 'Motivational' },
-    { value: 'spiritual', label: 'Spiritual' }
-  ];
-
+  // OpenAI voice options with preview text
   const voiceOptions = [
-    { value: 'female', label: 'Female' },
-    { value: 'male', label: 'Male' },
-    { value: 'neutral', label: 'Neutral' },
-    { value: 'whisper', label: 'Whisper' }
+    { value: 'alloy', label: 'Alloy (Neutral)', preview: 'I am confident and capable of achieving my dreams.' },
+    { value: 'echo', label: 'Echo (Warm)', preview: 'I attract abundance and positivity into my life.' },
+    { value: 'fable', label: 'Fable (Expressive)', preview: 'Every day I grow stronger and more aligned with my purpose.' },
+    { value: 'onyx', label: 'Onyx (Deep)', preview: 'I trust in my power to create the life I desire.' },
+    { value: 'nova', label: 'Nova (Bright)', preview: 'I am worthy of love, success, and happiness.' },
+    { value: 'shimmer', label: 'Shimmer (Gentle)', preview: 'I release what no longer serves me and embrace new possibilities.' }
   ];
 
   const musicOptions = [
@@ -66,57 +64,156 @@ const ManifestationCreator = () => {
     { value: 'bells', label: 'Temple Bells' }
   ];
 
+  // Get goal text based on selection from Goals page
+  function getGoalText(goalId: string): string {
+    const goalTexts = {
+      wealth: 'I want to manifest financial abundance and prosperity in my life',
+      love: 'I want to attract meaningful love and deep connections',
+      confidence: 'I want to build unshakeable confidence and self-worth',
+      peace: 'I want to cultivate inner peace and emotional balance',
+      health: 'I want to manifest vibrant health and vitality',
+      career: 'I want to achieve career growth and professional fulfillment',
+      custom: 'I want to create my own unique manifestation'
+    };
+    return goalTexts[goalId as keyof typeof goalTexts] || '';
+  }
+
   const handleInputChange = (field: keyof ManifestationFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Helper function to create affirmation text (moved from useTTS hook)
-  const createAffirmationText = (
+  // Enhanced affirmation text creation with personalization
+  const createPersonalizedAffirmationText = (
     name: string,
     goal: string,
     customAffirmations: string,
-    tone: string
+    goalType: string
   ): string => {
-    const greetings = {
-      empowering: `${name}, you are a powerful creator`,
-      soothing: `${name}, breathe deeply and feel the peace within`,
-      motivational: `${name}, today is your day to shine`,
-      spiritual: `${name}, connect with your divine essence`
+    // Personalized greetings based on goal type
+    const personalizedGreetings = {
+      wealth: `${name}, you are a magnet for abundance and prosperity`,
+      love: `${name}, you are worthy of deep, meaningful love`,
+      confidence: `${name}, you radiate confidence and inner strength`,
+      peace: `${name}, you are a beacon of calm and tranquility`,
+      health: `${name}, your body is vibrant and full of life`,
+      career: `${name}, you are destined for professional success`,
+      custom: `${name}, you are a powerful creator of your reality`
     };
 
-    const affirmations = [
-      `I, ${name}, ${goal.toLowerCase().replace('i want to', '').replace('i', '')}`,
-      `Every day, I move closer to my dreams`,
-      `I am worthy of all the good things life has to offer`,
-      `My positive thoughts create positive outcomes`,
-      `I trust in my ability to create the life I desire`
+    // Goal-specific affirmations
+    const goalSpecificAffirmations = {
+      wealth: [
+        'Money flows to me easily and effortlessly',
+        'I am open to receiving abundance from multiple sources',
+        'My financial situation improves every day',
+        'I make wise decisions that increase my wealth'
+      ],
+      love: [
+        'I attract loving, supportive relationships into my life',
+        'I am open to giving and receiving love freely',
+        'The perfect partner is drawn to my authentic self',
+        'I radiate love and attract love in return'
+      ],
+      confidence: [
+        'I trust my abilities and believe in myself completely',
+        'I speak my truth with courage and conviction',
+        'I am comfortable being my authentic self',
+        'My confidence grows stronger each day'
+      ],
+      peace: [
+        'I am calm and centered in all situations',
+        'Peace flows through every aspect of my life',
+        'I release stress and embrace tranquility',
+        'I find serenity in the present moment'
+      ],
+      health: [
+        'My body heals and regenerates perfectly',
+        'I make choices that support my optimal health',
+        'Energy and vitality flow through every cell',
+        'I am grateful for my strong, healthy body'
+      ],
+      career: [
+        'Opportunities for growth come to me naturally',
+        'I excel in my chosen field and am recognized for my talents',
+        'My career brings me fulfillment and financial reward',
+        'I am a valuable contributor to my workplace'
+      ],
+      custom: [
+        'I have the power to create any reality I desire',
+        'The universe supports my highest good',
+        'I am aligned with my true purpose',
+        'Miracles happen in my life regularly'
+      ]
+    };
+
+    const greeting = personalizedGreetings[goalType as keyof typeof personalizedGreetings] || personalizedGreetings.custom;
+    const specificAffirmations = goalSpecificAffirmations[goalType as keyof typeof goalSpecificAffirmations] || goalSpecificAffirmations.custom;
+
+    // Create personalized goal statement
+    const goalStatement = goal.toLowerCase().replace('i want to', 'I am').replace('i', 'I');
+
+    const allAffirmations = [
+      goalStatement,
+      ...specificAffirmations
     ];
 
     if (customAffirmations) {
-      affirmations.push(...customAffirmations.split('\n').filter(a => a.trim()));
+      allAffirmations.push(...customAffirmations.split('\n').filter(a => a.trim()));
     }
 
-    const greeting = greetings[tone as keyof typeof greetings] || greetings.empowering;
-    
-    return `${greeting}. ${affirmations.join('. ')}. Take a deep breath and feel these truths resonating within you.`;
+    return `${greeting}. ${allAffirmations.join('. ')}. Take a deep breath and feel these truths resonating within your soul.`;
+  };
+
+  // Preview voice functionality
+  const handleVoicePreview = async (voice: string) => {
+    if (previewingVoice === voice) {
+      stopAffirmations();
+      setPreviewingVoice(null);
+      return;
+    }
+
+    try {
+      setPreviewingVoice(voice);
+      const voiceOption = voiceOptions.find(v => v.value === voice);
+      if (voiceOption) {
+        const previewUrl = await generateAffirmations(
+          'Preview',
+          voiceOption.preview,
+          voiceOption.preview,
+          '',
+          voice
+        );
+        if (previewUrl) {
+          playAffirmations(previewUrl);
+        }
+      }
+    } catch (error) {
+      console.error('Preview failed:', error);
+      setPreviewingVoice(null);
+      toast({
+        title: "Preview Failed",
+        description: "Unable to preview this voice. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Step 1: Generate manifestation text only
   const handleGenerateText = () => {
-    if (!formData.name || !formData.goal || !formData.tone) {
+    if (!formData.name || !formData.goal) {
       toast({
         title: "Missing Information",
-        description: "Please fill in your name, goal, and tone to generate your manifestation.",
+        description: "Please fill in your name and goal to generate your manifestation.",
         variant: "destructive"
       });
       return;
     }
 
-    const affirmationText = createAffirmationText(
+    const affirmationText = createPersonalizedAffirmationText(
       formData.name,
       formData.goal,
       formData.customAffirmations,
-      formData.tone
+      selectedGoalFromRoute
     );
     
     setGeneratedText(affirmationText);
@@ -129,10 +226,10 @@ const ManifestationCreator = () => {
 
   // Step 2: Generate audio from the text
   const handleGenerateAudio = async () => {
-    if (!generatedText || !formData.voiceStyle || !formData.backgroundMusic) {
+    if (!generatedText || !formData.voice || !formData.backgroundMusic) {
       toast({
         title: "Missing Information",
-        description: "Please ensure you have generated text and selected voice style and background music.",
+        description: "Please ensure you have generated text and selected voice and background music.",
         variant: "destructive"
       });
       return;
@@ -144,9 +241,9 @@ const ManifestationCreator = () => {
       await generateAffirmations(
         formData.name,
         formData.goal,
-        generatedText, // Use the generated/edited text
-        formData.tone,
-        formData.voiceStyle
+        generatedText,
+        '',
+        formData.voice
       );
       
       toast({
@@ -205,6 +302,11 @@ const ManifestationCreator = () => {
         <p className="text-gray-600 font-light">
           Create your personalized affirmations step by step
         </p>
+        {selectedGoalFromRoute && (
+          <p className="text-sm text-purple-600 mt-2">
+            Creating manifestation for: {selectedGoalFromRoute.charAt(0).toUpperCase() + selectedGoalFromRoute.slice(1)}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -258,22 +360,6 @@ const ManifestationCreator = () => {
                   />
                 </div>
 
-                <div>
-                  <Label>Affirmation Tone</Label>
-                  <Select value={formData.tone} onValueChange={(value) => handleInputChange('tone', value)}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Choose tone..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {toneOptions.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <Button 
                   type="button"
                   onClick={handleGenerateText}
@@ -293,21 +379,52 @@ const ManifestationCreator = () => {
                   Audio Settings
                 </h3>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div>
                     <Label>Voice Style</Label>
-                    <Select value={formData.voiceStyle} onValueChange={(value) => handleInputChange('voiceStyle', value)}>
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Choose voice..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {voiceOptions.map(option => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2 mt-2">
+                      {voiceOptions.map(option => (
+                        <div key={option.value} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id={`voice-${option.value}`}
+                                name="voice"
+                                value={option.value}
+                                checked={formData.voice === option.value}
+                                onChange={(e) => handleInputChange('voice', e.target.value)}
+                                className="text-purple-600"
+                              />
+                              <label htmlFor={`voice-${option.value}`} className="font-medium cursor-pointer">
+                                {option.label}
+                              </label>
+                            </div>
+                            <p className="text-sm text-gray-600 ml-6">"{option.preview}"</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleVoicePreview(option.value)}
+                            disabled={isGenerating}
+                            className="ml-2"
+                          >
+                            {previewingVoice === option.value ? (
+                              <>
+                                <Pause className="w-3 h-3 mr-1" />
+                                Stop
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-3 h-3 mr-1" />
+                                Preview
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <div>
