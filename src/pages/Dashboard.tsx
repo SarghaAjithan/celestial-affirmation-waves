@@ -237,7 +237,7 @@ const Dashboard = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-gray-800 truncate">{affirmation.title}</h4>
-                    <div className="text-gray-600 text-sm truncate">Created: {new Date(affirmation.created_at).toLocaleDateString()}</div>
+                    <div className="text-gray-600 text-sm">Created: {new Date(affirmation.created_at).toLocaleDateString()}</div>
                   </div>
                   {/* Play Button */}
                   <Button
