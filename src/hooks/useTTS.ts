@@ -1,89 +1,44 @@
 
 import { useState, useCallback } from 'react';
-import { elevenLabsTTS, ttsService, openAITTS } from '@/services/ttsService';
+import { openAITTS } from '@/services/ttsService';
 
 export const useTTS = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
-  const [apiKey, setApiKey] = useState<string>('');
 
   const generateAffirmations = useCallback(async (
-    name: string,
-    goal: string,
-    customAffirmations: string,
-    tone: string,
+    affirmationText: string,
     voiceStyle: string
   ) => {
     setIsGenerating(true);
-    
+    setAudioUrl(null);
     try {
-      // Generate affirmation text
-      const affirmationText = createAffirmationText(name, goal, customAffirmations, tone);
-      console.log('Generated affirmation text:', affirmationText);
-      
-      let audioUrl: string;
-      
-      try {
-        // Try OpenAI TTS first (always available via edge function)
-        const voiceMap: { [key: string]: string } = {
-          'female': 'nova',
-          'male': 'onyx', 
-          'neutral': 'alloy',
-          'whisper': 'shimmer'
-        };
-        
-        const selectedVoice = voiceMap[voiceStyle] || 'alloy';
-        console.log('Using OpenAI TTS with voice:', selectedVoice);
-        audioUrl = await openAITTS.generateSpeech(affirmationText, selectedVoice);
-      } catch (openAIError) {
-        console.error('OpenAI TTS failed, trying ElevenLabs:', openAIError);
-        
-        if (apiKey.trim()) {
-          // Try ElevenLabs if API key is provided
-          elevenLabsTTS.setApiKey(apiKey);
-          const voiceMap: { [key: string]: string } = {
-            'female': '9BWtsMINqrJLrRacOk9x', // Aria
-            'male': 'TX3LPaxmHKxFdv7VOQHJ', // Liam
-            'neutral': 'EXAVITQu4vr4xnSDxMaL', // Sarah
-            'whisper': 'XB0fDUnXU5powFXDhCwa' // Charlotte
-          };
-          
-          const selectedVoiceId = voiceMap[voiceStyle] || '9BWtsMINqrJLrRacOk9x';
-          console.log('Using ElevenLabs with voice:', selectedVoiceId);
-          const audioBlob = await elevenLabsTTS.generateSpeech(affirmationText, selectedVoiceId);
-          audioUrl = URL.createObjectURL(audioBlob);
-        } else {
-          console.error('Both OpenAI and ElevenLabs failed, using browser TTS');
-          // Fallback to browser TTS
-          const audioBlob = await ttsService.generateSpeech(affirmationText, voiceStyle);
-          audioUrl = URL.createObjectURL(audioBlob);
-        }
-      }
-      
-      setAudioUrl(audioUrl);
-      
-      return affirmationText;
+      console.log('Using OpenAI TTS with voice:', voiceStyle);
+      const generatedAudioUrl = await openAITTS.generateSpeech(affirmationText, voiceStyle);
+      setAudioUrl(generatedAudioUrl);
     } catch (error) {
-      console.error('Error generating affirmations:', error);
+      console.error('Error generating affirmations audio:', error);
       throw error;
     } finally {
       setIsGenerating(false);
     }
-  }, [apiKey]);
+  }, []);
 
-  const playAffirmations = useCallback(async (audioUrl: string) => {
+  const playAffirmations = useCallback(async (audioUrlToPlay: string) => {
     if (isSpeaking && currentAudio) {
       currentAudio.pause();
       setIsSpeaking(false);
       return;
     }
 
+    if (!audioUrlToPlay) return;
+
     setIsSpeaking(true);
     
     try {
-      const audio = new Audio(audioUrl);
+      const audio = new Audio(audioUrlToPlay);
       setCurrentAudio(audio);
       
       audio.onended = () => {
@@ -117,42 +72,8 @@ export const useTTS = () => {
     isGenerating,
     isSpeaking,
     audioUrl,
-    apiKey,
-    setApiKey,
     generateAffirmations,
     playAffirmations,
     stopAffirmations
   };
 };
-
-// Helper function to create affirmation text
-function createAffirmationText(
-  name: string,
-  goal: string,
-  customAffirmations: string,
-  tone: string
-): string {
-  const greetings = {
-    empowering: `${name}, you are a powerful creator`,
-    soothing: `${name}, breathe deeply and feel the peace within`,
-    motivational: `${name}, today is your day to shine`,
-    spiritual: `${name}, connect with your divine essence`
-  };
-
-  const affirmations = [
-    `I, ${name}, ${goal.toLowerCase().replace('i want to', '').replace('i', '')}`,
-    `Every day, I move closer to my dreams`,
-    `I am worthy of all the good things life has to offer`,
-    `My positive thoughts create positive outcomes`,
-    `I trust in my ability to create the life I desire`
-  ];
-
-  if (customAffirmations) {
-    affirmations.push(...customAffirmations.split('\n').filter(a => a.trim()));
-  }
-
-  const greeting = greetings[tone as keyof typeof greetings] || greetings.empowering;
-  
-  return `${greeting}. ${affirmations.join('. ')}. Take a deep breath and feel these truths resonating within you.`;
-}
-

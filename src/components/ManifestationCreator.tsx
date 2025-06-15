@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
 import { useLocation } from "react-router-dom";
 import SaveManifestationModal from "./SaveManifestationModal";
-import { getGoalText, createPersonalizedAffirmationText } from "@/utils/affirmationHelpers";
+import { getGoalText } from "@/utils/affirmationHelpers";
 import { useSaveManifestation } from "@/hooks/useSaveManifestation";
 import { voiceOptions, musicOptions, moodEmojis } from "@/constants/manifestationOptions";
 
@@ -44,8 +43,8 @@ const ManifestationCreator = () => {
     backgroundMusic: ''
   });
   const [generatedText, setGeneratedText] = useState<string>('');
+  const [isGeneratingText, setIsGeneratingText] = useState(false);
   const [isEditingText, setIsEditingText] = useState(false);
-  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
   const [voicePreviewAudios, setVoicePreviewAudios] = useState<{ [key: string]: HTMLAudioElement }>({});
   const [voicePreviews, setVoicePreviews] = useState<{ [voice: string]: string }>({});
@@ -175,8 +174,8 @@ const ManifestationCreator = () => {
     }
   };
 
-  // Step 1: Generate manifestation text only
-  const handleGenerateText = () => {
+  // Step 1: Generate manifestation text only, now with AI
+  const handleGenerateText = async () => {
     if (!formData.name || !formData.goal) {
       toast({
         title: "Missing Information",
@@ -186,27 +185,49 @@ const ManifestationCreator = () => {
       return;
     }
 
-    const affirmationText = createPersonalizedAffirmationText(
-      formData.name,
-      formData.goal,
-      formData.customAffirmations,
-      selectedGoalFromRoute
-    );
-    
-    setGeneratedText(affirmationText);
-    setStep('text'); // advance step
-
-    toast({
-      title: "Manifestation Text Generated! ✨",
-      description: "Review and edit your affirmation, then generate the audio."
-    });
-
-    setTimeout(() => {
-      manifestationPreviewRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
+    setIsGeneratingText(true);
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const moodMap = ['feeling a bit down', 'feeling neutral', 'feeling positive', 'feeling happy', 'feeling wonderful and aligned'];
+      const moodText = mood !== null ? moodMap[mood] : 'not specified';
+      
+      const { data, error } = await supabase.functions.invoke('generate-ai-affirmation', {
+        body: {
+          name: formData.name,
+          goal: formData.goal,
+          customAffirmations: formData.customAffirmations,
+          mood: moodText
+        }
       });
-    }, 200); // Give fade-in animation a moment before scroll.
+
+      if (error || !data?.generatedText) {
+        throw new Error(error?.message || "No text returned from AI");
+      }
+      
+      setGeneratedText(data.generatedText);
+      setStep('text'); // advance step
+
+      toast({
+        title: "Manifestation Text Generated! ✨",
+        description: "Review and edit your affirmation, then generate the audio."
+      });
+
+      setTimeout(() => {
+        manifestationPreviewRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+      }, 200);
+    } catch (error) {
+      console.error('AI text generation failed:', error);
+      toast({
+        title: "Text Generation Failed",
+        description: "There was an error creating your text. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingText(false);
+    }
   };
 
   // Step 2: Generate audio from the manifestation text
@@ -220,15 +241,10 @@ const ManifestationCreator = () => {
       return;
     }
     setStep('audio'); // track we're at the audio generation step
-    setIsGeneratingAudio(true);
     
     try {
-      // Use the *latest* generatedText so the audio matches the preview/edit exactly
       await generateAffirmations(
-        formData.name || "",     // Keep this in case your affirmation logic needs it (can be removed if unused)
-        formData.goal || "",
-        "",                      // Don't use prior affirmation text (customAffirmations is blank since we use generatedText)
-        "",                      // Tone param, not needed for audio gen—can be left blank unless you need it
+        generatedText,
         formData.voice
       );
 
@@ -243,8 +259,6 @@ const ManifestationCreator = () => {
         description: "There was an error creating your audio. Please try again.",
         variant: "destructive"
       });
-    } finally {
-      setIsGeneratingAudio(false);
     }
   };
 
@@ -390,18 +404,25 @@ const ManifestationCreator = () => {
                 ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
                 : "bg-gradient-to-r from-pink-300 to-purple-300 text-white rounded-full cursor-default"
             }
-            ${(!formData.name || !formData.goal) ? "opacity-70" : ""}
+            ${(!formData.name || !formData.goal || isGeneratingText) ? "opacity-70" : ""}
           `}
           style={{
             boxShadow: undefined
           }}
-          disabled={!formData.name || !formData.goal || !!generatedText}
+          disabled={!formData.name || !formData.goal || !!generatedText || isGeneratingText}
           data-testid="generate-manifestation-text"
         >
-          <span className="flex items-center">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Generate Manifestation Text
-          </span>
+          {isGeneratingText ? (
+            <span className="flex items-center">
+              <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+              Generating with AI...
+            </span>
+          ) : (
+            <span className="flex items-center">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Generate Manifestation Text
+            </span>
+          )}
         </Button>
 
         {/* Animated, conditional render: Manifestation Preview + Voice Style, after text */}
@@ -492,18 +513,18 @@ const ManifestationCreator = () => {
               <Button
                 type="button"
                 onClick={handleGenerateAudio}
-                disabled={!formData.voice || isGeneratingAudio || !!audioUrl}
+                disabled={!formData.voice || isGenerating || !!audioUrl}
                 className={`
                   w-full text-base
                   transition-all duration-300
                   ${
-                    !audioUrl && formData.voice && !isGeneratingAudio
+                    !audioUrl && formData.voice && !isGenerating
                       ? "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 ring-2 ring-pink-300 font-semibold shadow-lg scale-[1.03] text-white"
                       : "bg-gradient-to-r from-pink-300 to-purple-300 text-white rounded-full opacity-60 cursor-default"
                   }
                 `}
               >
-                {isGeneratingAudio ? (
+                {isGenerating ? (
                   <>
                     <Volume2 className="w-4 h-4 mr-2" />
                     Creating Audio...
