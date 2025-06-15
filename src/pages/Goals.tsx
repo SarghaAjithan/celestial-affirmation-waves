@@ -90,8 +90,8 @@ const Goals = () => {
             </p>
           </div>
 
-          {/* 3x3 grid, clean cards, responsive */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* Responsive grid: 1 col on mobile, 2 on sm, 3 on md, 4 on lg+ */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6 mb-8">
             {goals.map((goal, index) => {
               const Icon = goal.icon;
               return (
@@ -103,7 +103,7 @@ const Goals = () => {
                     bg-white/90
                     border
                     border-gray-200
-                    p-7
+                    p-5 md:p-6
                     flex flex-col items-start
                     justify-start
                     shadow
@@ -113,19 +113,19 @@ const Goals = () => {
                     hover:border-purple-400
                     focus:outline-none
                     active:scale-98
+                    min-h-[150px]
                   `}
                   style={{
                     animationDelay: `${index * 0.07}s`,
-                    minHeight: 165
                   }}
                   onClick={() => handleSelectGoal(goal.id)}
                   tabIndex={0}
                 >
-                  <span className={`w-12 h-12 rounded-full bg-gradient-to-br ${goal.color} flex items-center justify-center mb-4`}>
-                    <Icon className="w-6 h-6 text-white" />
+                  <span className={`w-11 h-11 rounded-full bg-gradient-to-br ${goal.color} flex items-center justify-center mb-3`}>
+                    <Icon className="w-5 h-5 text-white" />
                   </span>
-                  <span className="text-lg md:text-xl font-bold text-gray-900 mb-1">{goal.title}</span>
-                  <span className="text-[15px] text-gray-600 font-light text-left">{goal.description}</span>
+                  <span className="text-base md:text-lg font-bold text-gray-900 mb-0.5">{goal.title}</span>
+                  <span className="text-[13px] md:text-sm text-gray-600 font-light text-left">{goal.description}</span>
                 </button>
               );
             })}
@@ -137,7 +137,7 @@ const Goals = () => {
                 bg-white/90
                 border
                 border-gray-200
-                p-7
+                p-5 md:p-6
                 flex flex-col items-start
                 justify-start
                 shadow
@@ -147,16 +147,16 @@ const Goals = () => {
                 hover:border-purple-400
                 focus:outline-none
                 active:scale-98
+                min-h-[150px]
               `}
-              style={{ minHeight: 165 }}
               onClick={() => handleSelectGoal('custom')}
               tabIndex={0}
             >
-              <span className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center mb-4">
-                <Star className="w-6 h-6 text-white" />
+              <span className="w-11 h-11 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center mb-3">
+                <Star className="w-5 h-5 text-white" />
               </span>
-              <span className="text-lg md:text-xl font-bold text-gray-900 mb-1">Custom Goal</span>
-              <span className="text-[15px] text-gray-600 font-light text-left">Create your own unique manifestation</span>
+              <span className="text-base md:text-lg font-bold text-gray-900 mb-0.5">Custom Goal</span>
+              <span className="text-[13px] md:text-sm text-gray-600 font-light text-left">Create your own unique manifestation</span>
             </button>
           </div>
         </div>
