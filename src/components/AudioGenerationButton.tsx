@@ -20,36 +20,25 @@ export const AudioGenerationButton: React.FC<AudioGenerationButtonProps> = ({
       onClick={onClick}
       disabled={disabled || isGenerating}
       className={`
-        w-full text-base
+        group relative w-full flex items-center justify-center
+        px-8 py-4 md:py-5 rounded-full border-[3px]
+        ${isGenerating || (!disabled && !isGenerating)
+          ? "bg-gradient-to-r from-pink-500 via-pink-500 to-purple-500 border-pink-200 shadow-lg"
+          : "bg-gradient-to-r from-pink-300 to-purple-300 border-pink-100 opacity-70 cursor-not-allowed"}
         transition-all duration-300
-        ${
-          isGenerating
-            ? "bg-gradient-to-r from-pink-200 to-purple-200 text-white font-semibold rounded-full border-0 shadow-none pointer-events-none"
-            : !disabled && !isGenerating
-              ? "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 ring-2 ring-pink-300 font-semibold shadow-lg scale-[1.03] text-white"
-              : "bg-gradient-to-r from-pink-300 to-purple-300 text-white rounded-full opacity-60 cursor-default"
-        }
-        ${isGenerating ? "h-16 md:h-16 flex items-center justify-center text-xl p-0" : ""}
+        hover:shadow-2xl hover:scale-105
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400
       `}
-      style={
-        isGenerating
-          ? {
-              borderRadius: "48px",
-              fontSize: "1.60rem",
-              minHeight: "4rem",
-              minWidth: "100%",
-              paddingLeft: 0,
-              paddingRight: 0,
-              marginTop: 0,
-            }
-          : { }
-      }
+      style={{
+        minHeight: "3.5rem",
+      }}
       aria-busy={isGenerating ? "true" : "false"}
+      tabIndex={0}
     >
       {isGenerating ? (
-        <span className="flex items-center justify-center w-full gap-4 text-white animate-fade-in">
+        <span className="flex items-center justify-center w-full gap-3">
           <svg
-            className="animate-spin h-7 w-7 mr-2"
+            className="animate-spin h-7 w-7"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -68,19 +57,21 @@ export const AudioGenerationButton: React.FC<AudioGenerationButtonProps> = ({
               d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
             />
           </svg>
-          <span className="font-semibold text-white" style={{ fontSize: "1.45rem", letterSpacing: "0.02em" }}>
+          <span className="font-bold text-white ml-2 text-lg md:text-xl whitespace-nowrap tracking-wide">
             Creating Audio...
           </span>
         </span>
       ) : (
-        <>
-          {showPlayIcon ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 18V6l8.5 6L9 18Z" stroke="white" />
+        <span className="flex items-center justify-center w-full gap-3">
+          {showPlayIcon && (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 md:w-7 md:h-7 mr-3 -ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 18V6l8.5 6L9 18Z" stroke="white" fill="none" />
             </svg>
-          ) : null}
-          Generate Audio
-        </>
+          )}
+          <span className="font-bold text-white text-lg md:text-xl tracking-wide select-none">
+            Generate Audio
+          </span>
+        </span>
       )}
     </button>
   );
