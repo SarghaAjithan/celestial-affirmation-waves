@@ -285,6 +285,14 @@ const ManifestationCreator = () => {
   const handleEditText = () => setIsEditingText(true);
   const handleSaveEdit = () => setIsEditingText(false);
 
+  // Add this utility so input updates work
+  const handleInputChange = (field: keyof ManifestationFormData, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   // We use a single-step progressive box flow.
   return (
     <div className="max-w-2xl mx-auto p-4 flex flex-col gap-5">
