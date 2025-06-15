@@ -93,7 +93,7 @@ const Dashboard = () => {
         <div className="max-w-6xl mx-auto">
           {/* Welcome Section */}
           <div className="mb-12 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text font-playfair">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text font-mulish">
               Welcome Back, Manifestor ✨
             </h2>
             <p className="text-lg text-gray-700 font-light">
