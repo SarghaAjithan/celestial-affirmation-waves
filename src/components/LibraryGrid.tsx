@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Heart, Calendar, Clock, BookOpen } from "lucide-react";
+import { Play, Heart, Calendar, Clock, BookOpen, ArrowLeft } from "lucide-react";
 
 interface Manifestation {
   id: string;
@@ -20,6 +20,8 @@ interface Manifestation {
 }
 
 const LibraryGrid = () => {
+  const navigate = useNavigate();
+  
   // Mock data - will be replaced with Supabase data
   const [manifestations] = useState<Manifestation[]>([
     {
@@ -75,6 +77,16 @@ const LibraryGrid = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        onClick={() => navigate('/dashboard')}
+        className="mb-4 p-2"
+      >
+        <ArrowLeft className="w-5 h-5 mr-2" />
+        Back to Home
+      </Button>
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold gradient-text font-playfair mb-2">
