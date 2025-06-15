@@ -490,9 +490,11 @@ const ManifestationCreator = () => {
           className={`
             w-full text-base mt-2
             transition-all duration-300
-            ${(!generatedText && formData.name && formData.goal)
-              ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              : "bg-gray-100 text-gray-400 border border-gray-200 pointer-events-none"}
+            ${
+              !generatedText && formData.name && formData.goal
+                ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                : "bg-gradient-to-r from-pink-300 to-purple-300 text-white rounded-full cursor-default"
+            }
             ${(!formData.name || !formData.goal) ? "opacity-70" : ""}
           `}
           style={{
