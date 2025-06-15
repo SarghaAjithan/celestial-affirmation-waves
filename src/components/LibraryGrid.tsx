@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Heart, Calendar, Clock, BookOpen, ArrowLeft } from "lucide-react";
+import { Play, Heart, Calendar, Clock, BookOpen, ArrowLeft, Pause } from "lucide-react";
 
 interface Manifestation {
   id: string;
