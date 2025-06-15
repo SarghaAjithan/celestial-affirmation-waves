@@ -33,8 +33,8 @@ export const useTTS = () => {
       console.log('Generating audio with voice:', selectedVoice);
       
       const audioBlob = await huggingFaceTTS.generateSpeech(affirmationText, selectedVoice);
-      const audioUrl = URL.createObjectURL(audioBlob);
-      setAudioUrl(audioUrl);
+      const newAudioUrl = URL.createObjectURL(audioBlob);
+      setAudioUrl(newAudioUrl);
       
       return affirmationText;
     } catch (error) {
