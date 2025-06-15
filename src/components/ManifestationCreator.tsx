@@ -324,34 +324,6 @@ const ManifestationCreator = () => {
     }
   };
 
-  // Step 1: Generate manifestation text only
-  const handleGenerateText = () => {
-    if (!formData.name || !formData.goal) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in your name and goal to generate your manifestation.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const affirmationText = createPersonalizedAffirmationText(
-      formData.name,
-      formData.goal,
-      formData.customAffirmations,
-      selectedGoalFromRoute
-    );
-    
-    setGeneratedText(affirmationText);
-    // Clear any existing audio when text is regenerated
-    setFullManifestationAudio(null);
-    
-    toast({
-      title: "Manifestation Text Generated! ✨",
-      description: "Review and edit your affirmation, then generate the audio."
-    });
-  };
-
   // Step 2: Generate audio from the manifestation text
   const handleGenerateAudio = async () => {
     if (!generatedText || !formData.voice) {
@@ -366,7 +338,7 @@ const ManifestationCreator = () => {
     setIsGeneratingAudio(true);
     
     try {
-      const manifestationAudioUrl = await generateAffirmations(
+      await generateAffirmations(
         formData.name,
         formData.goal,
         generatedText,
@@ -374,13 +346,12 @@ const ManifestationCreator = () => {
         formData.voice
       );
       
-      if (manifestationAudioUrl) {
-        setFullManifestationAudio(manifestationAudioUrl);
-        toast({
-          title: "Audio Generated! 🎵",
-          description: "Your manifestation audio is ready to play."
-        });
-      }
+      // The audioUrl from useTTS hook contains the actual audio file URL
+      // We'll use that directly in the play function
+      toast({
+        title: "Audio Generated! 🎵",
+        description: "Your manifestation audio is ready to play."
+      });
     } catch (error) {
       toast({
         title: "Audio Generation Failed",
@@ -394,38 +365,20 @@ const ManifestationCreator = () => {
 
   // Play/Pause for the full manifestation audio
   const handlePlayFullManifestation = () => {
-    if (!fullManifestationAudio) {
+    if (!audioUrl) {
       toast({
         title: "No Audio Available",
-        description: "Audio not available or failed to generate.",
+        description: "Please generate audio first.",
         variant: "destructive",
       });
       return;
     }
-    // Log the audio URL for debugging
-    console.log("Trying to play audio:", fullManifestationAudio);
 
-    // Create a temporary audio element to test loading outside the TTS hook
-    const testAudio = new Audio(fullManifestationAudio);
-    testAudio.onerror = (evt) => {
-      console.error(`Audio playback failed for ${fullManifestationAudio}`, evt);
-      toast({
-        title: "Audio Playback Failed",
-        description: "Your browser couldn't play this audio file. Try downloading it instead.",
-        variant: "destructive"
-      });
-    };
-
-    testAudio.oncanplaythrough = () => {
-      // Use main TTS hook to manage play/pause state and UI
-      if (isSpeaking) {
-        stopAffirmations();
-      } else {
-        playAffirmations(fullManifestationAudio);
-      }
-    };
-    // Try loading (triggers oncanplaythrough or onerror)
-    testAudio.load();
+    if (isSpeaking) {
+      stopAffirmations();
+    } else {
+      playAffirmations(audioUrl);
+    }
   };
 
   const handleSave = () => {
@@ -660,7 +613,7 @@ const ManifestationCreator = () => {
                 </div>
 
                 {/* Audio Player Section */}
-                {fullManifestationAudio ? (
+                {audioUrl ? (
                   <div className="space-y-4">
                     {/* Enhanced Audio Visualizer */}
                     <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
@@ -692,7 +645,7 @@ const ManifestationCreator = () => {
                       {/* Download raw audio (diagnostic) */}
                       <div className="mt-2">
                         <a
-                          href={fullManifestationAudio}
+                          href={audioUrl}
                           download
                           className="text-xs underline text-blue-600"
                           target="_blank"
@@ -709,7 +662,7 @@ const ManifestationCreator = () => {
                         variant="outline" 
                         className="flex-1 border-purple-200 hover:bg-purple-50"
                         onClick={handlePlayFullManifestation}
-                        disabled={!fullManifestationAudio}
+                        disabled={!audioUrl}
                       >
                         {isSpeaking ? (
                           <>
