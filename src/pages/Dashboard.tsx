@@ -111,7 +111,6 @@ const Dashboard = () => {
       <div
         className="relative w-full shadow-none"
         style={{
-          background: "linear-gradient(180deg, #EDDFFB 0%, #FCF6FF 90%)",
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
           minHeight: 320,
