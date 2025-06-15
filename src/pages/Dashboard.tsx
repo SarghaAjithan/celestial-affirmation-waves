@@ -3,6 +3,7 @@ import { Plus, Headphones, Library, Star, Sparkles, LogOut, View } from "lucide-
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
+import DashboardLibraryPreview from "@/components/DashboardLibraryPreview";
 
 interface Manifestation {
   id: string;
