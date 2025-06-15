@@ -159,7 +159,9 @@ const Dashboard = () => {
             letterSpacing: "-0.03em",
             fontWeight: 700,
             lineHeight: 1.2,
-            textShadow: "0 4px 30px rgba(80,40,130,0.20)"
+            textShadow: "0 4px 30px rgba(80,40,130,0.20)",
+            position: "relative",
+            bottom: "12px",
           }}
         >
           Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
