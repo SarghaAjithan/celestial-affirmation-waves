@@ -285,7 +285,7 @@ const ManifestationCreator = () => {
   const handleEditText = () => setIsEditingText(true);
   const handleSaveEdit = () => setIsEditingText(false);
 
-  // Add this utility so input updates work
+  // Input change handler
   const handleInputChange = (field: keyof ManifestationFormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -597,6 +597,12 @@ const ManifestationCreator = () => {
           </div>
         ) : null}
       </Card>
+
+      <SaveManifestationModal
+        open={showSaveModal}
+        onSave={handleSaveManifestation}
+        onCancel={() => setShowSaveModal(false)}
+      />
     </div>
   );
 };
