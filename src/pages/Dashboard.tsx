@@ -153,7 +153,7 @@ const Dashboard = () => {
       </div>
 
       {/* Hero headline content - positioned directly after image */}
-      <div className="mx-auto flex flex-col items-center text-center px-4 sm:px-6" style={{ paddingTop: '16px', maxWidth: 700 }}>
+      <div className="mx-auto flex flex-col items-center text-center px-4 sm:px-6" style={{ paddingTop: '8px', maxWidth: 700 }}>
         <h1
           className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3"
           style={{
