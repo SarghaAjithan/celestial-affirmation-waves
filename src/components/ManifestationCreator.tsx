@@ -354,10 +354,10 @@ const ManifestationCreator = () => {
 
   // Step 2: Generate audio from the manifestation text
   const handleGenerateAudio = async () => {
-    if (!generatedText || !formData.voice || !formData.backgroundMusic) {
+    if (!generatedText || !formData.voice) {
       toast({
         title: "Missing Information",
-        description: "Please ensure you have generated text and selected voice and background music.",
+        description: "Please ensure you have generated text and selected a voice.",
         variant: "destructive"
       });
       return;
@@ -572,28 +572,12 @@ const ManifestationCreator = () => {
                       ))}
                     </div>
                   </div>
-
-                  <div>
-                    <Label>Background Music</Label>
-                    <Select value={formData.backgroundMusic} onValueChange={(value) => handleInputChange('backgroundMusic', value)}>
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Choose ambiance..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {musicOptions.map(option => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
 
                 <Button 
                   type="button"
                   onClick={handleGenerateAudio}
-                  disabled={isGeneratingAudio || !formData.voice || !formData.backgroundMusic}
+                  disabled={isGeneratingAudio || !formData.voice}
                   className="w-full mt-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
                   size="lg"
                 >
