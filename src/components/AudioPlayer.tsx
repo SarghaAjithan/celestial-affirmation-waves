@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,7 +46,7 @@ const AudioPlayer = () => {
       {/* Back Button */}
       <Button
         variant="ghost"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/library')}
         className="mb-6 p-2"
       >
         <ArrowLeft className="w-5 h-5 mr-2" />
