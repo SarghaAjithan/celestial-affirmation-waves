@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -295,8 +296,14 @@ const ManifestationCreator = () => {
     await saveManifestation(title);
   };
 
-  // Mood emoji options
-  const moodEmojis = ['😔', '😐', '🙂', '😊', '✨'];
+  // Mood emoji options with labels
+  const moodOptions = [
+    { emoji: '😔', label: 'Uncertain' },
+    { emoji: '😐', label: 'Neutral' },
+    { emoji: '🙂', label: 'Hopeful' },
+    { emoji: '😊', label: 'Happy' },
+    { emoji: '✨', label: 'Aligned' }
+  ];
 
   const [step, setStep] = useState<'input' | 'text' | 'voice' | 'audio'>('input');
 
@@ -348,23 +355,22 @@ const ManifestationCreator = () => {
             <Label className="text-xs font-medium mb-1 whitespace-nowrap" htmlFor="mood-options">
               What is your current feeling about the manifestation desire?
             </Label>
-            <div id="mood-options" className="flex flex-row gap-2">
-              {moodEmojis.map((emoji, index) => (
+            <div id="mood-options" className="flex flex-wrap gap-2">
+              {moodOptions.map((option, index) => (
                 <button
                   type="button"
                   key={index}
-                  aria-label={emoji}
                   onClick={() => setMood(index)}
-                  className={`flex items-center justify-center h-8 w-10 rounded-lg border
-                    text-lg font-medium transition-all
+                  className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs
+                    transition-all
                     ${mood === index 
                       ? "bg-gradient-to-tr from-pink-100 to-purple-100 border-purple-400 scale-105"
                       : "bg-gray-50 border-gray-200 hover:bg-gray-100"}
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400`}
                   tabIndex={0}
-                  style={{ fontSize: 20 }}
                 >
-                  {emoji}
+                  <span className="text-base">{option.emoji}</span>
+                  <span className="font-medium">{option.label}</span>
                 </button>
               ))}
             </div>
