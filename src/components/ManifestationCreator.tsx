@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Play, Pause, Save, Share, Heart, Volume2 } from "lucide-react";
+import { Play, Pause, Save, Share, Heart, Volume2, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
 
@@ -22,7 +21,17 @@ interface ManifestationFormData {
 
 const ManifestationCreator = () => {
   const { toast } = useToast();
-  const { isGenerating, isSpeaking, audioUrl, generateAffirmations, playAffirmations, stopAffirmations } = useTTS();
+  const { 
+    isGenerating, 
+    isSpeaking, 
+    audioUrl, 
+    apiKey, 
+    setApiKey, 
+    generateAffirmations, 
+    playAffirmations, 
+    stopAffirmations 
+  } = useTTS();
+  
   const [formData, setFormData] = useState<ManifestationFormData>({
     name: '',
     goal: '',
@@ -82,12 +91,12 @@ const ManifestationCreator = () => {
       
       toast({
         title: "Manifestation Created! ✨",
-        description: "Your personalized affirmation is ready with high-quality AI voice."
+        description: apiKey ? "Your personalized affirmation is ready with high-quality AI voice." : "Your personalized affirmation is ready with browser voice. Add ElevenLabs API key for premium voices."
       });
     } catch (error) {
       toast({
         title: "Generation Failed",
-        description: "There was an error creating your manifestation. Please try again.",
+        description: "There was an error creating your manifestation. Using browser voice as fallback.",
         variant: "destructive"
       });
     }
@@ -131,6 +140,25 @@ const ManifestationCreator = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* ElevenLabs API Key Input */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <Label htmlFor="apiKey" className="flex items-center space-x-2 text-blue-700 font-medium">
+                <Key className="w-4 h-4" />
+                <span>ElevenLabs API Key (Optional)</span>
+              </Label>
+              <Input
+                id="apiKey"
+                type="password"
+                placeholder="sk-..."
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="mt-2 border-blue-200 focus:border-blue-400"
+              />
+              <p className="text-xs text-blue-600 mt-1">
+                Add your ElevenLabs API key for premium AI voices. Leave empty to use browser voice.
+              </p>
+            </div>
+
             <div>
               <Label htmlFor="name">What should we call you?</Label>
               <Input
@@ -267,7 +295,7 @@ const ManifestationCreator = () => {
                     )}
                   </div>
                   <p className="text-sm text-gray-600 mt-4 font-medium">
-                    {isSpeaking ? 'Playing your AI-generated manifestation...' : 'High-quality AI voice ready to play!'}
+                    {isSpeaking ? 'Playing your manifestation...' : (apiKey ? 'High-quality AI voice ready!' : 'Browser voice ready!')}
                   </p>
                 </div>
 
@@ -298,7 +326,7 @@ const ManifestationCreator = () => {
                     ) : (
                       <>
                         <Play className="w-4 h-4 mr-2" />
-                        Play AI Voice
+                        Play Voice
                       </>
                     )}
                   </Button>

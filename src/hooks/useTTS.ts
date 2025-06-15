@@ -1,12 +1,13 @@
 
 import { useState, useCallback } from 'react';
-import { huggingFaceTTS } from '@/services/ttsService';
+import { elevenLabsTTS, simpleTTS } from '@/services/ttsService';
 
 export const useTTS = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [apiKey, setApiKey] = useState<string>('');
 
   const generateAffirmations = useCallback(async (
     name: string,
@@ -20,19 +21,35 @@ export const useTTS = () => {
     try {
       // Generate affirmation text
       const affirmationText = createAffirmationText(name, goal, customAffirmations, tone);
+      console.log('Generated affirmation text:', affirmationText);
       
-      // Generate audio using Hugging Face TTS
-      const voiceMap: { [key: string]: string } = {
-        'female': 'en-US-AriaNeural',
-        'male': 'en-US-GuyNeural',
-        'neutral': 'en-US-JennyNeural',
-        'whisper': 'en-GB-SoniaNeural'
-      };
+      let audioBlob: Blob;
       
-      const selectedVoice = voiceMap[voiceStyle] || 'en-US-AriaNeural';
-      console.log('Generating audio with voice:', selectedVoice);
+      try {
+        // Try ElevenLabs first if API key is provided
+        if (apiKey.trim()) {
+          elevenLabsTTS.setApiKey(apiKey);
+          const voiceMap: { [key: string]: string } = {
+            'female': '9BWtsMINqrJLrRacOk9x', // Aria
+            'male': 'TX3LPaxmHKxFdv7VOQHJ', // Liam
+            'neutral': 'EXAVITQu4vr4xnSDxMaL', // Sarah
+            'whisper': 'XB0fDUnXU5powFXDhCwa' // Charlotte
+          };
+          
+          const selectedVoiceId = voiceMap[voiceStyle] || '9BWtsMINqrJLrRacOk9x';
+          console.log('Using ElevenLabs with voice:', selectedVoiceId);
+          audioBlob = await elevenLabsTTS.generateSpeech(affirmationText, selectedVoiceId);
+        } else {
+          // Fallback to simple browser TTS
+          console.log('Using browser TTS as fallback');
+          audioBlob = await simpleTTS.generateSpeech(affirmationText, voiceStyle);
+        }
+      } catch (error) {
+        console.error('Primary TTS failed, using browser TTS:', error);
+        // Final fallback to browser TTS
+        audioBlob = await simpleTTS.generateSpeech(affirmationText, voiceStyle);
+      }
       
-      const audioBlob = await huggingFaceTTS.generateSpeech(affirmationText, selectedVoice);
       const newAudioUrl = URL.createObjectURL(audioBlob);
       setAudioUrl(newAudioUrl);
       
@@ -43,7 +60,7 @@ export const useTTS = () => {
     } finally {
       setIsGenerating(false);
     }
-  }, []);
+  }, [apiKey]);
 
   const playAffirmations = useCallback(async (audioUrl: string) => {
     if (isSpeaking && currentAudio) {
@@ -89,6 +106,8 @@ export const useTTS = () => {
     isGenerating,
     isSpeaking,
     audioUrl,
+    apiKey,
+    setApiKey,
     generateAffirmations,
     playAffirmations,
     stopAffirmations

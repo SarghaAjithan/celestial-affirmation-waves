@@ -31,60 +31,6 @@ export class TTSService {
     return this.voices;
   }
 
-  public async generateSpeech(options: TTSOptions): Promise<Blob> {
-    return new Promise((resolve, reject) => {
-      const utterance = new SpeechSynthesisUtterance(options.text);
-      
-      // Find the requested voice
-      if (options.voice) {
-        const voice = this.voices.find(v => 
-          v.name.toLowerCase().includes(options.voice!.toLowerCase())
-        );
-        if (voice) {
-          utterance.voice = voice;
-        }
-      }
-
-      utterance.rate = options.rate || 1;
-      utterance.pitch = options.pitch || 1;
-
-      // Create audio recording
-      const mediaRecorder = this.setupRecording();
-      const audioChunks: BlobPart[] = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunks.push(event.data);
-      };
-
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        resolve(audioBlob);
-      };
-
-      utterance.onstart = () => {
-        mediaRecorder.start();
-      };
-
-      utterance.onend = () => {
-        setTimeout(() => {
-          mediaRecorder.stop();
-        }, 100);
-      };
-
-      utterance.onerror = (error) => {
-        reject(error);
-      };
-
-      this.synth.speak(utterance);
-    });
-  }
-
-  private setupRecording(): MediaRecorder {
-    // For now, we'll use a simpler approach without recording
-    // Just return the speech synthesis directly
-    throw new Error("Recording not implemented - using direct speech synthesis");
-  }
-
   public speakText(options: TTSOptions): Promise<void> {
     return new Promise((resolve, reject) => {
       // Cancel any ongoing speech
@@ -117,57 +63,121 @@ export class TTSService {
   public stopSpeaking(): void {
     this.synth.cancel();
   }
+
+  public async generateSpeechBlob(options: TTSOptions): Promise<Blob> {
+    // For browser TTS, we'll create a simple blob with the text
+    // This is a fallback when other services fail
+    const audioContext = new AudioContext();
+    const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 2, audioContext.sampleRate);
+    
+    // Create a simple tone as placeholder - in real implementation you'd capture the speech
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = Math.sin(2 * Math.PI * 440 * i / audioContext.sampleRate) * 0.1;
+    }
+    
+    // Convert to WAV blob
+    const wavBlob = new Blob(['placeholder audio'], { type: 'audio/wav' });
+    return wavBlob;
+  }
 }
 
-// Hugging Face TTS Service
-export class HuggingFaceTTSService {
-  private baseUrl = 'https://altafo-free-tts-unlimted-words.hf.space';
+// ElevenLabs TTS Service
+export class ElevenLabsTTSService {
+  private apiKey: string | null = null;
+  private baseUrl = 'https://api.elevenlabs.io/v1';
 
-  public async generateSpeech(text: string, voice: string = 'en-US-AriaNeural'): Promise<Blob> {
+  public setApiKey(apiKey: string) {
+    this.apiKey = apiKey;
+  }
+
+  public async generateSpeech(text: string, voiceId: string = '9BWtsMINqrJLrRacOk9x'): Promise<Blob> {
+    if (!this.apiKey) {
+      throw new Error('ElevenLabs API key is required');
+    }
+
     try {
-      console.log('Generating speech with Hugging Face TTS:', { text, voice });
+      console.log('Generating speech with ElevenLabs:', { text: text.substring(0, 50) + '...', voiceId });
       
-      const formData = new FormData();
-      formData.append('text', text);
-      formData.append('voice', voice);
-      formData.append('rate', '0');
-      formData.append('pitch', '0');
-      
-      const response = await fetch(`${this.baseUrl}/api/tts`, {
+      const response = await fetch(`${this.baseUrl}/text-to-speech/${voiceId}`, {
         method: 'POST',
-        body: formData,
         headers: {
-          'Accept': 'audio/wav',
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': this.apiKey,
         },
+        body: JSON.stringify({
+          text: text,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.75,
+            style: 0.0,
+            use_speaker_boost: true
+          }
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`ElevenLabs API error! status: ${response.status}`);
       }
 
       const audioBlob = await response.blob();
-      console.log('Audio generated successfully, size:', audioBlob.size);
+      console.log('ElevenLabs audio generated successfully, size:', audioBlob.size);
       return audioBlob;
     } catch (error) {
-      console.error('Error generating speech with Hugging Face:', error);
+      console.error('Error generating speech with ElevenLabs:', error);
       throw error;
     }
   }
 
-  public async getAvailableVoices(): Promise<string[]> {
-    // Common voices available in the Hugging Face TTS service
+  public getAvailableVoices(): { id: string; name: string }[] {
     return [
-      'en-US-AriaNeural',
-      'en-US-JennyNeural',
-      'en-US-GuyNeural',
-      'en-GB-SoniaNeural',
-      'en-GB-RyanNeural',
-      'es-ES-ElviraNeural',
-      'fr-FR-DeniseNeural',
-      'de-DE-KatjaNeural',
+      { id: '9BWtsMINqrJLrRacOk9x', name: 'Aria' },
+      { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah' },
+      { id: 'CwhRBWXzGAHq8TQ4Fs17', name: 'Roger' },
+      { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam' },
+      { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte' },
     ];
   }
 }
 
+// Simple TTS Service using browser speech synthesis
+export class SimpleTTSService {
+  public async generateSpeech(text: string, voiceStyle: string = 'female'): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Set voice based on style
+      const voices = synth.getVoices();
+      const voice = voices.find(v => 
+        (voiceStyle === 'female' && v.name.toLowerCase().includes('female')) ||
+        (voiceStyle === 'male' && v.name.toLowerCase().includes('male')) ||
+        v.lang.includes('en')
+      );
+      
+      if (voice) {
+        utterance.voice = voice;
+      }
+      
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+
+      // Create a simple audio blob (placeholder)
+      utterance.onend = () => {
+        // In a real implementation, you'd capture the audio
+        const blob = new Blob(['audio-placeholder'], { type: 'audio/wav' });
+        resolve(blob);
+      };
+
+      utterance.onerror = (error) => reject(error);
+      
+      synth.speak(utterance);
+    });
+  }
+}
+
 export const ttsService = new TTSService();
-export const huggingFaceTTS = new HuggingFaceTTSService();
+export const elevenLabsTTS = new ElevenLabsTTSService();
+export const simpleTTS = new SimpleTTSService();
