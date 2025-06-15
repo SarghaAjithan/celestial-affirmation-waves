@@ -44,7 +44,6 @@ const ManifestationCreator = () => {
   const [isEditingText, setIsEditingText] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
-  const [fullManifestationAudio, setFullManifestationAudio] = useState<string | null>(null);
   const [voicePreviewAudios, setVoicePreviewAudios] = useState<{ [key: string]: HTMLAudioElement }>({});
   const [voicePreviews, setVoicePreviews] = useState<{ [voice: string]: string }>({});
   const [isRegeneratingPreviews, setIsRegeneratingPreviews] = useState(false);
@@ -322,6 +321,32 @@ const ManifestationCreator = () => {
         variant: "destructive"
       });
     }
+  };
+
+  // Step 1: Generate manifestation text only
+  const handleGenerateText = () => {
+    if (!formData.name || !formData.goal) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in your name and goal to generate your manifestation.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const affirmationText = createPersonalizedAffirmationText(
+      formData.name,
+      formData.goal,
+      formData.customAffirmations,
+      selectedGoalFromRoute
+    );
+    
+    setGeneratedText(affirmationText);
+    
+    toast({
+      title: "Manifestation Text Generated! ✨",
+      description: "Review and edit your affirmation, then generate the audio."
+    });
   };
 
   // Step 2: Generate audio from the manifestation text
