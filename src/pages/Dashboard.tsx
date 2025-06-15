@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Headphones, Library, Star, Sparkles, LogOut } from "lucide-react";
+import { Plus, Headphones, Library, Star, Sparkles, LogOut, View } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
@@ -46,6 +46,7 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const [manifestations, setManifestations] = useState<Manifestation[]>([]);
   const [currentQuote, setCurrentQuote] = useState(inspirationalQuotes[0]);
+  const [libraryManifestations, setLibraryManifestations] = useState<Manifestation[]>([]);
 
   useEffect(() => {
     // Set random quote on page load
@@ -72,6 +73,23 @@ const Dashboard = () => {
       }
     };
     fetchManifestations();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchLibraryManifestations = async () => {
+      if (user) {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data, error } = await supabase
+          .from("manifestations")
+          .select("id,title,created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
+        if (!error) {
+          setLibraryManifestations(data || []);
+        }
+      }
+    };
+    fetchLibraryManifestations();
   }, [user]);
 
   const handleSignOut = async () => {
@@ -104,6 +122,9 @@ const Dashboard = () => {
       color: "from-green-500 to-teal-500"
     }
   ];
+
+  // New: slice first 3 library items (can be different than recently played)
+  const previewLibrary = libraryManifestations.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#FFF7EF] floating-particles">
@@ -232,6 +253,45 @@ const Dashboard = () => {
             "{currentQuote.text}"
           </p>
           <p className="text-xs text-gray-500">— {currentQuote.author}</p>
+        </div>
+
+        {/* My Library Section */}
+        <div className="mb-12 mt-12">
+          <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 text-left px-1">My Library</h3>
+          {previewLibrary.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
+                {previewLibrary.map(item => (
+                  <div
+                    key={item.id}
+                    className="flex items-center rounded-2xl bg-[#EDE3F7] px-5 py-5 shadow-sm hover:shadow-md transition cursor-pointer"
+                    onClick={() => navigate(`/now-playing?id=${item.id}`)}
+                    style={{ minHeight: 72 }}
+                  >
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#b38ffa] to-[#dcbafa] flex items-center justify-center mr-4 font-mulish text-white text-xl font-bold">
+                      {item.title[0] || "A"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-800 truncate">{item.title}</h4>
+                      <div className="text-gray-600 text-sm truncate">Created: {new Date(item.created_at).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  className="text-purple-700 hover:text-purple-900 hover:border-purple-400 gap-2 font-semibold"
+                  onClick={() => navigate('/library')}
+                >
+                  <View className="w-4 h-4" />
+                  View More
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="text-gray-500 text-center py-8">No items in your library yet.</div>
+          )}
         </div>
       </main>
     </div>
