@@ -630,9 +630,27 @@ const ManifestationCreator = () => {
             {/* Visualizer */}
             <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
               <div className="w-full h-24 bg-gradient-to-r from-purple-300 to-pink-300 rounded-lg flex items-center justify-center relative overflow-hidden">
-                {isSpeaking ? (
+                <button
+                  type="button"
+                  onClick={handlePlayFullManifestation}
+                  aria-label={isSpeaking ? 'Pause voice' : 'Play voice'}
+                  className={`
+                    z-20 relative w-12 h-12 flex items-center justify-center
+                    bg-transparent border-none outline-none cursor-pointer
+                    rounded-full focus-visible:ring-2 focus-visible:ring-purple-400
+                    transition-all hover:scale-110 active:scale-105
+                  `}
+                  tabIndex={0}
+                >
+                  {isSpeaking ? (
+                    <Pause className="w-12 h-12 text-white drop-shadow" />
+                  ) : (
+                    <Play className="w-12 h-12 text-white drop-shadow" />
+                  )}
+                </button>
+                {isSpeaking && (
                   <>
-                    <div className="flex space-x-1 z-10">
+                    <div className="flex space-x-1 z-10 absolute left-0 right-0 top-0 bottom-0 items-center justify-center">
                       {[...Array(12)].map((_, i) => (
                         <div 
                           key={i}
@@ -648,8 +666,6 @@ const ManifestationCreator = () => {
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-50 animate-pulse" />
                   </>
-                ) : (
-                  <Play className="w-12 h-12 text-white" />
                 )}
               </div>
               <p className="text-sm text-gray-600 mt-4 font-medium">
@@ -667,26 +683,9 @@ const ManifestationCreator = () => {
                 </a>
               </div>
             </div>
-            {/* Player Controls */}
+            {/* --- REMOVED the bottom Play Voice button --- */}
             <div className="flex space-x-4">
-              <Button 
-                variant="outline" 
-                className="flex-1 border-purple-200 hover:bg-purple-50"
-                onClick={handlePlayFullManifestation}
-                disabled={!audioUrl}
-              >
-                {isSpeaking ? (
-                  <>
-                    <Pause className="w-4 h-4 mr-2" />
-                    Pause
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 mr-2" />
-                    Play Voice
-                  </>
-                )}
-              </Button>
+              {/* Save Button */}
               <Button variant="outline" onClick={handleSave}>
                 <Save className="w-4 h-4 mr-2" />
                 Save
