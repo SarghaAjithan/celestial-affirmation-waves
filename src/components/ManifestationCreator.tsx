@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Play, Pause, Save, Share, Heart, Volume2, Key } from "lucide-react";
+import { Play, Pause, Save, Share, Heart, Volume2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
 
@@ -91,7 +92,7 @@ const ManifestationCreator = () => {
       
       toast({
         title: "Manifestation Created! ✨",
-        description: apiKey ? "Your personalized affirmation is ready with ElevenLabs AI voice synthesis." : "Your personalized affirmation is ready with browser voice synthesis."
+        description: "Your personalized affirmation is ready with AI voice synthesis."
       });
     } catch (error) {
       toast({
@@ -140,25 +141,6 @@ const ManifestationCreator = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* ElevenLabs API Key Input - Optional */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <Label htmlFor="apiKey" className="flex items-center space-x-2 text-blue-700 font-medium">
-                <Key className="w-4 h-4" />
-                <span>ElevenLabs API Key (Optional Premium Upgrade)</span>
-              </Label>
-              <Input
-                id="apiKey"
-                type="password"
-                placeholder="sk-... (optional for premium voices)"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="mt-2 border-blue-200 focus:border-blue-400"
-              />
-              <p className="text-xs text-blue-600 mt-1">
-                Using browser voice synthesis by default. Add ElevenLabs API key for premium voices.
-              </p>
-            </div>
-
             <div>
               <Label htmlFor="name">What should we call you?</Label>
               <Input
