@@ -3,9 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Play, Pause, Save, Share, Heart, Volume2, Edit, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
@@ -65,6 +63,9 @@ const ManifestationCreator = () => {
     { value: 'lofi', label: 'Lo-fi Beats' },
     { value: 'bells', label: 'Temple Bells' }
   ];
+
+  // Mood tracker state (now part of the form)
+  const [mood, setMood] = useState<number | null>(null);
 
   // Get goal text based on selection from Goals page
   function getGoalText(goalId: string): string {
@@ -207,44 +208,6 @@ const ManifestationCreator = () => {
     };
     fetchVoicePreviews();
   }, []);
-
-  // Function to regenerate all voice previews
-  const handleRegenerateVoicePreviews = async () => {
-    setIsRegeneratingPreviews(true);
-    try {
-      const { supabase } = await import('@/integrations/supabase/client');
-      
-      toast({
-        title: "Regenerating Voice Previews",
-        description: "This may take a moment..."
-      });
-
-      const { data, error } = await supabase.functions.invoke('trigger-prebuild-voices');
-      
-      if (error) throw error;
-      
-      if (data?.success) {
-        toast({
-          title: "Voice Previews Regenerated!",
-          description: "All voice previews have been updated. Refreshing..."
-        });
-        
-        // Refresh the preview URLs
-        window.location.reload();
-      } else {
-        throw new Error(data?.error || 'Unknown error occurred');
-      }
-    } catch (error) {
-      console.error('Failed to regenerate voice previews:', error);
-      toast({
-        title: "Regeneration Failed",
-        description: "Could not regenerate voice previews. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsRegeneratingPreviews(false);
-    }
-  };
 
   // Preview voice functionality - use static previews if available
   const handleVoicePreview = async (voice: string) => {
@@ -398,7 +361,6 @@ const ManifestationCreator = () => {
       });
       return;
     }
-
     if (isSpeaking) {
       stopAffirmations();
     } else {
@@ -413,25 +375,22 @@ const ManifestationCreator = () => {
     });
   };
 
-  const handleEditText = () => {
-    setIsEditingText(true);
-  };
-
+  const handleEditText = () => setIsEditingText(true);
   const handleSaveEdit = () => {
     setIsEditingText(false);
-    // Clear existing audio since text changed
-    setFullManifestationAudio(null);
-    if (fullManifestationAudio) {
-      toast({
-        title: "Text Updated",
-        description: "Generate audio again to hear your updated manifestation."
-      });
-    }
+    toast({
+      title: "Text Updated",
+      description: "Generate audio again to hear your updated manifestation."
+    });
   };
 
+  // Mood emoji options
+  const moodEmojis = ['😔', '😐', '🙂', '😊', '✨'];
+
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <div className="text-center mb-8">
+    <div className="max-w-2xl mx-auto p-4 space-y-8">
+      {/* Header */}
+      <div className="text-center mb-4">
         <h1 className="text-3xl font-bold gradient-text font-playfair mb-2">
           Manifestation Creator
         </h1>
@@ -445,307 +404,286 @@ const ManifestationCreator = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Form Section */}
-        <Card className="goal-card">
+      {/* Stacked Layout: Details → Audio → Preview */}
+      {/* 1. Manifestation Details Card */}
+      <Card className="goal-card">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Heart className="w-5 h-5 text-purple-500" />
+            <span>Your Manifestation Details</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="font-semibold text-purple-700 mb-3 flex items-center">
+              <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">1</span>
+              Basic Information
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">What should we call you?</Label>
+                <Input
+                  id="name"
+                  placeholder="Enter your name..."
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="mt-2"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="goal">What's your heart's desire?</Label>
+                <Textarea
+                  id="goal"
+                  placeholder="I want to manifest abundance and financial freedom..."
+                  value={formData.goal}
+                  onChange={(e) => handleInputChange('goal', e.target.value)}
+                  className="mt-2 min-h-20"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="affirmations">Custom Affirmations (Optional)</Label>
+                <Textarea
+                  id="affirmations"
+                  placeholder="Add your own personal affirmations here..."
+                  value={formData.customAffirmations}
+                  onChange={(e) => handleInputChange('customAffirmations', e.target.value)}
+                  className="mt-2 min-h-16"
+                />
+              </div>
+
+              {/* Mood tracker now here */}
+              <div className="flex flex-col mt-2">
+                <Label className="text-sm font-medium mb-1">How are you feeling?</Label>
+                <div className="flex space-x-2">
+                  {moodEmojis.map((emoji, index) => (
+                    <Button
+                      key={index}
+                      variant={mood === index ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setMood(index)}
+                      className={`text-2xl p-1 ${mood === index ? "scale-110 border border-purple-400 bg-purple-100" : "hover:scale-110"} transition-transform`}
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <Button 
+                type="button"
+                onClick={handleGenerateText}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Generate Manifestation Text
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 2. Audio Settings (Minimalist) */}
+      {generatedText && (
+        <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Heart className="w-5 h-5 text-purple-500" />
-              <span>Your Manifestation Details</span>
+            <CardTitle>
+              <span className="flex items-center">
+                <Volume2 className="w-5 h-5 text-pink-500 mr-2" />
+                Audio Settings
+              </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Step 1: Basic Information */}
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h3 className="font-semibold text-purple-700 mb-3 flex items-center">
-                <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">1</span>
-                Basic Information
-              </h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">What should we call you?</Label>
-                  <Input
-                    id="name"
-                    placeholder="Enter your name..."
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="goal">What's your heart's desire?</Label>
-                  <Textarea
-                    id="goal"
-                    placeholder="I want to manifest abundance and financial freedom..."
-                    value={formData.goal}
-                    onChange={(e) => handleInputChange('goal', e.target.value)}
-                    className="mt-2 min-h-20"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="affirmations">Custom Affirmations (Optional)</Label>
-                  <Textarea
-                    id="affirmations"
-                    placeholder="Add your own personal affirmations here..."
-                    value={formData.customAffirmations}
-                    onChange={(e) => handleInputChange('customAffirmations', e.target.value)}
-                    className="mt-2 min-h-16"
-                  />
-                </div>
-
-                <Button 
-                  type="button"
-                  onClick={handleGenerateText}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Generate Manifestation Text
-                </Button>
+          <CardContent className="space-y-3">
+            <div>
+              <Label className="text-sm font-medium mb-2">Voice Style</Label>
+              {/* Compact vertical radio select */}
+              <div className="flex flex-wrap gap-2 mt-1">
+                {voiceOptions.map(option => (
+                  <div key={option.value} className={`flex items-center px-2 py-1 rounded-md border border-gray-200 bg-white/90 shadow-sm ${formData.voice === option.value ? 'border-purple-500' : 'hover:border-purple-300'} transition-all`}>
+                    <input
+                      type="radio"
+                      id={`voice-${option.value}`}
+                      name="voice"
+                      value={option.value}
+                      checked={formData.voice === option.value}
+                      onChange={(e) => handleInputChange('voice', e.target.value)}
+                      className="accent-purple-500 mr-2"
+                    />
+                    <label htmlFor={`voice-${option.value}`} className="font-medium cursor-pointer text-sm">
+                      {option.label}
+                    </label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleVoicePreview(option.value)}
+                      disabled={isGenerating || isGeneratingAudio || isRegeneratingPreviews}
+                      className="ml-1 p-1"
+                      aria-label={`Preview ${option.label}`}
+                    >
+                      {previewingVoice === option.value
+                        ? <Pause className="w-4 h-4 text-purple-500" />
+                        : <Play className="w-4 h-4 text-gray-500" />
+                      }
+                    </Button>
+                    {!voicePreviews[option.value] && (
+                      <span className="text-xs text-orange-400 ml-1">⚠</span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Step 2: Audio Settings (only show if text is generated) */}
-            {generatedText && (
-              <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
+            <Button 
+              type="button"
+              onClick={handleGenerateAudio}
+              disabled={isGeneratingAudio || !formData.voice}
+              className="w-full mt-2 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+              size="lg"
+            >
+              {isGeneratingAudio ? (
+                <>
+                  <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
+                  Creating Audio...
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 mr-2" />
+                  Generate Audio
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 3. Manifestation Preview */}
+      <Card className="goal-card">
+        <CardHeader>
+          <CardTitle>Manifestation Preview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {generatedText ? (
+            <div className="space-y-6">
+              {/* Text Preview and Editor */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-pink-700 flex items-center">
-                    <span className="bg-pink-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">2</span>
-                    Audio Settings
-                  </h3>
+                  <h3 className="font-semibold text-purple-700">Your Manifestation</h3>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleRegenerateVoicePreviews}
-                    disabled={isRegeneratingPreviews}
-                    className="text-xs"
+                    onClick={isEditingText ? handleSaveEdit : handleEditText}
+                    className="border-purple-200 hover:bg-purple-50"
                   >
-                    {isRegeneratingPreviews ? 'Fixing...' : 'Fix Voices'}
+                    <Edit className="w-4 h-4 mr-1" />
+                    {isEditingText ? 'Save' : 'Edit'}
                   </Button>
                 </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <Label>Voice Style</Label>
-                    <div className="space-y-2 mt-2">
-                      {voiceOptions.map(option => (
-                        <div key={option.value} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <input
-                                type="radio"
-                                id={`voice-${option.value}`}
-                                name="voice"
-                                value={option.value}
-                                checked={formData.voice === option.value}
-                                onChange={(e) => handleInputChange('voice', e.target.value)}
-                                className="text-purple-600"
-                              />
-                              <label htmlFor={`voice-${option.value}`} className="font-medium cursor-pointer">
-                                {option.label}
-                              </label>
-                              {!voicePreviews[option.value] && (
-                                <span className="text-xs text-orange-500 ml-2">⚠ Preview missing</span>
-                              )}
-                            </div>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleVoicePreview(option.value)}
-                            disabled={isGenerating || isGeneratingAudio || isRegeneratingPreviews}
-                            className="ml-2"
-                          >
-                            {previewingVoice === option.value ? (
-                              <>
-                                <Pause className="w-3 h-3 mr-1" />
-                                Stop
-                              </>
-                            ) : (
-                              <>
-                                <Play className="w-3 h-3 mr-1" />
-                                Preview
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <Button 
-                  type="button"
-                  onClick={handleGenerateAudio}
-                  disabled={isGeneratingAudio || !formData.voice}
-                  className="w-full mt-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
-                  size="lg"
-                >
-                  {isGeneratingAudio ? (
-                    <>
-                      <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
-                      Creating Audio...
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-4 h-4 mr-2" />
-                      Generate Audio
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Preview Section */}
-        <Card className="goal-card">
-          <CardHeader>
-            <CardTitle>Manifestation Preview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {generatedText ? (
-              <div className="space-y-6">
-                {/* Text Preview and Editor */}
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-purple-700">Your Manifestation</h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={isEditingText ? handleSaveEdit : handleEditText}
-                      className="border-purple-200 hover:bg-purple-50"
-                    >
-                      <Edit className="w-4 h-4 mr-1" />
-                      {isEditingText ? 'Save' : 'Edit'}
-                    </Button>
-                  </div>
-                  
-                  {isEditingText ? (
-                    <Textarea
-                      value={generatedText}
-                      onChange={(e) => setGeneratedText(e.target.value)}
-                      className="min-h-32 border-purple-200 focus:border-purple-400"
-                    />
-                  ) : (
-                    <p className="text-gray-700 leading-relaxed italic">
-                      {generatedText}
-                    </p>
-                  )}
-                </div>
-
-                {/* Audio Player Section */}
-                {audioUrl ? (
-                  <div className="space-y-4">
-                    {/* Enhanced Audio Visualizer */}
-                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
-                      <div className="w-full h-24 bg-gradient-to-r from-purple-300 to-pink-300 rounded-lg flex items-center justify-center relative overflow-hidden">
-                        {isSpeaking ? (
-                          <>
-                            <div className="flex space-x-1 z-10">
-                              {[...Array(12)].map((_, i) => (
-                                <div 
-                                  key={i}
-                                  className="w-1 bg-white rounded-full animate-bounce"
-                                  style={{ 
-                                    height: `${Math.random() * 40 + 10}px`,
-                                    animationDelay: `${i * 0.1}s`,
-                                    animationDuration: '1s'
-                                  }}
-                                />
-                              ))}
-                            </div>
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-50 animate-pulse" />
-                          </>
-                        ) : (
-                          <Play className="w-12 h-12 text-white" />
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 mt-4 font-medium">
-                        {isSpeaking ? 'Playing your manifestation...' : 'AI voice ready!'}
-                      </p>
-                      {/* Download raw audio (diagnostic) */}
-                      <div className="mt-2">
-                        <a
-                          href={audioUrl}
-                          download
-                          className="text-xs underline text-blue-600"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Download raw audio file (for troubleshooting)
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Enhanced Player Controls */}
-                    <div className="flex space-x-4">
-                      <Button 
-                        variant="outline" 
-                        className="flex-1 border-purple-200 hover:bg-purple-50"
-                        onClick={handlePlayFullManifestation}
-                        disabled={!audioUrl}
-                      >
-                        {isSpeaking ? (
-                          <>
-                            <Pause className="w-4 h-4 mr-2" />
-                            Pause
-                          </>
-                        ) : (
-                          <>
-                            <Play className="w-4 h-4 mr-2" />
-                            Play Voice
-                          </>
-                        )}
-                      </Button>
-                      <Button variant="outline" onClick={handleSave}>
-                        <Save className="w-4 h-4 mr-2" />
-                        Save
-                      </Button>
-                      <Button variant="outline">
-                        <Share className="w-4 h-4 mr-2" />
-                        Share
-                      </Button>
-                    </div>
-
-                    {/* Mood Tracker */}
-                    <div className="border-t pt-4">
-                      <Label className="text-sm font-medium">How are you feeling?</Label>
-                      <div className="flex space-x-2 mt-2">
-                        {['😔', '😐', '🙂', '😊', '✨'].map((emoji, index) => (
-                          <Button
-                            key={index}
-                            variant="ghost"
-                            size="sm"
-                            className="text-2xl hover:scale-110 transition-transform"
-                          >
-                            {emoji}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : generatedText && (
-                  <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-                    <Volume2 className="w-8 h-8 mx-auto mb-3 opacity-50" />
-                    <p className="font-medium">Ready to generate audio</p>
-                    <p className="text-sm">Complete the audio settings above to create your voice manifestation</p>
-                  </div>
+                {isEditingText ? (
+                  <Textarea
+                    value={generatedText}
+                    onChange={(e) => setGeneratedText(e.target.value)}
+                    className="min-h-32 border-purple-200 focus:border-purple-400"
+                  />
+                ) : (
+                  <p className="text-gray-700 leading-relaxed italic">
+                    {generatedText}
+                  </p>
                 )}
               </div>
-            ) : (
-              <div className="text-center py-12 text-gray-500">
-                <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p className="font-medium">Start by generating your manifestation text</p>
-                <p className="text-sm">Fill in your details on the left and click "Generate Manifestation Text"</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+
+              {/* Audio Player Section */}
+              {audioUrl ? (
+                <div className="space-y-4">
+                  {/* Enhanced Audio Visualizer */}
+                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
+                    <div className="w-full h-24 bg-gradient-to-r from-purple-300 to-pink-300 rounded-lg flex items-center justify-center relative overflow-hidden">
+                      {isSpeaking ? (
+                        <>
+                          <div className="flex space-x-1 z-10">
+                            {[...Array(12)].map((_, i) => (
+                              <div 
+                                key={i}
+                                className="w-1 bg-white rounded-full animate-bounce"
+                                style={{ 
+                                  height: `${Math.random() * 40 + 10}px`,
+                                  animationDelay: `${i * 0.1}s`,
+                                  animationDuration: '1s'
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-50 animate-pulse" />
+                        </>
+                      ) : (
+                        <Play className="w-12 h-12 text-white" />
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 mt-4 font-medium">
+                      {isSpeaking ? 'Playing your manifestation...' : 'AI voice ready!'}
+                    </p>
+                    <div className="mt-2">
+                      <a
+                        href={audioUrl}
+                        download
+                        className="text-xs underline text-blue-600"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Download raw audio file (for troubleshooting)
+                      </a>
+                    </div>
+                  </div>
+                  {/* Player Controls */}
+                  <div className="flex space-x-4">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1 border-purple-200 hover:bg-purple-50"
+                      onClick={handlePlayFullManifestation}
+                      disabled={!audioUrl}
+                    >
+                      {isSpeaking ? (
+                        <>
+                          <Pause className="w-4 h-4 mr-2" />
+                          Pause
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 mr-2" />
+                          Play Voice
+                        </>
+                      )}
+                    </Button>
+                    <Button variant="outline" onClick={handleSave}>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save
+                    </Button>
+                    <Button variant="outline">
+                      <Share className="w-4 h-4 mr-2" />
+                      Share
+                    </Button>
+                  </div>
+                </div>
+              ) : generatedText && (
+                <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                  <Volume2 className="w-8 h-8 mx-auto mb-3 opacity-50" />
+                  <p className="font-medium">Ready to generate audio</p>
+                  <p className="text-sm">Complete the audio settings above to create your voice manifestation</p>
+                </div>
+              )}
+              {/* Mood tracker is now removed from here */}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p className="font-medium">Start by generating your manifestation text</p>
+              <p className="text-sm">Fill in your details and click "Generate Manifestation Text"</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
