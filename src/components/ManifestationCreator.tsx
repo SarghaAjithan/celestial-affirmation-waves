@@ -491,12 +491,10 @@ const ManifestationCreator = () => {
             w-full text-base mt-2
             transition-all duration-300
             bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700
-            ${formData.name && formData.goal ? "animate-pulse ring-2 ring-purple-300 ring-offset-0 font-semibold shadow-lg scale-[1.03]" : "opacity-70"}
+            ${formData.name && formData.goal ? "" : "opacity-70"}
           `}
           style={{
-            boxShadow: formData.name && formData.goal
-              ? "0 4px 32px 0 rgba(150,64,200,.10)"
-              : undefined
+            boxShadow: undefined
           }}
           disabled={!formData.name || !formData.goal}
         >
