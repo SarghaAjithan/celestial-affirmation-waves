@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Star, Sparkles, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { cleanupAuthState } from '@/utils/authCleanup';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -25,9 +25,13 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
+      // Clean up existing state
+      cleanupAuthState();
+      
       const { error } = await signIn(signInData.email, signInData.password);
       
       if (error) {
+        console.error('Sign in error:', error);
         toast({
           title: "Sign in failed",
           description: error.message,
@@ -41,6 +45,7 @@ const Auth = () => {
         navigate('/dashboard');
       }
     } catch (error) {
+      console.error('Unexpected sign in error:', error);
       toast({
         title: "Sign in failed",
         description: "An unexpected error occurred.",
@@ -56,9 +61,13 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
+      // Clean up existing state
+      cleanupAuthState();
+      
       const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
       
       if (error) {
+        console.error('Sign up error:', error);
         toast({
           title: "Sign up failed",
           description: error.message,
@@ -71,6 +80,7 @@ const Auth = () => {
         });
       }
     } catch (error) {
+      console.error('Unexpected sign up error:', error);
       toast({
         title: "Sign up failed",
         description: "An unexpected error occurred.",
@@ -83,25 +93,53 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
+    
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('Starting Google authentication...');
+      
+      // Clean up any existing auth state first
+      cleanupAuthState();
+      
+      // Try to sign out globally first to ensure clean state
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+        console.log('Cleaned up existing auth state');
+      } catch (cleanupError) {
+        console.log('No existing session to clean up');
+      }
+
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      console.log('Redirect URL:', redirectUrl);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
       
+      console.log('Google auth response:', { data, error });
+      
       if (error) {
+        console.error('Google sign in error:', error);
         toast({
           title: "Google sign in failed",
-          description: error.message,
+          description: error.message || "Unable to connect to Google. Please try again.",
           variant: "destructive"
         });
+      } else {
+        console.log('Google auth initiated successfully');
+        // Don't show success toast here as the redirect will happen
       }
     } catch (error) {
+      console.error('Unexpected Google auth error:', error);
       toast({
         title: "Google sign in failed",
-        description: "An unexpected error occurred.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -151,7 +189,7 @@ const Auth = () => {
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                    Continue with Google
+                    {isLoading ? "Connecting..." : "Continue with Google"}
                   </Button>
                   
                   <div className="relative">
@@ -213,7 +251,7 @@ const Auth = () => {
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                    Sign up with Google
+                    {isLoading ? "Connecting..." : "Sign up with Google"}
                   </Button>
                   
                   <div className="relative">
