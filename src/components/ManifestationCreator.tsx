@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +44,7 @@ const ManifestationCreator = () => {
   const [isEditingText, setIsEditingText] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
+  const [fullManifestationAudio, setFullManifestationAudio] = useState<string | null>(null);
 
   // OpenAI voice options with preview text
   const voiceOptions = [
@@ -164,7 +164,7 @@ const ManifestationCreator = () => {
     return `${greeting}. ${allAffirmations.join('. ')}. Take a deep breath and feel these truths resonating within your soul.`;
   };
 
-  // Preview voice functionality
+  // Preview voice functionality - only for voice samples
   const handleVoicePreview = async (voice: string) => {
     if (previewingVoice === voice) {
       stopAffirmations();
@@ -185,6 +185,10 @@ const ManifestationCreator = () => {
         );
         if (previewUrl) {
           playAffirmations(previewUrl);
+          // Auto-stop preview after playing
+          setTimeout(() => {
+            setPreviewingVoice(null);
+          }, 3000);
         }
       }
     } catch (error) {
@@ -217,6 +221,8 @@ const ManifestationCreator = () => {
     );
     
     setGeneratedText(affirmationText);
+    // Clear any existing audio when text is regenerated
+    setFullManifestationAudio(null);
     
     toast({
       title: "Manifestation Text Generated! ✨",
@@ -224,7 +230,7 @@ const ManifestationCreator = () => {
     });
   };
 
-  // Step 2: Generate audio from the text
+  // Step 2: Generate audio from the manifestation text
   const handleGenerateAudio = async () => {
     if (!generatedText || !formData.voice || !formData.backgroundMusic) {
       toast({
@@ -238,7 +244,7 @@ const ManifestationCreator = () => {
     setIsGeneratingAudio(true);
     
     try {
-      await generateAffirmations(
+      const manifestationAudioUrl = await generateAffirmations(
         formData.name,
         formData.goal,
         generatedText,
@@ -246,10 +252,13 @@ const ManifestationCreator = () => {
         formData.voice
       );
       
-      toast({
-        title: "Audio Generated! 🎵",
-        description: "Your manifestation audio is ready to play."
-      });
+      if (manifestationAudioUrl) {
+        setFullManifestationAudio(manifestationAudioUrl);
+        toast({
+          title: "Audio Generated! 🎵",
+          description: "Your manifestation audio is ready to play."
+        });
+      }
     } catch (error) {
       toast({
         title: "Audio Generation Failed",
@@ -261,13 +270,14 @@ const ManifestationCreator = () => {
     }
   };
 
-  const handlePlay = () => {
-    if (!audioUrl) return;
+  // Play/Pause for the full manifestation audio
+  const handlePlayFullManifestation = () => {
+    if (!fullManifestationAudio) return;
     
     if (isSpeaking) {
       stopAffirmations();
     } else {
-      playAffirmations(audioUrl);
+      playAffirmations(fullManifestationAudio);
     }
   };
 
@@ -285,7 +295,8 @@ const ManifestationCreator = () => {
   const handleSaveEdit = () => {
     setIsEditingText(false);
     // Clear existing audio since text changed
-    if (audioUrl) {
+    setFullManifestationAudio(null);
+    if (fullManifestationAudio) {
       toast({
         title: "Text Updated",
         description: "Generate audio again to hear your updated manifestation."
@@ -407,7 +418,7 @@ const ManifestationCreator = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => handleVoicePreview(option.value)}
-                            disabled={isGenerating}
+                            disabled={isGenerating || isGeneratingAudio}
                             className="ml-2"
                           >
                             {previewingVoice === option.value ? (
@@ -447,7 +458,7 @@ const ManifestationCreator = () => {
                 <Button 
                   type="button"
                   onClick={handleGenerateAudio}
-                  disabled={isGeneratingAudio}
+                  disabled={isGeneratingAudio || !formData.voice || !formData.backgroundMusic}
                   className="w-full mt-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
                   size="lg"
                 >
@@ -505,7 +516,7 @@ const ManifestationCreator = () => {
                 </div>
 
                 {/* Audio Player Section */}
-                {audioUrl ? (
+                {fullManifestationAudio ? (
                   <div className="space-y-4">
                     {/* Enhanced Audio Visualizer */}
                     <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
@@ -541,8 +552,8 @@ const ManifestationCreator = () => {
                       <Button 
                         variant="outline" 
                         className="flex-1 border-purple-200 hover:bg-purple-50"
-                        onClick={handlePlay}
-                        disabled={!audioUrl}
+                        onClick={handlePlayFullManifestation}
+                        disabled={!fullManifestationAudio}
                       >
                         {isSpeaking ? (
                           <>
