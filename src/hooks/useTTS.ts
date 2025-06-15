@@ -1,11 +1,12 @@
 
 import { useState, useCallback } from 'react';
-import { ttsService, TTSOptions } from '@/services/ttsService';
+import { huggingFaceTTS } from '@/services/ttsService';
 
 export const useTTS = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   const generateAffirmations = useCallback(async (
     name: string,
@@ -20,9 +21,20 @@ export const useTTS = () => {
       // Generate affirmation text
       const affirmationText = createAffirmationText(name, goal, customAffirmations, tone);
       
-      // For now, we'll create a mock audio URL since we're using direct speech synthesis
-      // In a real implementation, this would generate an actual audio file
-      setAudioUrl('generated-audio-' + Date.now());
+      // Generate audio using Hugging Face TTS
+      const voiceMap: { [key: string]: string } = {
+        'female': 'en-US-AriaNeural',
+        'male': 'en-US-GuyNeural',
+        'neutral': 'en-US-JennyNeural',
+        'whisper': 'en-GB-SoniaNeural'
+      };
+      
+      const selectedVoice = voiceMap[voiceStyle] || 'en-US-AriaNeural';
+      console.log('Generating audio with voice:', selectedVoice);
+      
+      const audioBlob = await huggingFaceTTS.generateSpeech(affirmationText, selectedVoice);
+      const audioUrl = URL.createObjectURL(audioBlob);
+      setAudioUrl(audioUrl);
       
       return affirmationText;
     } catch (error) {
@@ -33,9 +45,9 @@ export const useTTS = () => {
     }
   }, []);
 
-  const playAffirmations = useCallback(async (text: string, voiceStyle: string) => {
-    if (isSpeaking) {
-      ttsService.stopSpeaking();
+  const playAffirmations = useCallback(async (audioUrl: string) => {
+    if (isSpeaking && currentAudio) {
+      currentAudio.pause();
       setIsSpeaking(false);
       return;
     }
@@ -43,23 +55,35 @@ export const useTTS = () => {
     setIsSpeaking(true);
     
     try {
-      await ttsService.speakText({
-        text,
-        voice: voiceStyle,
-        rate: 0.8,
-        pitch: 1
-      });
+      const audio = new Audio(audioUrl);
+      setCurrentAudio(audio);
+      
+      audio.onended = () => {
+        setIsSpeaking(false);
+        setCurrentAudio(null);
+      };
+      
+      audio.onerror = () => {
+        setIsSpeaking(false);
+        setCurrentAudio(null);
+        console.error('Error playing audio');
+      };
+      
+      await audio.play();
     } catch (error) {
       console.error('Error playing affirmations:', error);
-    } finally {
       setIsSpeaking(false);
+      setCurrentAudio(null);
     }
-  }, [isSpeaking]);
+  }, [isSpeaking, currentAudio]);
 
   const stopAffirmations = useCallback(() => {
-    ttsService.stopSpeaking();
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+    }
     setIsSpeaking(false);
-  }, []);
+  }, [currentAudio]);
 
   return {
     isGenerating,

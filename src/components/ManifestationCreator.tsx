@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Play, Pause, Save, Share, Heart } from "lucide-react";
+import { Play, Pause, Save, Share, Heart, Volume2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
 
@@ -81,7 +82,7 @@ const ManifestationCreator = () => {
       
       toast({
         title: "Manifestation Created! ✨",
-        description: "Your personalized affirmation is ready to transform your reality."
+        description: "Your personalized affirmation is ready with high-quality AI voice."
       });
     } catch (error) {
       toast({
@@ -93,12 +94,12 @@ const ManifestationCreator = () => {
   };
 
   const handlePlay = () => {
-    if (!generatedText) return;
+    if (!audioUrl) return;
     
     if (isSpeaking) {
       stopAffirmations();
     } else {
-      playAffirmations(generatedText, formData.voiceStyle);
+      playAffirmations(audioUrl);
     }
   };
 
@@ -116,7 +117,7 @@ const ManifestationCreator = () => {
           Manifestation Creator
         </h1>
         <p className="text-gray-600 font-light">
-          Transform your intentions into powerful spoken affirmations
+          Transform your intentions into powerful spoken affirmations with AI voices
         </p>
       </div>
 
@@ -221,7 +222,14 @@ const ManifestationCreator = () => {
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               size="lg"
             >
-              {isGenerating ? 'Creating Magic...' : 'Generate Manifestation'}
+              {isGenerating ? (
+                <>
+                  <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
+                  Creating AI Audio...
+                </>
+              ) : (
+                'Generate Manifestation'
+              )}
             </Button>
           </CardContent>
         </Card>
@@ -234,56 +242,63 @@ const ManifestationCreator = () => {
           <CardContent>
             {audioUrl ? (
               <div className="space-y-6">
-                {/* Waveform Placeholder */}
+                {/* Enhanced Audio Visualizer */}
                 <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
-                  <div className="w-full h-20 bg-gradient-to-r from-purple-300 to-pink-300 rounded-lg flex items-center justify-center">
+                  <div className="w-full h-24 bg-gradient-to-r from-purple-300 to-pink-300 rounded-lg flex items-center justify-center relative overflow-hidden">
                     {isSpeaking ? (
-                      <div className="flex space-x-1">
-                        {[...Array(8)].map((_, i) => (
-                          <div 
-                            key={i}
-                            className="w-1 bg-white rounded-full animate-pulse"
-                            style={{ 
-                              height: `${Math.random() * 30 + 10}px`,
-                              animationDelay: `${i * 0.1}s`
-                            }}
-                          />
-                        ))}
-                      </div>
+                      <>
+                        <div className="flex space-x-1 z-10">
+                          {[...Array(12)].map((_, i) => (
+                            <div 
+                              key={i}
+                              className="w-1 bg-white rounded-full animate-bounce"
+                              style={{ 
+                                height: `${Math.random() * 40 + 10}px`,
+                                animationDelay: `${i * 0.1}s`,
+                                animationDuration: '1s'
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-50 animate-pulse" />
+                      </>
                     ) : (
-                      <Play className="w-8 h-8 text-white" />
+                      <Play className="w-12 h-12 text-white" />
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mt-4">
-                    {isSpeaking ? 'Playing your manifestation...' : 'Your manifestation audio is ready!'}
+                  <p className="text-sm text-gray-600 mt-4 font-medium">
+                    {isSpeaking ? 'Playing your AI-generated manifestation...' : 'High-quality AI voice ready to play!'}
                   </p>
                 </div>
 
                 {/* Generated Text Preview */}
                 {generatedText && (
                   <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 max-h-32 overflow-y-auto">
-                    <p className="font-medium mb-2">Affirmation Preview:</p>
+                    <p className="font-medium mb-2 flex items-center">
+                      <Volume2 className="w-4 h-4 mr-2 text-purple-500" />
+                      Affirmation Preview:
+                    </p>
                     <p className="italic">{generatedText}</p>
                   </div>
                 )}
 
-                {/* Player Controls */}
+                {/* Enhanced Player Controls */}
                 <div className="flex space-x-4">
                   <Button 
                     variant="outline" 
-                    className="flex-1"
+                    className="flex-1 border-purple-200 hover:bg-purple-50"
                     onClick={handlePlay}
-                    disabled={!generatedText}
+                    disabled={!audioUrl}
                   >
                     {isSpeaking ? (
                       <>
                         <Pause className="w-4 h-4 mr-2" />
-                        Stop
+                        Pause
                       </>
                     ) : (
                       <>
                         <Play className="w-4 h-4 mr-2" />
-                        Play
+                        Play AI Voice
                       </>
                     )}
                   </Button>
@@ -316,8 +331,9 @@ const ManifestationCreator = () => {
               </div>
             ) : (
               <div className="text-center py-12 text-gray-500">
-                <Play className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Generate your manifestation to see the preview</p>
+                <Volume2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="font-medium">Generate your manifestation</p>
+                <p className="text-sm">AI-powered voice synthesis ready to bring your affirmations to life</p>
               </div>
             )}
           </CardContent>

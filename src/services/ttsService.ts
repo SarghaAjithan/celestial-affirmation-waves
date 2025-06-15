@@ -38,8 +38,7 @@ export class TTSService {
       // Find the requested voice
       if (options.voice) {
         const voice = this.voices.find(v => 
-          v.name.toLowerCase().includes(options.voice!.toLowerCase()) ||
-          v.gender === options.voice
+          v.name.toLowerCase().includes(options.voice!.toLowerCase())
         );
         if (voice) {
           utterance.voice = voice;
@@ -120,4 +119,55 @@ export class TTSService {
   }
 }
 
+// Hugging Face TTS Service
+export class HuggingFaceTTSService {
+  private baseUrl = 'https://altafo-free-tts-unlimted-words.hf.space';
+
+  public async generateSpeech(text: string, voice: string = 'en-US-AriaNeural'): Promise<Blob> {
+    try {
+      console.log('Generating speech with Hugging Face TTS:', { text, voice });
+      
+      const formData = new FormData();
+      formData.append('text', text);
+      formData.append('voice', voice);
+      formData.append('rate', '0');
+      formData.append('pitch', '0');
+      
+      const response = await fetch(`${this.baseUrl}/api/tts`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'audio/wav',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const audioBlob = await response.blob();
+      console.log('Audio generated successfully, size:', audioBlob.size);
+      return audioBlob;
+    } catch (error) {
+      console.error('Error generating speech with Hugging Face:', error);
+      throw error;
+    }
+  }
+
+  public async getAvailableVoices(): Promise<string[]> {
+    // Common voices available in the Hugging Face TTS service
+    return [
+      'en-US-AriaNeural',
+      'en-US-JennyNeural',
+      'en-US-GuyNeural',
+      'en-GB-SoniaNeural',
+      'en-GB-RyanNeural',
+      'es-ES-ElviraNeural',
+      'fr-FR-DeniseNeural',
+      'de-DE-KatjaNeural',
+    ];
+  }
+}
+
 export const ttsService = new TTSService();
+export const huggingFaceTTS = new HuggingFaceTTSService();
