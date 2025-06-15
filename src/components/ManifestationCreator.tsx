@@ -15,6 +15,8 @@ import { getGoalPlaceholder } from "@/utils/goalPlaceholders";
 import { useSaveManifestation } from "@/hooks/useSaveManifestation";
 import { voiceOptions, musicOptions, moodEmojis } from "@/constants/manifestationOptions";
 import AudioGenerationButton from "./AudioGenerationButton";
+import { Library } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ManifestationFormData {
   name: string;
@@ -55,6 +57,8 @@ const ManifestationCreator = () => {
   const [isRegeneratingPreviews, setIsRegeneratingPreviews] = useState(false);
   const manifestationPreviewRef = useRef<HTMLDivElement | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const navigate = useNavigate();
 
   // Mood tracker state (now part of the form)
   const [mood, setMood] = useState<number | null>(null);
@@ -293,7 +297,7 @@ const ManifestationCreator = () => {
 
   const handleSaveManifestation = async (title: string) => {
     setShowSaveModal(false);
-    await saveManifestation(title);
+    await saveManifestation(title, () => setIsSaved(true)); // Mark as saved after success
   };
 
   // Mood emoji options with labels
@@ -592,16 +596,28 @@ const ManifestationCreator = () => {
             </div>
             {/* --- REMOVED the bottom Play Voice button --- */}
             <div className="flex space-x-4">
-              {/* Save Button more prominent */}
-              <Button
-                variant="default"
-                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold ring-2 ring-pink-200"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {isSaving ? "Saving..." : "Save to Library"}
-              </Button>
+              {/* If saved, change button to View in Library, else show Save */}
+              {isSaved ? (
+                <Button
+                  variant="secondary"
+                  className="flex-1 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 font-semibold border-2 border-gray-300 cursor-pointer"
+                  onClick={() => navigate('/library')}
+                  disabled={false}
+                >
+                  <Library className="w-4 h-4 mr-2" />
+                  View in Library
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold ring-2 ring-pink-200"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {isSaving ? "Saving..." : "Save to Library"}
+                </Button>
+              )}
               <Button variant="outline" className="flex-1" disabled>
                 <Edit className="w-4 h-4 mr-2" />
                 Share (coming soon)
