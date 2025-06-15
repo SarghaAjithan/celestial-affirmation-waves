@@ -1,9 +1,10 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Heart, Calendar, Clock, BookOpen, ArrowLeft, Pause } from "lucide-react";
+import { Play, Heart, ArrowLeft } from "lucide-react";
 
 interface Manifestation {
   id: string;
@@ -22,8 +23,6 @@ interface Manifestation {
 const LibraryGrid = () => {
   const navigate = useNavigate();
   const [manifestations, setManifestations] = useState<Manifestation[]>([]);
-  const [playingId, setPlayingId] = useState<string | null>(null);
-  const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Fetch manifestations from Supabase
@@ -43,23 +42,8 @@ const LibraryGrid = () => {
   }, []);
 
   const handlePlay = (manifestation: Manifestation) => {
-    if (audioPlayer && playingId === manifestation.id) {
-      audioPlayer.pause();
-      setPlayingId(null);
-      return;
-    }
-    if (audioPlayer) {
-      audioPlayer.pause();
-      setAudioPlayer(null);
-    }
-    const audio = new Audio(manifestation.audio_url);
-    setAudioPlayer(audio);
-    setPlayingId(manifestation.id);
-    audio.onended = () => {
-      setPlayingId(null);
-      setAudioPlayer(null);
-    };
-    audio.play();
+    // Navigate to the immersive Now Playing screen
+    navigate(`/now-playing?id=${manifestation.id}`);
   };
 
   return (
@@ -104,14 +88,10 @@ const LibraryGrid = () => {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className={`text-purple-600 hover:text-purple-700 hover:bg-purple-50 ${playingId === manifestation.id ? 'bg-purple-100' : ''}`}
+                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                   onClick={() => handlePlay(manifestation)}
                 >
-                  {playingId === manifestation.id ? (
-                    <span className="flex items-center"><Pause className="w-4 h-4" /></span>
-                  ) : (
-                    <span className="flex items-center"><Play className="w-4 h-4" /></span>
-                  )}
+                  <Play className="w-4 h-4" />
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 mb-4">
@@ -134,7 +114,6 @@ const LibraryGrid = () => {
               <div className="space-y-2 text-xs text-gray-500">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-1">
-                    <Clock className="w-3 h-3" />
                     <span>{manifestation.created_at && new Date(manifestation.created_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center space-x-1">
@@ -142,7 +121,6 @@ const LibraryGrid = () => {
                     <span>Saved</span>
                   </div>
                 </div>
-                {/* Could expand with more attributes later */}
               </div>
             </CardContent>
           </Card>

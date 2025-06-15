@@ -11,6 +11,7 @@ import Builder from "./pages/Builder";
 import Player from "./pages/Player";
 import Library from "./pages/Library";
 import Dashboard from "./pages/Dashboard";
+import NowPlaying from "./pages/NowPlaying";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/builder" element={<Builder />} />
             <Route path="/player" element={<Player />} />
             <Route path="/library" element={<Library />} />
+            <Route path="/now-playing" element={<NowPlaying />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
