@@ -95,9 +95,9 @@ const Auth = () => {
           </p>
         </div>
 
-        <Card className="goal-card shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-center gradient-text font-playfair">
+        <Card className="bg-white bg-opacity-90 border border-gray-200 rounded-2xl shadow-none p-6">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="gradient-text font-playfair">
               Welcome
             </CardTitle>
           </CardHeader>
@@ -111,30 +111,32 @@ const Auth = () => {
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email" className="text-xs">Email</Label>
                     <Input
                       id="signin-email"
                       type="email"
                       placeholder="Enter your email"
                       value={signInData.email}
                       onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
+                      className="bg-gray-50 border-gray-200 rounded-lg text-sm"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password" className="text-xs">Password</Label>
                     <Input
                       id="signin-password"
                       type="password"
                       placeholder="Enter your password"
                       value={signInData.password}
                       onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
+                      className="bg-gray-50 border-gray-200 rounded-lg text-sm"
                       required
                     />
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white mt-4"
                     disabled={isLoading}
                   >
                     {isLoading ? "Signing in..." : "Sign In"}
@@ -145,40 +147,43 @@ const Auth = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Label htmlFor="signup-name" className="text-xs">Full Name</Label>
                     <Input
                       id="signup-name"
                       type="text"
                       placeholder="Enter your full name"
                       value={signUpData.fullName}
                       onChange={(e) => setSignUpData(prev => ({ ...prev, fullName: e.target.value }))}
+                      className="bg-gray-50 border-gray-200 rounded-lg text-sm"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email" className="text-xs">Email</Label>
                     <Input
                       id="signup-email"
                       type="email"
                       placeholder="Enter your email"
                       value={signUpData.email}
                       onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
+                      className="bg-gray-50 border-gray-200 rounded-lg text-sm"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password" className="text-xs">Password</Label>
                     <Input
                       id="signup-password"
                       type="password"
                       placeholder="Create a password"
                       value={signUpData.password}
                       onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
+                      className="bg-gray-50 border-gray-200 rounded-lg text-sm"
                       required
                     />
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white mt-4"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create Account"}
