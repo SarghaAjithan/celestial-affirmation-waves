@@ -153,23 +153,22 @@ const Dashboard = () => {
           </div>
         </header>
 
-        <img
-          src="/lovable-uploads/95d7f521-a8e3-4594-a826-e75e34b45b4a.png"
-          alt="pastel hands holding light"
-          className="absolute left-1/2 top-0 -translate-x-1/2 w-full max-w-[100vw] min-w-[300px] h-auto object-cover pointer-events-none select-none z-0"
-          style={{
-            opacity: 1,
-            filter: "none",
-            maxHeight: 200,
-            borderTopLeftRadius: 32,
-            borderTopRightRadius: 32,
-          }}
-        />
+        <div className="relative flex justify-center items-center pt-2 sm:pt-4 lg:pt-6 pb-2">
+          <img
+            src="/lovable-uploads/95d7f521-a8e3-4594-a826-e75e34b45b4a.png"
+            alt="pastel hands holding light"
+            className="w-[90%] max-w-[400px] h-auto object-contain pointer-events-none select-none"
+            style={{
+              borderTopLeftRadius: 32,
+              borderTopRightRadius: 32,
+            }}
+          />
+        </div>
       </div>
 
-      {/* Hero headline content - reduced padding and margin */}
+      {/* Hero headline content - improved top spacing */}
       <div
-        className="mx-auto flex flex-col items-center text-center px-4 sm:px-6 pt-1 sm:pt-2 pb-2 sm:pb-4"
+        className="mx-auto flex flex-col items-center text-center px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-6"
         style={{ maxWidth: 700 }}
       >
         <h1
@@ -191,9 +190,9 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto w-full px-2 sm:px-4 pb-20">
-        {/* Quick Actions: Reduced spacing */}
+        {/* Quick Actions: Fixed spacing */}
         <div className="flex flex-col items-center justify-center w-full mb-6 sm:mb-8 lg:mb-12">
-          <div className="flex flex-col lg:flex-row w-full lg:justify-center gap-3 sm:gap-4 lg:gap-6 px-0 sm:px-2">
+          <div className="flex flex-col lg:flex-row w-full lg:justify-center gap-y-4 lg:gap-y-0 gap-x-0 lg:gap-x-6 px-3 sm:px-4">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
@@ -216,7 +215,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Affirmations - reduced spacing */}
+        {/* Recent Affirmations - keep existing code */}
         {recentAffirmations.length > 0 && (
           <div className="mb-6 sm:mb-8 lg:mb-10">
             <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-5 text-left px-1">Recent Played</h3>
@@ -255,7 +254,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Inspiration Quote */}
+        {/* Inspiration Quote - keep existing code */}
         <div className="rounded-2xl bg-white/50 shadow px-4 sm:px-6 py-4 text-center mx-auto mb-4">
           <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 mx-auto mb-2" />
           <p className="text-sm sm:text-base font-light text-gray-700 italic mb-1">
