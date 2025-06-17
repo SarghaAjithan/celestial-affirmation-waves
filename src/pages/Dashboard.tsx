@@ -1,10 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, Headphones, Library, Star, Sparkles, LogOut, View, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
-// Removed: import DashboardLibraryPreview from "@/components/DashboardLibraryPreview";
 
 interface Manifestation {
   id: string;
@@ -129,19 +127,19 @@ const Dashboard = () => {
     <div className="min-h-screen bg-[#FFF7EF] floating-particles">
       {/* Hero Section with Banner Image */}
       <div
-        className="relative w-full shadow-none pb-4"
+        className="relative w-full shadow-none pb-2 sm:pb-4"
         style={{
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
-          minHeight: 280,
+          minHeight: 200,
           marginBottom: 0,
           overflow: "visible",
           paddingBottom: 0,
         }}
       >
         {/* Header bar: logo (left), email (right) */}
-        <header className="flex items-center justify-between px-4 sm:px-6 lg:px-10 pt-6 sm:pt-8 z-10 relative">
-          <span className="font-playfair text-[1.5rem] sm:text-[2rem] font-bold text-[#43236B] tracking-wide select-none">iManifest</span>
+        <header className="flex items-center justify-between px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-8 z-10 relative">
+          <span className="font-playfair text-[1.3rem] sm:text-[1.5rem] lg:text-[2rem] font-bold text-[#43236B] tracking-wide select-none">iManifest</span>
           <div className="flex items-center space-x-2">
             <span className="text-xs sm:text-sm text-gray-700 font-inter hidden sm:inline">{user?.email}</span>
             <Button
@@ -162,46 +160,46 @@ const Dashboard = () => {
           style={{
             opacity: 1,
             filter: "none",
-            maxHeight: 280,
+            maxHeight: 200,
             borderTopLeftRadius: 32,
             borderTopRightRadius: 32,
           }}
         />
       </div>
 
-      {/* Hero headline content - now directly after the image, with proper spacing */}
+      {/* Hero headline content - reduced padding and margin */}
       <div
-        className="mx-auto flex flex-col items-center text-center px-4 sm:px-6 pt-4 pb-4"
+        className="mx-auto flex flex-col items-center text-center px-4 sm:px-6 pt-1 sm:pt-2 pb-2 sm:pb-4"
         style={{ maxWidth: 700 }}
       >
         <h1
-          className="text-[1.8rem] sm:text-[2.15rem] md:text-[2.5rem] lg:text-[3rem] font-playfair font-bold mb-3"
+          className="text-[1.5rem] sm:text-[1.8rem] md:text-[2.15rem] lg:text-[2.5rem] xl:text-[3rem] font-playfair font-bold mb-2 sm:mb-3"
           style={{
             color: "#F2C661",
             letterSpacing: "-0.03em",
             fontWeight: 700,
-            lineHeight: 1.2,
+            lineHeight: 1.1,
             textShadow: "0 4px 30px rgba(80,40,130,0.20)",
           }}
         >
           Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
         </h1>
-        <p className="text-base sm:text-lg md:text-xl font-inter text-gray-700 font-normal mb-8">
+        <p className="text-sm sm:text-base md:text-lg lg:text-xl font-inter text-gray-700 font-normal mb-4 sm:mb-6 lg:mb-8">
           Ready to continue your manifestation journey?
         </p>
       </div>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto w-full px-2 sm:px-4 pb-20">
-        {/* Quick Actions: Centered and visually separated from the image */}
-        <div className="flex flex-col items-center justify-center w-full">
-          <div className="flex flex-col lg:flex-row w-full lg:justify-center gap-4 sm:gap-5 lg:gap-8 mb-12 px-0 sm:px-2">
+        {/* Quick Actions: Reduced spacing */}
+        <div className="flex flex-col items-center justify-center w-full mb-6 sm:mb-8 lg:mb-12">
+          <div className="flex flex-col lg:flex-row w-full lg:justify-center gap-3 sm:gap-4 lg:gap-6 px-0 sm:px-2">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
                 <div
                   key={action.title}
-                  className="w-full lg:w-[320px] rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 cursor-pointer flex flex-row lg:flex-col items-center lg:items-start px-4 sm:px-5 py-5 sm:py-6 transition-all duration-150"
+                  className="w-full lg:w-[320px] rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 cursor-pointer flex flex-row lg:flex-col items-center lg:items-start px-4 sm:px-5 py-4 sm:py-5 lg:py-6 transition-all duration-150"
                   style={{ minWidth: 210, maxWidth: 340 }}
                   onClick={action.action}
                 >
@@ -218,17 +216,17 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Affirmations - now the only card grid section */}
+        {/* Recent Affirmations - reduced spacing */}
         {recentAffirmations.length > 0 && (
-          <div className="mb-10">
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-5 text-left px-1">Recent Played</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="mb-6 sm:mb-8 lg:mb-10">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-5 text-left px-1">Recent Played</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
               {recentAffirmations.map((affirmation) => (
                 <div
                   key={affirmation.id}
-                  className="flex items-center rounded-2xl bg-[#EDE3F7] px-4 sm:px-5 py-4 sm:py-5 mb-2 shadow-sm hover:shadow-md transition cursor-pointer group"
+                  className="flex items-center rounded-2xl bg-[#EDE3F7] px-4 sm:px-5 py-3 sm:py-4 lg:py-5 mb-2 shadow-sm hover:shadow-md transition cursor-pointer group"
                   onClick={() => navigate(`/now-playing?id=${affirmation.id}`)}
-                  style={{ minHeight: 72 }}
+                  style={{ minHeight: 64 }}
                 >
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#b38ffa] to-[#dcbafa] flex items-center justify-center mr-3 sm:mr-4 font-mulish text-white text-lg sm:text-xl font-bold">
                     {affirmation.title[0] || "A"}
