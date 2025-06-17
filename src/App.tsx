@@ -18,6 +18,7 @@ import NowPlaying from "./pages/NowPlaying";
 import NotFound from "./pages/NotFound";
 import MiniPlayerBand from "@/components/MiniPlayerBand";
 import { PlayerProvider } from "@/contexts/PlayerContext";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,9 @@ const queryClient = new QueryClient();
 // Custom wrapper to get location and conditionally show MiniPlayerBand
 const AppRoutes = () => {
   const location = useLocation();
+  // Initialize analytics
+  useAnalytics();
+  
   // Hide MiniPlayerBand on "/now-playing" route
   const hideBand =
     location.pathname === "/now-playing";
