@@ -125,8 +125,6 @@ const Dashboard = () => {
     }
   ];
 
-  // Removed: const previewLibrary = libraryManifestations.slice(0, 3);
-
   return (
     <div className="min-h-screen bg-[#FFF7EF] floating-particles">
       {/* Hero Section with Banner Image */}
@@ -135,24 +133,24 @@ const Dashboard = () => {
         style={{
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
-          minHeight: 320,
+          minHeight: 280,
           marginBottom: 0,
           overflow: "visible",
           paddingBottom: 0,
         }}
       >
         {/* Header bar: logo (left), email (right) */}
-        <header className="flex items-center justify-between px-6 sm:px-10 pt-8 z-10 relative">
-          <span className="font-playfair text-[2rem] font-bold text-[#43236B] tracking-wide select-none">iManifest</span>
+        <header className="flex items-center justify-between px-4 sm:px-6 lg:px-10 pt-6 sm:pt-8 z-10 relative">
+          <span className="font-playfair text-[1.5rem] sm:text-[2rem] font-bold text-[#43236B] tracking-wide select-none">iManifest</span>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-700 font-inter">{user?.email}</span>
+            <span className="text-xs sm:text-sm text-gray-700 font-inter hidden sm:inline">{user?.email}</span>
             <Button
               size="icon"
               variant="ghost"
               onClick={handleSignOut}
-              className="text-purple-600 hover:text-purple-800"
+              className="text-purple-600 hover:text-purple-800 h-8 w-8 sm:h-10 sm:w-10"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
           </div>
         </header>
@@ -164,7 +162,7 @@ const Dashboard = () => {
           style={{
             opacity: 1,
             filter: "none",
-            maxHeight: 320,
+            maxHeight: 280,
             borderTopLeftRadius: 32,
             borderTopRightRadius: 32,
           }}
@@ -177,7 +175,7 @@ const Dashboard = () => {
         style={{ maxWidth: 700 }}
       >
         <h1
-          className="text-[2.15rem] sm:text-[2.5rem] md:text-[3rem] font-playfair font-bold mb-3"
+          className="text-[1.8rem] sm:text-[2.15rem] md:text-[2.5rem] lg:text-[3rem] font-playfair font-bold mb-3"
           style={{
             color: "#F2C661",
             letterSpacing: "-0.03em",
@@ -188,7 +186,7 @@ const Dashboard = () => {
         >
           Welcome Back, Manifestor <span className="inline" role="img" aria-label="sparkles">✨</span>
         </h1>
-        <p className="text-lg sm:text-xl font-inter text-gray-700 font-normal mb-8">
+        <p className="text-base sm:text-lg md:text-xl font-inter text-gray-700 font-normal mb-8">
           Ready to continue your manifestation journey?
         </p>
       </div>
@@ -197,22 +195,22 @@ const Dashboard = () => {
       <main className="max-w-4xl mx-auto w-full px-2 sm:px-4 pb-20">
         {/* Quick Actions: Centered and visually separated from the image */}
         <div className="flex flex-col items-center justify-center w-full">
-          <div className="flex flex-col md:flex-row w-full md:justify-center gap-5 md:gap-8 mb-12 px-0 sm:px-2">
+          <div className="flex flex-col lg:flex-row w-full lg:justify-center gap-4 sm:gap-5 lg:gap-8 mb-12 px-0 sm:px-2">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
                 <div
                   key={action.title}
-                  className="w-full md:w-[320px] rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 cursor-pointer flex flex-row md:flex-col items-center md:items-start px-5 py-6 transition-all duration-150"
+                  className="w-full lg:w-[320px] rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 cursor-pointer flex flex-row lg:flex-col items-center lg:items-start px-4 sm:px-5 py-5 sm:py-6 transition-all duration-150"
                   style={{ minWidth: 210, maxWidth: 340 }}
                   onClick={action.action}
                 >
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mb-0 md:mb-4 mr-4 md:mr-0`}>
-                    <Icon className="w-6 h-6 text-white" />
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mb-0 lg:mb-4 mr-3 sm:mr-4 lg:mr-0`}>
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div className="flex flex-col">
-                    <h3 className="text-lg font-bold mb-1 text-gray-800">{action.title}</h3>
-                    <p className="text-gray-600 text-base font-inter font-normal leading-tight">{action.description}</p>
+                    <h3 className="text-base sm:text-lg font-bold mb-1 text-gray-800">{action.title}</h3>
+                    <p className="text-sm sm:text-base text-gray-600 font-inter font-normal leading-tight">{action.description}</p>
                   </div>
                 </div>
               );
@@ -223,48 +221,46 @@ const Dashboard = () => {
         {/* Recent Affirmations - now the only card grid section */}
         {recentAffirmations.length > 0 && (
           <div className="mb-10">
-            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-5 text-left px-1">Recent Played</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-5 text-left px-1">Recent Played</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {recentAffirmations.map((affirmation) => (
                 <div
                   key={affirmation.id}
-                  className="flex items-center rounded-2xl bg-[#EDE3F7] px-5 py-5 mb-2 shadow-sm hover:shadow-md transition cursor-pointer group"
+                  className="flex items-center rounded-2xl bg-[#EDE3F7] px-4 sm:px-5 py-4 sm:py-5 mb-2 shadow-sm hover:shadow-md transition cursor-pointer group"
                   onClick={() => navigate(`/now-playing?id=${affirmation.id}`)}
                   style={{ minHeight: 72 }}
                 >
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#b38ffa] to-[#dcbafa] flex items-center justify-center mr-4 font-mulish text-white text-xl font-bold">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#b38ffa] to-[#dcbafa] flex items-center justify-center mr-3 sm:mr-4 font-mulish text-white text-lg sm:text-xl font-bold">
                     {affirmation.title[0] || "A"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-800 truncate">{affirmation.title}</h4>
-                    <div className="text-gray-600 text-sm">Created: {new Date(affirmation.created_at).toLocaleDateString()}</div>
+                    <h4 className="font-semibold text-gray-800 truncate text-sm sm:text-base">{affirmation.title}</h4>
+                    <div className="text-gray-600 text-xs sm:text-sm">Created: {new Date(affirmation.created_at).toLocaleDateString()}</div>
                   </div>
                   {/* Play Button */}
                   <Button
                     size="icon"
                     variant="secondary"
-                    className="ml-3 text-purple-700 bg-white border border-purple-200 shadow-none group-hover:bg-purple-50 group-hover:border-purple-400"
+                    className="ml-2 sm:ml-3 text-purple-700 bg-white border border-purple-200 shadow-none group-hover:bg-purple-50 group-hover:border-purple-400 h-8 w-8 sm:h-10 sm:w-10"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/now-playing?id=${affirmation.id}`);
                     }}
                     title="Play"
                   >
-                    <Play className="w-5 h-5" />
+                    <Play className="w-3 h-3 sm:w-5 sm:h-5" />
                   </Button>
-                  <Star className="w-5 h-5 text-purple-400 ml-2 flex-shrink-0" />
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 ml-2 flex-shrink-0" />
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* My Library Section removed */}
-
         {/* Inspiration Quote */}
-        <div className="rounded-2xl bg-white/50 shadow px-6 py-4 text-center mx-auto mb-4">
-          <Sparkles className="w-5 h-5 text-purple-400 mx-auto mb-2" />
-          <p className="text-base font-light text-gray-700 italic mb-1">
+        <div className="rounded-2xl bg-white/50 shadow px-4 sm:px-6 py-4 text-center mx-auto mb-4">
+          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 mx-auto mb-2" />
+          <p className="text-sm sm:text-base font-light text-gray-700 italic mb-1">
             "{currentQuote.text}"
           </p>
           <p className="text-xs text-gray-500">— {currentQuote.author}</p>
@@ -275,4 +271,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
