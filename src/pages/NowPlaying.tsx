@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, ArrowLeft, Heart, Share, Download, SkipBack, SkipForward, Shuffle, Repeat } from "lucide-react";
+import { Play, Pause, ArrowLeft, SkipBack, SkipForward, Shuffle, Repeat } from "lucide-react";
+import { usePlayer } from "@/contexts/PlayerContext";
 
 interface Manifestation {
   id: string;
@@ -24,18 +25,57 @@ const NowPlaying = () => {
   const manifestationId = searchParams.get('id');
   
   const [manifestation, setManifestation] = useState<Manifestation | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState([0]);
-  const [duration, setDuration] = useState(0);
-  const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
-  const [isLoved, setIsLoved] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const [isLooping, setIsLooping] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
+
+  const {
+    current,
+    isPlaying,
+    play,
+    pause,
+    resume,
+    currentTime,
+    duration,
+    setCurrentTime
+  } = usePlayer();
 
   useEffect(() => {
     if (manifestationId) {
       fetchManifestation(manifestationId);
     }
   }, [manifestationId]);
+
+  useEffect(() => {
+    if (!current) return;
+    
+    const audios = Array.from(document.getElementsByTagName('audio'));
+    for (const audio of audios) {
+      if ((audio as HTMLAudioElement).src === current.audio_url) {
+        setAudioRef(audio as HTMLAudioElement);
+        return;
+      }
+    }
+    setAudioRef(null);
+  }, [current]);
+
+  useEffect(() => {
+    if (audioRef) {
+      audioRef.loop = isLooping;
+      audioRef.playbackRate = playbackSpeed;
+    }
+  }, [isLooping, playbackSpeed, audioRef]);
+
+  useEffect(() => {
+    if (!manifestation || !duration) return;
+    
+    const lines = manifestation.text.split('.').filter(line => line.trim());
+    if (lines.length === 0) return;
+    
+    const lineIndex = Math.floor((currentTime / duration) * lines.length);
+    setCurrentLineIndex(Math.min(lineIndex, lines.length - 1));
+  }, [currentTime, manifestation, duration]);
 
   const fetchManifestation = async (id: string) => {
     try {
@@ -57,56 +97,29 @@ const NowPlaying = () => {
   const togglePlayPause = () => {
     if (!manifestation) return;
 
-    if (isPlaying && audioPlayer) {
-      audioPlayer.pause();
-      setIsPlaying(false);
-      return;
-    }
-
-    if (!audioPlayer) {
-      const audio = new Audio(manifestation.audio_url);
-      setAudioPlayer(audio);
-      
-      audio.onloadedmetadata = () => {
-        setDuration(audio.duration);
-      };
-      
-      audio.ontimeupdate = () => {
-        setCurrentTime([audio.currentTime]);
-        const lines = manifestation.text.split('.').filter(line => line.trim());
-        const lineIndex = Math.floor((audio.currentTime / audio.duration) * lines.length);
-        setCurrentLineIndex(Math.min(lineIndex, lines.length - 1));
-      };
-      
-      audio.onended = () => {
-        setIsPlaying(false);
-        setCurrentTime([0]);
-        setCurrentLineIndex(0);
-      };
-      
-      audio.play();
-      setIsPlaying(true);
+    if (current?.id === manifestation.id) {
+      isPlaying ? pause() : resume();
     } else {
-      audioPlayer.play();
-      setIsPlaying(true);
+      play(manifestation);
     }
   };
 
   const handleSeek = (value: number[]) => {
-    if (audioPlayer) {
-      audioPlayer.currentTime = value[0];
-      setCurrentTime(value);
-    }
+    setCurrentTime(value[0]);
+  };
+
+  const toggleLoop = () => {
+    setIsLooping(!isLooping);
+  };
+
+  const handleSpeedChange = (speed: number) => {
+    setPlaybackSpeed(speed);
   };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const toggleLove = () => {
-    setIsLoved(!isLoved);
   };
 
   if (!manifestation) {
@@ -121,6 +134,7 @@ const NowPlaying = () => {
   }
 
   const lines = manifestation.text.split('.').filter(line => line.trim());
+  const speedOptions = [0.75, 1, 1.25, 1.5];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 text-white relative overflow-hidden">
@@ -159,13 +173,7 @@ const NowPlaying = () => {
             <p className="text-white font-medium">{manifestation.title}</p>
           </div>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white/80 hover:text-white hover:bg-white/10 p-2"
-          >
-            <Share className="w-5 h-5" />
-          </Button>
+          <div className="w-10"></div>
         </div>
 
         {/* Album Art */}
@@ -187,13 +195,6 @@ const NowPlaying = () => {
                 />
               ))}
             </div>
-            
-            {/* Love indicator */}
-            {isLoved && (
-              <div className="absolute top-4 right-4 text-pink-400 animate-bounce">
-                <Heart className="w-6 h-6 fill-current" />
-              </div>
-            )}
           </div>
         </div>
 
@@ -226,28 +227,42 @@ const NowPlaying = () => {
             <h3 className="text-white font-semibold text-lg truncate">{manifestation.title}</h3>
             <p className="text-white/60 text-sm">Personal Manifestation</p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleLove}
-            className={`text-white/80 hover:text-white hover:bg-white/10 p-2 ${isLoved ? 'text-pink-400' : ''}`}
-          >
-            <Heart className={`w-6 h-6 ${isLoved ? 'fill-current' : ''}`} />
-          </Button>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-6">
           <Slider
-            value={currentTime}
+            value={[currentTime]}
             onValueChange={handleSeek}
             max={duration || 100}
             step={1}
             className="w-full mb-2"
           />
           <div className="flex justify-between text-sm text-white/60">
-            <span>{formatTime(currentTime[0])}</span>
+            <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        {/* Speed Control */}
+        <div className="mb-4">
+          <div className="flex items-center justify-center space-x-2">
+            <span className="text-white/60 text-sm mr-2">Speed:</span>
+            {speedOptions.map((speed) => (
+              <Button
+                key={speed}
+                variant={playbackSpeed === speed ? "default" : "ghost"}
+                size="sm"
+                onClick={() => handleSpeedChange(speed)}
+                className={`text-xs px-3 py-1 ${
+                  playbackSpeed === speed 
+                    ? "bg-white text-black" 
+                    : "text-white/60 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                {speed}x
+              </Button>
+            ))}
           </div>
         </div>
 
@@ -273,7 +288,7 @@ const NowPlaying = () => {
             onClick={togglePlayPause}
             className="bg-white text-black hover:bg-white/90 rounded-full w-16 h-16 p-0 shadow-lg"
           >
-            {isPlaying ? (
+            {isPlaying && current?.id === manifestation.id ? (
               <Pause className="w-8 h-8" />
             ) : (
               <Play className="w-8 h-8 ml-1" />
@@ -291,7 +306,12 @@ const NowPlaying = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="text-white/60 hover:text-white hover:bg-white/10 p-2"
+            onClick={toggleLoop}
+            className={`p-2 ${
+              isLooping 
+                ? "text-yellow-400 hover:text-yellow-300" 
+                : "text-white/60 hover:text-white"
+            } hover:bg-white/10`}
           >
             <Repeat className="w-5 h-5" />
           </Button>
