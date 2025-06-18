@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Plus, Headphones, Library, Star, Sparkles, LogOut, View, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -155,7 +156,7 @@ const Dashboard = () => {
         </header>
 
         <img
-          src="/lovable-uploads/95d7f521-a8e3-4594-a826-e75e34b45b4a.png"
+          src="/lovable-uploads/499a8280-31c6-4a89-81ac-2a423b5b5e26.png"
           alt="pastel hands holding light"
           className="absolute left-1/2 top-0 -translate-x-1/2 w-full max-w-[100vw] min-w-[300px] h-auto object-cover pointer-events-none select-none z-0"
           style={{
