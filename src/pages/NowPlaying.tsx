@@ -244,77 +244,94 @@ const NowPlaying = () => {
           </div>
         </div>
 
-        {/* Speed Control */}
-        <div className="mb-4">
-          <div className="flex items-center justify-center space-x-2">
-            <span className="text-white/60 text-sm mr-2">Speed:</span>
-            {speedOptions.map((speed) => (
-              <Button
-                key={speed}
-                variant={playbackSpeed === speed ? "default" : "ghost"}
-                size="sm"
-                onClick={() => handleSpeedChange(speed)}
-                className={`text-xs px-3 py-1 ${
-                  playbackSpeed === speed 
-                    ? "bg-white text-black" 
-                    : "text-white/60 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {speed}x
-              </Button>
-            ))}
+        {/* Speed Control - Made More Prominent */}
+        <div className="mb-6">
+          <div className="flex items-center justify-center space-x-3">
+            <span className="text-white/70 text-sm font-medium">Playback Speed:</span>
+            <div className="flex space-x-2">
+              {speedOptions.map((speed) => (
+                <Button
+                  key={speed}
+                  variant={playbackSpeed === speed ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => handleSpeedChange(speed)}
+                  className={`text-sm px-4 py-2 min-w-[60px] font-medium transition-all ${
+                    playbackSpeed === speed 
+                      ? "bg-white text-black shadow-lg scale-105" 
+                      : "text-white/70 hover:text-white hover:bg-white/20 border border-white/20"
+                  }`}
+                >
+                  {speed}x
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center justify-center space-x-8 mb-4">
+        {/* Main Controls - Enhanced Loop Button */}
+        <div className="flex items-center justify-center space-x-6 mb-4">
           <Button
             variant="ghost"
             size="sm"
-            className="text-white/60 hover:text-white hover:bg-white/10 p-2"
+            className="text-white/60 hover:text-white hover:bg-white/10 p-3"
           >
-            <Shuffle className="w-5 h-5" />
+            <Shuffle className="w-6 h-6" />
           </Button>
           
           <Button
             variant="ghost"
             size="sm"
-            className="text-white/80 hover:text-white hover:bg-white/10 p-2"
+            className="text-white/80 hover:text-white hover:bg-white/10 p-3"
           >
-            <SkipBack className="w-6 h-6" />
+            <SkipBack className="w-7 h-7" />
           </Button>
           
+          {/* Play/Pause Button - More Prominent */}
           <Button
             onClick={togglePlayPause}
-            className="bg-white text-black hover:bg-white/90 rounded-full w-16 h-16 p-0 shadow-lg"
+            className="bg-white text-black hover:bg-white/90 rounded-full w-20 h-20 p-0 shadow-xl transition-all hover:scale-105"
           >
             {isPlaying && current?.id === manifestation.id ? (
-              <Pause className="w-8 h-8" />
+              <Pause className="w-10 h-10" />
             ) : (
-              <Play className="w-8 h-8 ml-1" />
+              <Play className="w-10 h-10 ml-1" />
             )}
           </Button>
           
           <Button
             variant="ghost"
             size="sm"
-            className="text-white/80 hover:text-white hover:bg-white/10 p-2"
+            className="text-white/80 hover:text-white hover:bg-white/10 p-3"
           >
-            <SkipForward className="w-6 h-6" />
+            <SkipForward className="w-7 h-7" />
           </Button>
           
+          {/* Loop Button - More Prominent */}
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleLoop}
-            className={`p-2 ${
+            className={`p-3 transition-all border-2 ${
               isLooping 
-                ? "text-yellow-400 hover:text-yellow-300" 
-                : "text-white/60 hover:text-white"
-            } hover:bg-white/10`}
+                ? "text-yellow-400 hover:text-yellow-300 border-yellow-400 bg-yellow-400/20 shadow-lg" 
+                : "text-white/60 hover:text-white border-white/20 hover:border-white/40"
+            } hover:bg-white/10 rounded-full`}
           >
-            <Repeat className="w-5 h-5" />
+            <Repeat className="w-6 h-6" />
           </Button>
+        </div>
+
+        {/* Control Labels */}
+        <div className="flex items-center justify-center space-x-6 text-xs text-white/50">
+          <span className="w-12 text-center">Shuffle</span>
+          <span className="w-12 text-center">Previous</span>
+          <span className="w-20 text-center">
+            {isPlaying && current?.id === manifestation.id ? 'Pause' : 'Play'}
+          </span>
+          <span className="w-12 text-center">Next</span>
+          <span className="w-12 text-center">
+            {isLooping ? 'Looping' : 'Loop'}
+          </span>
         </div>
       </div>
     </div>
