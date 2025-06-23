@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Heart, ArrowLeft, Trash2 } from "lucide-react";
+import { Play, Heart, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePlayer } from "@/contexts/PlayerContext";
 
@@ -19,6 +19,7 @@ interface Manifestation {
   mood?: number;
   voice?: string;
   background_music?: string;
+  content_type?: string;
 }
 
 const LibraryGrid = () => {
@@ -29,12 +30,13 @@ const LibraryGrid = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch manifestations from Supabase
+    // Fetch manifestations from Supabase - only user manifestations, not sleep stories
     const fetchManifestations = async () => {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data, error } = await supabase
         .from("manifestations")
         .select("*")
+        .or("content_type.eq.manifestation,content_type.is.null")
         .order("created_at", { ascending: false });
       if (error) {
         setManifestations([]);
@@ -85,26 +87,8 @@ const LibraryGrid = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        onClick={() => navigate('/dashboard')}
-        className="mb-4 p-2"
-      >
-        <ArrowLeft className="w-5 h-5 mr-2" />
-        Back to Home
-      </Button>
-
+    <div>
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold gradient-text font-playfair mb-2">
-            My Library
-          </h1>
-          <p className="text-gray-600 font-light">
-            Your collection of transformative manifestations
-          </p>
-        </div>
         <div className="text-right text-sm text-gray-500">
           {manifestations.length} manifestation{manifestations.length === 1 ? "" : "s"}
         </div>

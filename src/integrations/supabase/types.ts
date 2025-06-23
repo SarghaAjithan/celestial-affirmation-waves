@@ -13,10 +13,17 @@ export type Database = {
         Row: {
           audio_url: string
           background_music: string | null
+          category: string | null
+          content_type: string | null
           created_at: string | null
+          description: string | null
+          duration: number | null
           id: string
+          is_premium: boolean | null
           mood: number | null
+          narrator: string | null
           text: string
+          thumbnail_url: string | null
           title: string
           user_id: string | null
           voice: string | null
@@ -24,10 +31,17 @@ export type Database = {
         Insert: {
           audio_url: string
           background_music?: string | null
+          category?: string | null
+          content_type?: string | null
           created_at?: string | null
+          description?: string | null
+          duration?: number | null
           id?: string
+          is_premium?: boolean | null
           mood?: number | null
+          narrator?: string | null
           text: string
+          thumbnail_url?: string | null
           title: string
           user_id?: string | null
           voice?: string | null
@@ -35,10 +49,17 @@ export type Database = {
         Update: {
           audio_url?: string
           background_music?: string | null
+          category?: string | null
+          content_type?: string | null
           created_at?: string | null
+          description?: string | null
+          duration?: number | null
           id?: string
+          is_premium?: boolean | null
           mood?: number | null
+          narrator?: string | null
           text?: string
+          thumbnail_url?: string | null
           title?: string
           user_id?: string | null
           voice?: string | null

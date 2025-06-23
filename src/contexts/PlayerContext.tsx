@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useRef } from "react";
 
 export interface ManifestationPlayer {
@@ -10,6 +9,13 @@ export interface ManifestationPlayer {
   voice?: string;
   background_music?: string;
   mood?: number;
+  content_type?: string;
+  description?: string;
+  duration?: number;
+  category?: string;
+  narrator?: string;
+  thumbnail_url?: string;
+  is_premium?: boolean;
 }
 
 interface PlayerContextProps {
