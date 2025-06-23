@@ -14,6 +14,7 @@ import Builder from "./pages/Builder";
 import Player from "./pages/Player";
 import Library from "./pages/Library";
 import Dashboard from "./pages/Dashboard";
+import Admin from "./pages/Admin";
 import NowPlaying from "./pages/NowPlaying";
 import NotFound from "./pages/NotFound";
 import MiniPlayerBand from "@/components/MiniPlayerBand";
