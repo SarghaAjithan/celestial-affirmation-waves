@@ -81,6 +81,14 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/now-playing"
           element={
             <ProtectedRoute>
