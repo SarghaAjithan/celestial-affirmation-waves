@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Upload, Loader2 } from "lucide-react";
+import { ArrowLeft, Upload, Loader2, Music } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -36,8 +36,8 @@ const Admin = () => {
         return;
       }
 
-      // Simple admin check - you can enhance this with proper role-based auth
-      const adminEmails = ['admin@example.com', 'krishna@yopmail.com']; // Add your admin emails here
+      // Simple admin check
+      const adminEmails = ['admin@example.com', 'krishna@yopmail.com'];
       if (adminEmails.includes(user.email || '')) {
         setIsAdmin(true);
       } else {
@@ -65,10 +65,17 @@ const Admin = () => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('audio/')) {
       setAudioFile(file);
+      
+      // Auto-populate title from filename if empty
+      if (!formData.title) {
+        const fileName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+        const cleanTitle = fileName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        setFormData(prev => ({ ...prev, title: cleanTitle }));
+      }
     } else {
       toast({
-        title: "Invalid file",
-        description: "Please select an audio file.",
+        title: "Invalid file type",
+        description: "Please select an MP3 or other audio file.",
         variant: "destructive"
       });
     }
@@ -126,8 +133,8 @@ const Admin = () => {
       }
 
       toast({
-        title: "Success!",
-        description: "Sleep story uploaded successfully.",
+        title: "Success! 🎉",
+        description: "Sleep story uploaded and will appear in the Library.",
       });
 
       // Reset form
@@ -140,6 +147,10 @@ const Admin = () => {
         is_premium: false
       });
       setAudioFile(null);
+      
+      // Reset file input
+      const fileInput = document.getElementById('audio') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
       
     } catch (error) {
       console.error('Upload error:', error);
@@ -179,18 +190,41 @@ const Admin = () => {
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold gradient-text font-playfair mb-2">
-            Admin Panel
+            Upload Content
           </h1>
           <p className="text-gray-600 font-light">
-            Upload sleep stories for the library
+            Upload MP3 sleep stories that will appear in the Library
           </p>
         </div>
 
         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl rounded-3xl">
           <CardHeader>
-            <CardTitle className="text-2xl gradient-text">Upload Sleep Story</CardTitle>
+            <CardTitle className="text-2xl gradient-text flex items-center">
+              <Music className="w-6 h-6 mr-2" />
+              Upload Sleep Story
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Audio File - moved to top for better UX */}
+            <div>
+              <Label htmlFor="audio">MP3 Audio File *</Label>
+              <Input
+                id="audio"
+                type="file"
+                accept="audio/mp3,audio/mpeg,audio/*"
+                onChange={handleFileChange}
+                className="mt-1"
+              />
+              {audioFile && (
+                <div className="flex items-center mt-2 p-2 bg-green-50 rounded-md">
+                  <Music className="w-4 h-4 text-green-600 mr-2" />
+                  <p className="text-sm text-green-700">
+                    Selected: {audioFile.name}
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Title */}
             <div>
               <Label htmlFor="title">Title *</Label>
@@ -216,28 +250,43 @@ const Admin = () => {
               />
             </div>
 
-            {/* Category */}
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Select onValueChange={(value) => handleInputChange('category', value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Nature">Nature</SelectItem>
-                  <SelectItem value="Fantasy">Fantasy</SelectItem>
-                  <SelectItem value="Meditation">Meditation</SelectItem>
-                  <SelectItem value="Adventure">Adventure</SelectItem>
-                  <SelectItem value="Relaxation">Relaxation</SelectItem>
-                  <SelectItem value="Ocean">Ocean</SelectItem>
-                  <SelectItem value="Forest">Forest</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Category */}
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select onValueChange={(value) => handleInputChange('category', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Nature">Nature</SelectItem>
+                    <SelectItem value="Fantasy">Fantasy</SelectItem>
+                    <SelectItem value="Meditation">Meditation</SelectItem>
+                    <SelectItem value="Adventure">Adventure</SelectItem>
+                    <SelectItem value="Relaxation">Relaxation</SelectItem>
+                    <SelectItem value="Ocean">Ocean</SelectItem>
+                    <SelectItem value="Forest">Forest</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Duration */}
+              <div>
+                <Label htmlFor="duration">Duration (minutes)</Label>
+                <Input
+                  id="duration"
+                  type="number"
+                  value={formData.duration}
+                  onChange={(e) => handleInputChange('duration', e.target.value)}
+                  placeholder="e.g. 15"
+                  className="mt-1"
+                />
+              </div>
             </div>
 
             {/* Narrator */}
             <div>
-              <Label htmlFor="narrator">Narrator</Label>
+              <Label htmlFor="narrator">Narrator (optional)</Label>
               <Input
                 id="narrator"
                 value={formData.narrator}
@@ -245,36 +294,6 @@ const Admin = () => {
                 placeholder="Voice artist name"
                 className="mt-1"
               />
-            </div>
-
-            {/* Duration */}
-            <div>
-              <Label htmlFor="duration">Duration (minutes)</Label>
-              <Input
-                id="duration"
-                type="number"
-                value={formData.duration}
-                onChange={(e) => handleInputChange('duration', e.target.value)}
-                placeholder="Duration in minutes"
-                className="mt-1"
-              />
-            </div>
-
-            {/* Audio File */}
-            <div>
-              <Label htmlFor="audio">Audio File *</Label>
-              <Input
-                id="audio"
-                type="file"
-                accept="audio/*"
-                onChange={handleFileChange}
-                className="mt-1"
-              />
-              {audioFile && (
-                <p className="text-sm text-gray-600 mt-2">
-                  Selected: {audioFile.name}
-                </p>
-              )}
             </div>
 
             {/* Premium Toggle */}
@@ -298,12 +317,12 @@ const Admin = () => {
               {uploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Uploading...
+                  Uploading to Library...
                 </>
               ) : (
                 <>
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload Sleep Story
+                  Upload to Library
                 </>
               )}
             </Button>

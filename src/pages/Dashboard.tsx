@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -100,21 +101,38 @@ const Dashboard = () => {
             </Button>
           </div>
 
-          {/* Goals Card */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg p-6">
-            <h2 className="text-2xl font-semibold gradient-text font-playfair mb-4">
-              Set Goals
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Define your aspirations and track your progress.
-            </p>
-            <Button
-              className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
-              onClick={() => navigate('/goals')}
-            >
-              Set New Goals
-            </Button>
-          </div>
+          {/* Upload Content Card (Admin Only) */}
+          {isAdmin ? (
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg p-6">
+              <h2 className="text-2xl font-semibold gradient-text font-playfair mb-4">
+                Upload Content
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Upload MP3 sleep stories and manage content library.
+              </p>
+              <Button
+                className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
+                onClick={() => navigate('/admin')}
+              >
+                Upload Content
+              </Button>
+            </div>
+          ) : (
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg p-6">
+              <h2 className="text-2xl font-semibold gradient-text font-playfair mb-4">
+                Set Goals
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Define your aspirations and track your progress.
+              </p>
+              <Button
+                className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
+                onClick={() => navigate('/goals')}
+              >
+                Set New Goals
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
