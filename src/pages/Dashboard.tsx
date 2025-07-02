@@ -68,7 +68,7 @@ const Dashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Manifestation Card */}
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg p-6">
             <h2 className="text-2xl font-semibold gradient-text font-playfair mb-4">
@@ -102,7 +102,7 @@ const Dashboard = () => {
           </div>
 
           {/* Upload Content Card (Admin Only) */}
-          {isAdmin ? (
+          {isAdmin && (
             <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg p-6">
               <h2 className="text-2xl font-semibold gradient-text font-playfair mb-4">
                 Upload Content
@@ -115,21 +115,6 @@ const Dashboard = () => {
                 onClick={() => navigate('/admin')}
               >
                 Upload Content
-              </Button>
-            </div>
-          ) : (
-            <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg p-6">
-              <h2 className="text-2xl font-semibold gradient-text font-playfair mb-4">
-                Set Goals
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Define your aspirations and track your progress.
-              </p>
-              <Button
-                className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
-                onClick={() => navigate('/goals')}
-              >
-                Set New Goals
               </Button>
             </div>
           )}
