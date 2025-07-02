@@ -21,6 +21,7 @@ export const useSaveManifestation = (
         description: "Please sign in to save manifestations.",
         variant: "destructive"
       });
+      onError && onError();
       return;
     }
 
@@ -36,9 +37,14 @@ export const useSaveManifestation = (
           mood,
           voice,
           background_music: backgroundMusic,
-          user_id: user.id
+          user_id: user.id, // Explicitly associate with authenticated user
+          content_type: 'manifestation' // Ensure it's marked as user manifestation
         }]);
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Error saving manifestation:", error);
+        throw error;
+      }
 
       toast({
         title: "Saved to Library",
@@ -46,6 +52,7 @@ export const useSaveManifestation = (
       });
       onSuccess && onSuccess();
     } catch (error) {
+      console.error("Save manifestation error:", error);
       toast({
         title: "Save failed",
         description: "There was an error saving your manifestation.",

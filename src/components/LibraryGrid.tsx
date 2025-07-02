@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Heart, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePlayer } from "@/contexts/PlayerContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Manifestation {
   id: string;
@@ -26,26 +28,51 @@ const LibraryGrid = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { play } = usePlayer();
+  const { user } = useAuth();
   const [manifestations, setManifestations] = useState<Manifestation[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch manifestations from Supabase - only user manifestations, not sleep stories
-    const fetchManifestations = async () => {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data, error } = await supabase
-        .from("manifestations")
-        .select("*")
-        .or("content_type.eq.manifestation,content_type.is.null")
-        .order("created_at", { ascending: false });
-      if (error) {
+    // Only fetch manifestations if user is authenticated
+    if (!user) {
+      setManifestations([]);
+      setLoading(false);
+      return;
+    }
+
+    // Fetch ONLY the current user's manifestations
+    const fetchUserManifestations = async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data, error } = await supabase
+          .from("manifestations")
+          .select("*")
+          .eq("user_id", user.id) // Only fetch current user's manifestations
+          .or("content_type.eq.manifestation,content_type.is.null")
+          .order("created_at", { ascending: false });
+        
+        if (error) {
+          console.error("Error fetching user manifestations:", error);
+          toast({
+            title: "Error loading manifestations",
+            description: "Unable to load your manifestations. Please try again.",
+            variant: "destructive"
+          });
+          setManifestations([]);
+        } else {
+          setManifestations(data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching manifestations:", error);
         setManifestations([]);
-      } else {
-        setManifestations(data || []);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchManifestations();
-  }, []);
+
+    fetchUserManifestations();
+  }, [user, toast]);
 
   const handlePlay = (manifestation: Manifestation) => {
     // Instead of navigating directly, trigger player so mini band appears
@@ -53,13 +80,23 @@ const LibraryGrid = () => {
   };
 
   const handleDelete = async (manifestationId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to delete manifestations.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setDeletingId(manifestationId);
     try {
       const { supabase } = await import("@/integrations/supabase/client");
       const { error } = await supabase
         .from("manifestations")
         .delete()
-        .eq("id", manifestationId);
+        .eq("id", manifestationId)
+        .eq("user_id", user.id); // Ensure user can only delete their own manifestations
 
       if (error) {
         toast({
@@ -85,6 +122,33 @@ const LibraryGrid = () => {
       setDeletingId(null);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="text-center py-16">
+        <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
+          <Heart className="w-12 h-12 text-purple-400" />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-800 mb-3">Please sign in</h3>
+        <p className="text-gray-500 mb-8 max-w-md mx-auto">Sign in to view your personal manifestations</p>
+        <Button 
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all" 
+          onClick={() => navigate('/auth')}
+        >
+          Sign In
+        </Button>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="text-center py-16">
+        <div className="animate-spin w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading your manifestations...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
