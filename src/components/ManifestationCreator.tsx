@@ -582,25 +582,14 @@ const ManifestationCreator = () => {
               <p className="text-sm text-gray-600 mt-4 font-medium">
                 {isSpeaking ? 'Playing your manifestation...' : 'AI voice ready!'}
               </p>
-              <div className="mt-2">
-                <a
-                  href={audioUrl}
-                  download
-                  className="text-xs underline text-blue-600"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Download raw audio file (for troubleshooting)
-                </a>
-              </div>
             </div>
             {/* --- REMOVED the bottom Play Voice button --- */}
-            <div className="flex space-x-4">
+            <div className="grid grid-cols-3 gap-3">
               {/* If saved, change button to View in Library, else show Save */}
               {isSaved ? (
                 <Button
                   variant="secondary"
-                  className="flex-1 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 font-semibold border-2 border-gray-300 cursor-pointer"
+                  className="bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 font-semibold border-2 border-gray-300 cursor-pointer"
                   onClick={() => navigate('/library')}
                   disabled={false}
                 >
@@ -610,7 +599,7 @@ const ManifestationCreator = () => {
               ) : (
                 <Button
                   variant="default"
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold ring-2 ring-pink-200"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold ring-2 ring-pink-200"
                   onClick={handleSave}
                   disabled={isSaving}
                 >
@@ -618,9 +607,21 @@ const ManifestationCreator = () => {
                   {isSaving ? "Saving..." : "Save to Library"}
                 </Button>
               )}
-              <Button variant="outline" className="flex-1" disabled>
+              <Button variant="outline" disabled>
                 <Edit className="w-4 h-4 mr-2" />
                 Share (coming soon)
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = audioUrl;
+                  link.download = 'manifestation-audio.mp3';
+                  link.click();
+                }}
+              >
+                <Volume2 className="w-4 h-4 mr-2" />
+                Download raw audio
               </Button>
             </div>
           </div>
