@@ -2,7 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Clock, User } from "lucide-react";
+import { Play, Clock, User, Pause } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
 
 interface SleepStory {
@@ -25,10 +25,16 @@ interface SleepStoryCardProps {
 }
 
 const SleepStoryCard = ({ story }: SleepStoryCardProps) => {
-  const { play } = usePlayer();
+  const { play, pause, resume, current, isPlaying } = usePlayer();
 
-  const handlePlay = () => {
-    play(story);
+  const handlePlayPause = () => {
+    if (current?.id === story.id && isPlaying) {
+      pause();
+    } else if (current?.id === story.id && !isPlaying) {
+      resume();
+    } else {
+      play(story);
+    }
   };
 
   const formatDuration = (seconds?: number) => {
@@ -57,9 +63,13 @@ const SleepStoryCard = ({ story }: SleepStoryCardProps) => {
                 size="sm"
                 variant="ghost"
                 className="text-white hover:text-white hover:bg-white/20 rounded-full p-2 h-10 w-10 ml-4"
-                onClick={handlePlay}
+                onClick={handlePlayPause}
               >
-                <Play className="w-4 h-4" />
+                {current?.id === story.id && isPlaying ? (
+                  <Pause className="w-4 h-4" />
+                ) : (
+                  <Play className="w-4 h-4" />
+                )}
               </Button>
             </div>
             <p className="text-white/90 text-sm line-clamp-2 leading-relaxed">

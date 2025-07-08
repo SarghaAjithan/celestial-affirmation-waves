@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Heart, Trash2 } from "lucide-react";
+import { Play, Heart, Trash2, Pause } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,7 +27,7 @@ interface Manifestation {
 const LibraryGrid = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { play } = usePlayer();
+  const { play, pause, resume, current, isPlaying } = usePlayer();
   const { user } = useAuth();
   const [manifestations, setManifestations] = useState<Manifestation[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -74,9 +74,14 @@ const LibraryGrid = () => {
     fetchUserManifestations();
   }, [user, toast]);
 
-  const handlePlay = (manifestation: Manifestation) => {
-    // Instead of navigating directly, trigger player so mini band appears
-    play(manifestation);
+  const handlePlayPause = (manifestation: Manifestation) => {
+    if (current?.id === manifestation.id && isPlaying) {
+      pause();
+    } else if (current?.id === manifestation.id && !isPlaying) {
+      resume();
+    } else {
+      play(manifestation);
+    }
   };
 
   const handleDelete = async (manifestationId: string) => {
@@ -176,9 +181,13 @@ const LibraryGrid = () => {
                         size="sm"
                         variant="ghost"
                         className="text-white hover:text-white hover:bg-white/20 rounded-full p-2 h-10 w-10"
-                        onClick={() => handlePlay(manifestation)}
+                        onClick={() => handlePlayPause(manifestation)}
                       >
-                        <Play className="w-4 h-4" />
+                        {current?.id === manifestation.id && isPlaying ? (
+                          <Pause className="w-4 h-4" />
+                        ) : (
+                          <Play className="w-4 h-4" />
+                        )}
                       </Button>
                       <Button
                         size="sm"
