@@ -25,15 +25,15 @@ const MiniPlayerBand = () => {
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
   const [isVisible, setIsVisible] = useState(true);
 
-  // Hide/show band based on internal state and current track
+  // Show band when audio is playing, hide when no current track
   useEffect(() => {
-    if (current && !isVisible) {
-      setIsVisible(true); // reappear if new track is set
+    if (current && isPlaying) {
+      setIsVisible(true); // Show band when audio starts playing
     }
     if (!current) {
-      setIsVisible(false);
+      setIsVisible(false); // Hide band when no track
     }
-  }, [current]);
+  }, [current, isPlaying]);
 
   useEffect(() => {
     if (!current) {
@@ -95,8 +95,8 @@ const MiniPlayerBand = () => {
 
   const onClose = (e: React.MouseEvent) => {
     e.stopPropagation();
+    stop(); // This will stop audio and clear current track
     setIsVisible(false);
-    stop();
   };
 
   const formatTime = (sec: number) => {
